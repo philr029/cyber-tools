@@ -1,0 +1,122 @@
+export type StatusLevel = "safe" | "warning" | "risk" | "unknown";
+
+export interface IPReputationResult {
+  ipAddress: string;
+  abuseConfidenceScore: number;
+  isp: string;
+  usageType: string;
+  country: string;
+  countryCode: string;
+  totalReports: number;
+  lastReportedAt: string | null;
+  status: StatusLevel;
+}
+
+export interface DomainReputationResult {
+  domain: string;
+  malicious: number;
+  suspicious: number;
+  undetected: number;
+  harmless: number;
+  categories: string[];
+  registrar: string;
+  createdDate: string;
+  status: StatusLevel;
+}
+
+export interface BlacklistEntry {
+  source: string;
+  listed: boolean;
+  detail: string;
+}
+
+export interface BlacklistResult {
+  target: string;
+  entries: BlacklistEntry[];
+  listedCount: number;
+  totalChecked: number;
+  status: StatusLevel;
+}
+
+export interface SSLCertificateResult {
+  domain: string;
+  issuer: string;
+  validFrom: string;
+  validTo: string;
+  daysRemaining: number;
+  protocol: string;
+  keySize: number;
+  signatureAlgorithm: string;
+  subjectAltNames: string[];
+  status: StatusLevel;
+}
+
+export interface SecurityHeader {
+  name: string;
+  present: boolean;
+  value: string | null;
+  description: string;
+}
+
+export interface SecurityHeadersResult {
+  domain: string;
+  score: number;
+  grade: string;
+  headers: SecurityHeader[];
+  status: StatusLevel;
+}
+
+export interface PortEntry {
+  port: number;
+  protocol: string;
+  service: string;
+  state: "open" | "closed" | "filtered";
+  version: string;
+}
+
+export interface OpenPortsResult {
+  target: string;
+  openCount: number;
+  ports: PortEntry[];
+  scanDuration: number;
+  status: StatusLevel;
+}
+
+export interface DNSRecord {
+  type: string;
+  value: string;
+  ttl: number;
+}
+
+export interface DNSResult {
+  domain: string;
+  records: DNSRecord[];
+  nameservers: string[];
+  reverseDNS: string | null;
+  status: StatusLevel;
+}
+
+export interface LookupResult {
+  query: string;
+  timestamp: string;
+  ipReputation: IPReputationResult;
+  domainReputation: DomainReputationResult;
+  blacklist: BlacklistResult;
+  ssl: SSLCertificateResult;
+  securityHeaders: SecurityHeadersResult;
+  openPorts: OpenPortsResult;
+  dns: DNSResult;
+}
+
+export interface HistoryEntry {
+  id: string;
+  query: string;
+  timestamp: string;
+  overallStatus: StatusLevel;
+  resultSnapshot: {
+    ipStatus: StatusLevel;
+    domainStatus: StatusLevel;
+    blacklistStatus: StatusLevel;
+    sslStatus: StatusLevel;
+  };
+}
