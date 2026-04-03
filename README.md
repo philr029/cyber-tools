@@ -1,6 +1,11 @@
 # SecureScope – Cyber Intelligence Dashboard
 
-A clean, modern cybersecurity toolkit built with **Next.js 16**, **TypeScript**, and **Tailwind CSS v4**. All tools fall back to mock data automatically when no API key is configured — no errors, just sample results clearly labelled "Mock Data".
+A polished, Apple-inspired cybersecurity toolkit built with **Next.js 16**, **TypeScript**, and **Tailwind CSS v4**.
+
+Every tool works immediately with pre-labelled **mock data**. Add API keys to switch to live results — no restart required, no code changes needed.
+
+**Live demo → [https://philr029.github.io/cyber-tools/](https://philr029.github.io/cyber-tools/)**  
+*(Mock data only — server-side API features require Vercel; see [Deployment](#deployment) below.)*
 
 ---
 
@@ -23,10 +28,10 @@ A clean, modern cybersecurity toolkit built with **Next.js 16**, **TypeScript**,
 
 ## Tech Stack
 
-- [Next.js 16](https://nextjs.org/) — App Router, Turbopack, server-side API routes
-- [TypeScript](https://www.typescriptlang.org/) — strict mode
-- [Tailwind CSS v4](https://tailwindcss.com/) — `@tailwindcss/postcss`
-- No Linux-only dependencies — fully cross-platform
+- **[Next.js 16](https://nextjs.org/)** — App Router, Turbopack, server-side API routes
+- **[TypeScript](https://www.typescriptlang.org/)** — strict mode throughout
+- **[Tailwind CSS v4](https://tailwindcss.com/)** — `@tailwindcss/postcss`, no config file needed
+- Zero Linux-only dependencies — fully cross-platform (macOS Apple Silicon ✓)
 
 ---
 
@@ -73,23 +78,8 @@ After adding keys, restart the dev server: `npm run dev`
 ```
 app/
   api/lookup/          # Server-side API routes — keys never reach the client
-    ip/route.ts
-    domain/route.ts
-    dns/route.ts
-    ssl/route.ts
-    headers/route.ts
-    blacklist/route.ts
-    whois/route.ts
-    url/route.ts
+    ip/  domain/  dns/  ssl/  headers/  blacklist/  whois/  url/
   tools/               # Individual tool pages (each with ToolInput + result card)
-    ip-lookup/
-    domain-lookup/
-    dns-lookup/
-    ssl-checker/
-    security-headers/
-    blacklist/
-    whois/
-    url-analysis/
   settings/            # API key configuration guide
   components/
     results/           # Result display cards (one per data type)
@@ -100,34 +90,30 @@ app/
   globals.css
 lib/
   providers/           # API adapter modules (server-only)
-    abuseipdb.ts
-    virustotal.ts
-    securitytrails.ts
-    sslcheck.ts
-    securityheaders.ts
-    hetrixtools.ts
-    shodan.ts
-    whois.ts
   validators/          # Input validation (shared client/server)
+  lookup-client.ts     # Unified client: mock or API-backed depending on build mode
   ssrf.ts              # SSRF guard for server-side fetch calls
   types.ts             # TypeScript interfaces
   mockData.ts          # Mock data + localStorage lookup history
   mockExtras.ts        # WHOIS + URL Analysis mock data
+.github/workflows/
+  deploy.yml           # GitHub Actions → GitHub Pages (static export, mock data)
 ```
 
 ---
 
 ## Mock vs Live Data
 
-Each tool page shows a **"Mock Data"** or **"Live Data"** badge.
+Each tool page shows a **"Mock Data"** or **"Live Data"** badge in the top-right corner.
 
 | Condition | Result |
 |---|---|
-| API key not set | Mock data (pre-defined sample results) |
+| API key not set | Mock data (pre-defined sample results, clearly labelled) |
 | API key set, call succeeds | Live data |
 | API key set, call fails | Mock data fallback — no crash |
+| GitHub Pages deployment | Always mock (no server available) |
 
-Three preset mock queries are available everywhere: `8.8.8.8` (Safe), `example.com` (Warning), `malicious-test.xyz` (Risk).
+Three preset queries demonstrate all status levels: `8.8.8.8` (Safe ✅), `example.com` (Warning ⚠️), `malicious-test.xyz` (Risk 🔴).
 
 ---
 
@@ -144,9 +130,27 @@ npm run lint     # Run ESLint
 
 ## Deployment
 
-### Vercel (recommended)
+### GitHub Pages (demo / static)
 
-This app uses server-side API routes, so a static export is **not** suitable.
+The repository ships with a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys to GitHub Pages on every push to `main`.
+
+**How it works:**
+1. API routes (`app/api/`) are excluded before the static build — they require a server that GitHub Pages can't provide.
+2. `NEXT_PUBLIC_USE_MOCK_API=true` tells `lib/lookup-client.ts` to return mock data in the browser instead of calling `/api/*` routes.
+3. `NEXT_STATIC_EXPORT=true` adds `output: "export"` and `basePath: "/cyber-tools"` to the Next.js config.
+4. The resulting `out/` directory is deployed to the `github-pages` environment.
+
+**Set up GitHub Pages for your fork:**
+1. Go to **Settings → Pages → Source** and choose **GitHub Actions**.
+2. Push to `main` — the workflow runs automatically.
+
+> ⚠️ **Limitation:** GitHub Pages is static hosting only. Real API integrations (AbuseIPDB, VirusTotal, etc.) are **not** available on GitHub Pages because they require server-side execution to keep API keys secret.
+
+---
+
+### Vercel (recommended for live data)
+
+Vercel is the correct host when you want real API integrations. It runs the Next.js server natively, so all `/api/lookup/*` routes work and API keys stay server-side.
 
 ```bash
 npm i -g vercel
@@ -154,6 +158,10 @@ vercel
 ```
 
 Add environment variables in **Vercel → Project → Settings → Environment Variables**.
+
+No config changes are needed — `next.config.ts` automatically omits the static-export settings when `NEXT_STATIC_EXPORT` is not set.
+
+---
 
 ### Self-hosted
 
@@ -175,7 +183,7 @@ npm run dev
 
 ### `lightningcss` errors on macOS
 
-Tailwind v4 uses `lightningcss` native binaries, installed automatically as optional deps.
+Tailwind v4 uses `lightningcss` native binaries installed as optional deps.
 
 ```bash
 rm -rf node_modules package-lock.json
@@ -201,6 +209,3 @@ nvm install 20 && nvm use 20
 ## Licence
 
 MIT
-
-
-

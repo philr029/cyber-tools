@@ -26,13 +26,11 @@ export default function SecurityHeadersPage() {
     setError(null);
     setData(null);
     try {
-      const res = await fetch(`/api/lookup/headers?domain=${encodeURIComponent(domain)}`);
-      const json = await res.json();
-      if (!res.ok) { setError(json.error ?? "Lookup failed."); return; }
-      setData(json.data);
-      setIsMock(json.mock);
-    } catch {
-      setError("Network error. Please try again.");
+      const { data, mock } = await import("@/lib/lookup-client").then((m) => m.lookupHeaders(domain));
+      setData(data);
+      setIsMock(mock);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
       setLoading(false);
     }

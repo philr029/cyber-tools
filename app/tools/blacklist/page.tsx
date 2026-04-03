@@ -26,13 +26,11 @@ export default function BlacklistPage() {
     setError(null);
     setData(null);
     try {
-      const res = await fetch(`/api/lookup/blacklist?target=${encodeURIComponent(target)}`);
-      const json = await res.json();
-      if (!res.ok) { setError(json.error ?? "Lookup failed."); return; }
-      setData(json.data);
-      setIsMock(json.mock);
-    } catch {
-      setError("Network error. Please try again.");
+      const { data, mock } = await import("@/lib/lookup-client").then((m) => m.lookupBlacklist(target));
+      setData(data);
+      setIsMock(mock);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
       setLoading(false);
     }
