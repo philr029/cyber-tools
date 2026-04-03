@@ -1,0 +1,20 @@
+interface MockDataBannerProps {
+  isMock: boolean;
+}
+
+export default function MockDataBanner({ isMock }: MockDataBannerProps) {
+  if (!isMock) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-full ring-1 ring-emerald-200">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        Live Data
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-amber-700 bg-amber-50 rounded-full ring-1 ring-amber-200">
+      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+      Mock Data
+    </span>
+  );
+}

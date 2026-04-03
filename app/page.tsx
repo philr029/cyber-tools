@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import type { LookupResult, HistoryEntry } from "@/lib/types";
 import { lookupQuery, saveToHistory, loadHistory, clearHistory } from "@/lib/mockData";
 
@@ -15,6 +16,139 @@ import OpenPortsCard from "@/app/components/results/OpenPortsCard";
 import DNSCard from "@/app/components/results/DNSCard";
 
 // ---------------------------------------------------------------------------
+// Tool cards
+// ---------------------------------------------------------------------------
+const TOOLS = [
+  {
+    href: "/tools/ip-lookup",
+    title: "IP Reputation",
+    description: "Abuse score, ISP, country, and report history.",
+    badge: "AbuseIPDB",
+    color: "text-blue-600 bg-blue-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M9.661 2.237a.531.531 0 01.678 0 11.947 11.947 0 007.078 2.749.5.5 0 01.479.425c.069.52.104 1.05.104 1.589 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 01-.332 0C5.26 16.563 2 12.162 2 7a10.66 10.66 0 01.104-1.589.5.5 0 01.48-.425 11.947 11.947 0 007.077-2.749z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/domain-lookup",
+    title: "Domain Reputation",
+    description: "Multi-engine vendor analysis and category data.",
+    badge: "VirusTotal",
+    color: "text-purple-600 bg-purple-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/dns-lookup",
+    title: "DNS Lookup",
+    description: "A, AAAA, MX, TXT, NS records and nameservers.",
+    badge: "SecurityTrails",
+    color: "text-teal-600 bg-teal-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/ssl-checker",
+    title: "SSL Certificate",
+    description: "Expiry, issuer, protocol, and key details.",
+    badge: "SSL Labs",
+    color: "text-emerald-600 bg-emerald-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/security-headers",
+    title: "Security Headers",
+    description: "Graded HTTP header analysis against best practices.",
+    badge: "Live Fetch",
+    color: "text-orange-600 bg-orange-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M3 3.5A1.5 1.5 0 014.5 2h11A1.5 1.5 0 0117 3.5v1A1.5 1.5 0 0115.5 6h-11A1.5 1.5 0 013 4.5v-1zM3 9.5A1.5 1.5 0 014.5 8h11A1.5 1.5 0 0117 9.5v1a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 10.5v-1zM4.5 14a1.5 1.5 0 00-1.5 1.5v1A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5v-1a1.5 1.5 0 00-1.5-1.5h-11z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/blacklist",
+    title: "Blacklist Check",
+    description: "Spamhaus, SURBL, Barracuda, SpamCop, and more.",
+    badge: "HetrixTools",
+    color: "text-red-600 bg-red-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/whois",
+    title: "WHOIS Lookup",
+    description: "Registrar, creation date, expiry, and nameservers.",
+    badge: "RDAP",
+    color: "text-indigo-600 bg-indigo-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/url-analysis",
+    title: "URL Analysis",
+    description: "Threat detection, redirect chain, and content type.",
+    badge: "VirusTotal",
+    color: "text-pink-600 bg-pink-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z" />
+        <path d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z" />
+      </svg>
+    ),
+  },
+];
+
+function ToolCards() {
+  return (
+    <div className="space-y-3">
+      <h2 className="text-sm font-semibold text-gray-700">Tools</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-2 gap-3">
+        {TOOLS.map((tool) => (
+          <Link
+            key={tool.href}
+            href={tool.href}
+            className="flex flex-col gap-2 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all group"
+          >
+            <div className={`flex items-center justify-center w-9 h-9 rounded-xl ${tool.color}`}>
+              {tool.icon}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight">
+                {tool.title}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5 leading-snug">{tool.description}</p>
+            </div>
+            <span className="mt-auto text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full self-start">
+              {tool.badge}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Empty state
 // ---------------------------------------------------------------------------
 function EmptyState({ onExample }: { onExample: (q: string) => void }) {
@@ -25,11 +159,10 @@ function EmptyState({ onExample }: { onExample: (q: string) => void }) {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-      {/* Icon */}
-      <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-blue-50 mb-6">
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-50 mb-5">
         <svg
-          className="w-10 h-10 text-blue-500"
+          className="w-8 h-8 text-blue-500"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -43,15 +176,11 @@ function EmptyState({ onExample }: { onExample: (q: string) => void }) {
           />
         </svg>
       </div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
-        Scan an IP or Domain
-      </h2>
-      <p className="text-sm text-gray-500 max-w-md mb-8">
-        Enter an IP address or domain name above to run a comprehensive security analysis including
-        reputation checks, blacklist status, SSL certificates, and more.
+      <h2 className="text-base font-semibold text-gray-900 mb-1.5">Scan an IP or Domain</h2>
+      <p className="text-sm text-gray-500 max-w-sm mb-7">
+        Enter any IP address or domain above for a comprehensive security analysis.
       </p>
 
-      {/* Example cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-lg">
         {examples.map((ex) => (
           <button
@@ -78,6 +207,7 @@ function EmptyState({ onExample }: { onExample: (q: string) => void }) {
     </div>
   );
 }
+
 
 // ---------------------------------------------------------------------------
 // Results grid
@@ -204,9 +334,10 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* History sidebar */}
-          <aside id="history" className="xl:w-80 flex-shrink-0" aria-label="Lookup history">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
+          {/* Sidebar: history + tool cards */}
+          <aside className="xl:w-80 flex-shrink-0 space-y-5" aria-label="Sidebar">
+            {/* History */}
+            <div id="history" className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-20">
               <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
                 <div className="flex items-center gap-2">
                   <svg
@@ -239,9 +370,9 @@ export default function HomePage() {
                 )}
               </div>
 
-              <div className="px-1 py-2 max-h-[calc(100vh-220px)] overflow-y-auto">
+              <div className="px-1 py-2 max-h-72 overflow-y-auto">
                 {history.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                  <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
                     <svg
                       className="w-8 h-8 text-gray-200 mb-2"
                       viewBox="0 0 20 20"
@@ -264,6 +395,9 @@ export default function HomePage() {
                 )}
               </div>
             </div>
+
+            {/* Tool cards */}
+            <ToolCards />
           </aside>
         </div>
       </div>
