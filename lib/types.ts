@@ -108,6 +108,38 @@ export interface LookupResult {
   dns: DNSResult;
 }
 
+export interface WHOISResult {
+  domain: string;
+  registrar: string;
+  registrarUrl: string | null;
+  registrantOrg: string | null;
+  registrantCountry: string | null;
+  createdDate: string;
+  updatedDate: string;
+  expiryDate: string;
+  nameservers: string[];
+  status: string[];
+  dnssec: boolean;
+  lookupStatus: StatusLevel;
+}
+
+export interface URLAnalysisResult {
+  url: string;
+  finalUrl: string;
+  statusCode: number | null;
+  ipAddress: string | null;
+  domain: string;
+  redirectChain: string[];
+  contentType: string | null;
+  malicious: number;
+  suspicious: number;
+  harmless: number;
+  undetected: number;
+  categories: string[];
+  threatNames: string[];
+  status: StatusLevel;
+}
+
 export interface HistoryEntry {
   id: string;
   query: string;

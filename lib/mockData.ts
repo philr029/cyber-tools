@@ -8,7 +8,7 @@ import type {
 // Mock lookup results keyed by query string
 // ---------------------------------------------------------------------------
 
-const MOCK_RESULTS: Record<string, LookupResult> = {
+export const MOCK_RESULTS: Record<string, LookupResult> = {
   "8.8.8.8": {
     query: "8.8.8.8",
     timestamp: new Date().toISOString(),
