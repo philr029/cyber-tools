@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { LookupResult, HistoryEntry } from "@/lib/types";
-import { lookupQuery, saveToHistory, loadHistory, clearHistory } from "@/lib/mockData";
+import { lookupAll } from "@/lib/lookup-client";
+import { saveToHistory, loadHistory, clearHistory } from "@/lib/mockData";
 
 import SearchBar from "@/app/components/SearchBar";
 import HistoryRow from "@/app/components/HistoryRow";
@@ -213,7 +214,7 @@ function EmptyState({ onExample }: { onExample: (q: string) => void }) {
 // ---------------------------------------------------------------------------
 // Results grid
 // ---------------------------------------------------------------------------
-function ResultsGrid({ result }: { result: LookupResult }) {
+function ResultsGrid({ result, isMock }: { result: LookupResult; isMock: boolean }) {
   return (
     <div className="space-y-6">
       {/* Query summary bar */}
@@ -245,7 +246,7 @@ function ResultsGrid({ result }: { result: LookupResult }) {
           </p>
         </div>
         <div className="ml-auto flex-shrink-0">
-          <MockDataBanner isMock={true} />
+          <MockDataBanner isMock={isMock} />
         </div>
       </div>
 
@@ -271,6 +272,7 @@ function ResultsGrid({ result }: { result: LookupResult }) {
 export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<LookupResult | null>(null);
+  const [isMock, setIsMock] = useState<boolean>(true);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   // Load history from localStorage on mount
@@ -281,8 +283,9 @@ export default function HomePage() {
   async function handleSearch(query: string) {
     setLoading(true);
     try {
-      const data = await lookupQuery(query);
+      const { result: data, isMock: mock } = await lookupAll(query);
       setResult(data);
+      setIsMock(mock);
       saveToHistory(data);
       setHistory(loadHistory());
     } finally {
@@ -329,7 +332,7 @@ export default function HomePage() {
                 </p>
               </div>
             ) : result ? (
-              <ResultsGrid result={result} />
+              <ResultsGrid result={result} isMock={isMock} />
             ) : (
               <EmptyState onExample={handleSearch} />
             )}

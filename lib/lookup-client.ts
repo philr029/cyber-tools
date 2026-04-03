@@ -19,9 +19,12 @@ import type {
   DNSResult,
   WHOISResult,
   URLAnalysisResult,
+  OpenPortsResult,
+  LookupResult,
 } from "@/lib/types";
 import { MOCK_RESULTS } from "@/lib/mockData";
 import { MOCK_WHOIS, MOCK_URL_ANALYSIS, createDefaultWHOIS, createDefaultURLAnalysis } from "@/lib/mockExtras";
+import { isValidIP } from "@/lib/validators";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -133,6 +136,16 @@ function defaultDNS(domain: string): DNSResult {
   };
 }
 
+function defaultPorts(target: string): OpenPortsResult {
+  return {
+    target,
+    openCount: 0,
+    ports: [],
+    scanDuration: 0,
+    status: "unknown",
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Mock lookup implementations
 // ---------------------------------------------------------------------------
@@ -176,6 +189,12 @@ async function mockDNS(domain: string): Promise<{ data: DNSResult; mock: true }>
 async function mockWHOIS(domain: string): Promise<{ data: WHOISResult; mock: true }> {
   await delay(600);
   const data = MOCK_WHOIS[domain.toLowerCase()] ?? createDefaultWHOIS(domain);
+  return { data, mock: true };
+}
+
+async function mockPorts(target: string): Promise<{ data: OpenPortsResult; mock: true }> {
+  await delay(600);
+  const data = getMock(target)?.openPorts ?? defaultPorts(target);
   return { data, mock: true };
 }
 
@@ -245,4 +264,75 @@ export function lookupWHOIS(domain: string): Promise<{ data: WHOISResult; mock: 
 export function lookupURL(url: string): Promise<{ data: URLAnalysisResult; mock: boolean }> {
   if (USE_MOCK) return mockURL(url);
   return apiLookup<URLAnalysisResult>(`/api/lookup/url?url=${encodeURIComponent(url)}`);
+}
+
+export function lookupPorts(target: string): Promise<{ data: OpenPortsResult; mock: boolean }> {
+  if (USE_MOCK) return mockPorts(target);
+  return apiLookup<OpenPortsResult>(`/api/lookup/ports?target=${encodeURIComponent(target)}`);
+}
+
+// ---------------------------------------------------------------------------
+// Unified lookup: runs all relevant lookups in parallel for the dashboard
+// ---------------------------------------------------------------------------
+
+function settled<T>(
+  result: PromiseSettledResult<{ data: T; mock: boolean }>,
+  fallback: T,
+): { data: T; mock: boolean } {
+  return result.status === "fulfilled" ? result.value : { data: fallback, mock: true };
+}
+
+export async function lookupAll(
+  query: string,
+): Promise<{ result: LookupResult; isMock: boolean }> {
+  const target = query.trim();
+  const ipQuery = isValidIP(target);
+
+  // Run relevant lookups in parallel; return defaults for inapplicable ones.
+  const [ipRes, domainRes, blacklistRes, sslRes, headersRes, dnsRes, portsRes] =
+    await Promise.allSettled([
+      ipQuery
+        ? lookupIP(target)
+        : Promise.resolve({ data: defaultIP(target), mock: true }),
+      !ipQuery
+        ? lookupDomain(target)
+        : Promise.resolve({ data: defaultDomain(target), mock: true }),
+      lookupBlacklist(target),
+      !ipQuery
+        ? lookupSSL(target)
+        : Promise.resolve({ data: defaultSSL(target), mock: true }),
+      !ipQuery
+        ? lookupHeaders(target)
+        : Promise.resolve({ data: defaultHeaders(target), mock: true }),
+      !ipQuery
+        ? lookupDNS(target)
+        : Promise.resolve({ data: defaultDNS(target), mock: true }),
+      ipQuery
+        ? lookupPorts(target)
+        : Promise.resolve({ data: defaultPorts(target), mock: true }),
+    ]);
+
+  const ip = settled(ipRes, defaultIP(target));
+  const domain = settled(domainRes, defaultDomain(target));
+  const blacklist = settled(blacklistRes, defaultBlacklist(target));
+  const ssl = settled(sslRes, defaultSSL(target));
+  const headers = settled(headersRes, defaultHeaders(target));
+  const dns = settled(dnsRes, defaultDNS(target));
+  const ports = settled(portsRes, defaultPorts(target));
+
+  const isMock = [ip, domain, blacklist, ssl, headers, dns, ports].some((r) => r.mock);
+
+  const result: LookupResult = {
+    query: target,
+    timestamp: new Date().toISOString(),
+    ipReputation: ip.data,
+    domainReputation: domain.data,
+    blacklist: blacklist.data,
+    ssl: ssl.data,
+    securityHeaders: headers.data,
+    openPorts: ports.data,
+    dns: dns.data,
+  };
+
+  return { result, isMock };
 }
