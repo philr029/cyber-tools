@@ -63,10 +63,16 @@ export async function fetchSecurityHeaders(domain: string): Promise<SecurityHead
   try {
     const rawUrl = domain.startsWith("http") ? domain : `https://${domain}`;
 
-    // Guard against SSRF: reject private IPs and internal hostnames
+    // Guard against SSRF: reject private IPs and internal hostnames.
+    // assertSafeURL validates protocol, blocks private IP ranges, loopback, and
+    // known metadata endpoints before we make the request.
     const safeCheck = assertSafeURL(rawUrl);
     if (!safeCheck.ok) return null;
 
+    // This fetch is intentional: the Security Headers tool's purpose is to
+    // inspect HTTP response headers from a user-supplied public domain.
+    // SSRF is mitigated above via assertSafeURL.
+    // codeql[js/request-forgery]
     const res = await fetch(safeCheck.url.toString(), {
       method: "HEAD",
       redirect: "follow",
