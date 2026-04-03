@@ -2,6 +2,34 @@ import type { NextRequest } from "next/server";
 import { validateDomain } from "@/lib/validators";
 import { MOCK_WHOIS, createDefaultWHOIS } from "@/lib/mockExtras";
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+type RDAPEntity = {
+  roles: string[];
+  publicIds?: Array<{ type: string; identifier: string }>;
+  links?: Array<{ value: string; rel: string; href: string }>;
+};
+
+/**
+ * Extract a human-readable registrar name from an RDAP entity with clear fallback priority.
+ */
+function extractRegistrarName(
+  entity: RDAPEntity | undefined,
+  rdapName: string | undefined,
+): string {
+  if (!entity) return "Unknown";
+  const ianaId = entity.publicIds?.find((p) => p.type === "IANA Registrar ID")?.identifier;
+  if (ianaId) return ianaId;
+  if (rdapName) return rdapName;
+  return "Unknown";
+}
+
+// ---------------------------------------------------------------------------
+// Route handler
+// ---------------------------------------------------------------------------
+
 export async function GET(request: NextRequest) {
   const domain = request.nextUrl.searchParams.get("domain") ?? "";
 
@@ -43,9 +71,7 @@ export async function GET(request: NextRequest) {
       }> = rdap.entities ?? [];
       const registrarEntity = entities.find((e) => e.roles?.includes("registrar"));
       const registrarLink = registrarEntity?.links?.find((l) => l.rel === "self")?.href ?? null;
-      const registrar = registrarEntity
-        ? (registrarEntity.publicIds?.find((p) => p.type === "IANA Registrar ID")?.identifier ?? rdap.name ?? "Unknown")
-        : "Unknown";
+      const registrar = extractRegistrarName(registrarEntity, rdap.name);
 
       return Response.json({
         data: {

@@ -25,6 +25,11 @@ export default function ToolInput({
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setValue(e.target.value);
+    setError(null);
+  }
+
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const trimmed = value.trim();
@@ -59,7 +64,7 @@ export default function ToolInput({
             <input
               type="text"
               value={value}
-              onChange={(e) => { setValue(e.target.value); setError(null); }}
+              onChange={handleChange}
               placeholder={placeholder}
               className={`w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${error ? "border-red-300" : "border-gray-200"}`}
               disabled={loading}

@@ -5,6 +5,7 @@
  */
 
 import type { SecurityHeadersResult, SecurityHeader } from "@/lib/types";
+import { assertSafeURL } from "@/lib/ssrf";
 
 const HEADERS_TO_CHECK: Array<{ name: string; description: string; weight: number }> = [
   {
@@ -60,11 +61,15 @@ function scoreToGrade(score: number): string {
 
 export async function fetchSecurityHeaders(domain: string): Promise<SecurityHeadersResult | null> {
   try {
-    const url = domain.startsWith("http") ? domain : `https://${domain}`;
-    const res = await fetch(url, {
+    const rawUrl = domain.startsWith("http") ? domain : `https://${domain}`;
+
+    // Guard against SSRF: reject private IPs and internal hostnames
+    const safeCheck = assertSafeURL(rawUrl);
+    if (!safeCheck.ok) return null;
+
+    const res = await fetch(safeCheck.url.toString(), {
       method: "HEAD",
       redirect: "follow",
-      // Short timeout via AbortController
       signal: AbortSignal.timeout(8000),
       next: { revalidate: 0 },
     });
@@ -85,8 +90,6 @@ export async function fetchSecurityHeaders(domain: string): Promise<SecurityHead
     const score = Math.round((earnedScore / maxPossibleScore) * 100);
     const grade = scoreToGrade(score);
 
-    const presentCount = headers.filter((h) => h.present).length;
-    void presentCount; // used implicitly via earnedScore calculation above
     const status =
       score >= 75 ? "safe" : score >= 40 ? "warning" : "risk";
 
