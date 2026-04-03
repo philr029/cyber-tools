@@ -14,6 +14,7 @@ import SSLCard from "@/app/components/results/SSLCard";
 import SecurityHeadersCard from "@/app/components/results/SecurityHeadersCard";
 import OpenPortsCard from "@/app/components/results/OpenPortsCard";
 import DNSCard from "@/app/components/results/DNSCard";
+import MockDataBanner from "@/app/components/ui/MockDataBanner";
 
 // ---------------------------------------------------------------------------
 // Tool cards
@@ -243,8 +244,8 @@ function ResultsGrid({ result }: { result: LookupResult }) {
             }).format(new Date(result.timestamp))}
           </p>
         </div>
-        <div className="ml-auto flex-shrink-0 text-xs text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full font-medium">
-          Mock Data
+        <div className="ml-auto flex-shrink-0">
+          <MockDataBanner isMock={true} />
         </div>
       </div>
 

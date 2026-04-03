@@ -1,25 +1,23 @@
 # SecureScope – Cyber Intelligence Dashboard
 
-A clean, modern cybersecurity toolkit built with **Next.js 16**, **TypeScript**, and **Tailwind CSS v4**. Designed for macOS Apple Silicon and deployable to Vercel.
+A clean, modern cybersecurity toolkit built with **Next.js 16**, **TypeScript**, and **Tailwind CSS v4**. All tools fall back to mock data automatically when no API key is configured — no errors, just sample results clearly labelled "Mock Data".
 
 ---
 
-## Features
+## Tools
 
 | Tool | Path | Data Source |
 |---|---|---|
-| Unified Dashboard | `/` | Mock / All providers |
+| Unified Dashboard | `/` | All providers (mock fallback) |
 | IP Reputation | `/tools/ip-lookup` | AbuseIPDB |
 | Domain Reputation | `/tools/domain-lookup` | VirusTotal |
 | DNS Lookup | `/tools/dns-lookup` | SecurityTrails |
-| SSL Certificate | `/tools/ssl-checker` | SSL Labs (public API) |
-| Security Headers | `/tools/security-headers` | Live HEAD request |
+| SSL Certificate | `/tools/ssl-checker` | SSL Labs (public API, no key) |
+| Security Headers | `/tools/security-headers` | Live HEAD request (no key) |
 | Blacklist Check | `/tools/blacklist` | HetrixTools |
-| WHOIS / Registrar | `/tools/whois` | IANA RDAP (free) |
+| WHOIS / Registrar | `/tools/whois` | IANA RDAP (public, no key) |
 | URL Analysis | `/tools/url-analysis` | VirusTotal |
 | Settings | `/settings` | — |
-
-**All tools fall back to mock data automatically when no API key is configured** — no errors, just sample results clearly labelled "Mock Data".
 
 ---
 
@@ -32,18 +30,15 @@ A clean, modern cybersecurity toolkit built with **Next.js 16**, **TypeScript**,
 
 ---
 
-## macOS Apple Silicon – Install & Run
+## Quick Start
 
 ```bash
-# Requires Node.js 20+ (install via https://nodejs.org or nvm)
-node -v   # should show v20+
+# Requires Node.js 20+
+node -v   # should print v20+
 
-# Clone and install
-git clone https://github.com/your-username/cyber-tools.git
+git clone https://github.com/philr029/cyber-tools.git
 cd cyber-tools
 npm install
-
-# Start development server
 npm run dev
 ```
 
@@ -51,23 +46,23 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## Environment Variables
+## Environment Variables (optional)
 
-Copy `.env.example` to `.env.local` and fill in your API keys:
+Copy `.env.example` to `.env.local` and add any API keys you have:
 
 ```bash
 cp .env.example .env.local
 ```
 
-| Variable | Provider | Required for |
+| Variable | Provider | Used by |
 |---|---|---|
-| `ABUSEIPDB_API_KEY` | [AbuseIPDB](https://www.abuseipdb.com/register) | IP Reputation (live) |
-| `VIRUSTOTAL_API_KEY` | [VirusTotal](https://www.virustotal.com/gui/join-us) | Domain + URL Analysis (live) |
-| `HETRIXTOOLS_API_KEY` | [HetrixTools](https://hetrixtools.com/dashboard/api-token/) | Blacklist Check (live) |
-| `SECURITYTRAILS_API_KEY` | [SecurityTrails](https://securitytrails.com/corp/api) | DNS Lookup (live) |
-| `SHODAN_API_KEY` | [Shodan](https://account.shodan.io/register) | Open Ports (live) |
+| `ABUSEIPDB_API_KEY` | [AbuseIPDB](https://www.abuseipdb.com/register) — free: 1,000/day | IP Reputation |
+| `VIRUSTOTAL_API_KEY` | [VirusTotal](https://www.virustotal.com/gui/join-us) — free: 500/day | Domain + URL Analysis |
+| `HETRIXTOOLS_API_KEY` | [HetrixTools](https://hetrixtools.com/dashboard/api-token/) — free tier | Blacklist Check |
+| `SECURITYTRAILS_API_KEY` | [SecurityTrails](https://securitytrails.com/corp/api) — free: 50/month | DNS Lookup |
+| `SHODAN_API_KEY` | [Shodan](https://account.shodan.io/register) — membership required | Open Ports (dashboard) |
 
-> **No keys needed for:** WHOIS (uses IANA RDAP), Security Headers (live HEAD request), SSL (uses SSL Labs public API).
+> **No key needed for:** WHOIS (IANA RDAP), Security Headers (live HEAD request), SSL (SSL Labs public API).
 
 After adding keys, restart the dev server: `npm run dev`
 
@@ -77,7 +72,7 @@ After adding keys, restart the dev server: `npm run dev`
 
 ```
 app/
-  api/lookup/          # Server-side API routes (never expose keys to client)
+  api/lookup/          # Server-side API routes — keys never reach the client
     ip/route.ts
     domain/route.ts
     dns/route.ts
@@ -86,7 +81,7 @@ app/
     blacklist/route.ts
     whois/route.ts
     url/route.ts
-  tools/               # Individual tool pages
+  tools/               # Individual tool pages (each with ToolInput + result card)
     ip-lookup/
     domain-lookup/
     dns-lookup/
@@ -97,19 +92,42 @@ app/
     url-analysis/
   settings/            # API key configuration guide
   components/
-    results/           # Result display cards
-    tools/             # Shared tool page layout + input
-    ui/                # Generic UI primitives
+    results/           # Result display cards (one per data type)
+    tools/             # ToolPageLayout + ToolInput shared components
+    ui/                # Generic UI primitives (Card, StatusBadge, etc.)
   layout.tsx
-  page.tsx             # Unified dashboard homepage
+  page.tsx             # Unified dashboard with search + results grid
   globals.css
 lib/
   providers/           # API adapter modules (server-only)
+    abuseipdb.ts
+    virustotal.ts
+    securitytrails.ts
+    sslcheck.ts
+    securityheaders.ts
+    hetrixtools.ts
+    shodan.ts
+    whois.ts
   validators/          # Input validation (shared client/server)
+  ssrf.ts              # SSRF guard for server-side fetch calls
   types.ts             # TypeScript interfaces
-  mockData.ts          # Mock data + localStorage history
+  mockData.ts          # Mock data + localStorage lookup history
   mockExtras.ts        # WHOIS + URL Analysis mock data
 ```
+
+---
+
+## Mock vs Live Data
+
+Each tool page shows a **"Mock Data"** or **"Live Data"** badge.
+
+| Condition | Result |
+|---|---|
+| API key not set | Mock data (pre-defined sample results) |
+| API key set, call succeeds | Live data |
+| API key set, call fails | Mock data fallback — no crash |
+
+Three preset mock queries are available everywhere: `8.8.8.8` (Safe), `example.com` (Warning), `malicious-test.xyz` (Risk).
 
 ---
 
@@ -128,57 +146,40 @@ npm run lint     # Run ESLint
 
 ### Vercel (recommended)
 
-This app uses server-side API routes, so a static export is **not** suitable. Deploy to [Vercel](https://vercel.com):
+This app uses server-side API routes, so a static export is **not** suitable.
 
 ```bash
 npm i -g vercel
 vercel
 ```
 
-Add your environment variables in the Vercel project settings under **Settings → Environment Variables**.
+Add environment variables in **Vercel → Project → Settings → Environment Variables**.
 
 ### Self-hosted
 
 ```bash
 npm run build
-npm run start    # Runs on port 3000
+npm run start
 ```
 
 ---
 
-## Mock vs Live Data
+## Troubleshooting
 
-Each tool page shows a **"Mock Data"** or **"Live Data"** badge in the top-right corner.
-
-| Condition | Result |
-|---|---|
-| API key not set | Mock data (pre-defined sample results) |
-| API key set, call succeeds | Live data |
-| API key set, call fails | Mock data fallback (no crash) |
-
-The mock data includes three preset queries: `8.8.8.8` (Safe), `example.com` (Warning), `malicious-test.xyz` (Risk).
-
----
-
-## Troubleshooting (macOS)
-
-### `npm install` fails or `lightningcss` errors
-
-Tailwind v4 uses `lightningcss` which requires native binaries. These are installed automatically as optional dependencies.
+### `next: not found` after cloning
 
 ```bash
-# If you see lightningcss errors, try:
+npm install
+npm run dev
+```
+
+### `lightningcss` errors on macOS
+
+Tailwind v4 uses `lightningcss` native binaries, installed automatically as optional deps.
+
+```bash
 rm -rf node_modules package-lock.json
 npm install
-```
-
-### `next: not found` after install
-
-```bash
-# Make sure node_modules is populated:
-npm install
-# Then run dev:
-npm run dev
 ```
 
 ### Port 3000 already in use
@@ -189,23 +190,17 @@ npm run dev -- -p 3001
 
 ### Node version issues
 
-Use Node.js 20 or later. Install via [nvm](https://github.com/nvm-sh/nvm):
+Use Node.js 20 or later ([nvm](https://github.com/nvm-sh/nvm)):
 
 ```bash
-nvm install 20
-nvm use 20
+nvm install 20 && nvm use 20
 ```
-
----
-
-## Screenshots
-
-> _Add screenshots here once the app is running_
 
 ---
 
 ## Licence
 
 MIT
+
 
 
