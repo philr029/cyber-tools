@@ -181,13 +181,13 @@ async function mockWHOIS(domain: string): Promise<{ data: WHOISResult; mock: tru
 
 async function mockURL(url: string): Promise<{ data: URLAnalysisResult; mock: true }> {
   await delay(600);
-  let normalised = url;
-  if (!normalised.startsWith("http://") && !normalised.startsWith("https://")) {
-    normalised = `https://${normalised}`;
+  let normalized = url;
+  if (!normalized.startsWith("http://") && !normalized.startsWith("https://")) {
+    normalized = `https://${normalized}`;
   }
   const data =
-    MOCK_URL_ANALYSIS[normalised] ??
-    MOCK_URL_ANALYSIS[normalised.replace("https://", "http://")] ??
+    MOCK_URL_ANALYSIS[normalized] ??
+    MOCK_URL_ANALYSIS[normalized.replace("https://", "http://")] ??
     createDefaultURLAnalysis(url);
   return { data, mock: true };
 }

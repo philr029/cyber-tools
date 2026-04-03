@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   ...(isStaticExport && {
     output: "export",
     basePath: "/cyber-tools",
-    // Static export: disable the image optimisation server (incompatible)
+    // Static export: disable the image optimization server (incompatible)
     images: { unoptimized: true },
   }),
 };
