@@ -27,13 +27,11 @@ export default function URLAnalysisPage() {
     setError(null);
     setData(null);
     try {
-      const res = await fetch(`/api/lookup/url?url=${encodeURIComponent(normalised)}`);
-      const json = await res.json();
-      if (!res.ok) { setError(json.error ?? "Lookup failed."); return; }
-      setData(json.data);
-      setIsMock(json.mock);
-    } catch {
-      setError("Network error. Please try again.");
+      const { data, mock } = await import("@/lib/lookup-client").then((m) => m.lookupURL(normalised));
+      setData(data);
+      setIsMock(mock);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
       setLoading(false);
     }
