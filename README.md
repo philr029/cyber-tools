@@ -2,10 +2,9 @@
 
 A polished, Apple-inspired cybersecurity toolkit built with **Next.js 16**, **TypeScript**, and **Tailwind CSS v4**.
 
-Every tool works immediately with pre-labelled **mock data**. Add API keys to switch to live results — no restart required, no code changes needed.
+Every tool works immediately — add API keys to get live results. Tools without a configured key show a **"Not configured"** badge and return safe default values.
 
-**Live demo → [https://philr029.github.io/cyber-tools/](https://philr029.github.io/cyber-tools/)**  
-*(Mock data only — server-side API features require Vercel; see [Deployment](#deployment) below.)*
+**Deployment target: [Vercel](https://vercel.com)** — server-side API routes run as serverless functions. API keys stay on the server and are never exposed to the browser.
 
 ---
 
@@ -13,7 +12,7 @@ Every tool works immediately with pre-labelled **mock data**. Add API keys to sw
 
 | Tool | Path | Data Source |
 |---|---|---|
-| Unified Dashboard | `/` | All providers (mock fallback) |
+| Unified Dashboard | `/` | All providers |
 | IP Reputation | `/tools/ip-lookup` | AbuseIPDB |
 | Domain Reputation | `/tools/domain-lookup` | VirusTotal |
 | DNS Lookup | `/tools/dns-lookup` | SecurityTrails |
@@ -95,13 +94,13 @@ Then run `npm install` in the project directory again.
 
 ---
 
-## Environment Variables (optional)
+## Environment Variables
 
-Copy `.env.example` to `.env.local` and add any API keys you have:
+Create a `.env.local` file in the project root for local development:
 
 **macOS / Linux:**
 ```bash
-cp .env.example .env.local
+cp .env.example .env.local   # or create it manually
 ```
 
 **Windows (Command Prompt):**
@@ -146,29 +145,30 @@ app/
 lib/
   providers/           # API adapter modules (server-only)
   validators/          # Input validation (shared client/server)
-  lookup-client.ts     # Unified client: mock or API-backed depending on build mode
+  lookup-client.ts     # Unified client — always calls /api/lookup/* server routes
   ssrf.ts              # SSRF guard for server-side fetch calls
   types.ts             # TypeScript interfaces
-  mockData.ts          # Mock data + localStorage lookup history
-  mockExtras.ts        # WHOIS + URL Analysis mock data
+  mockData.ts          # Default fallback data + localStorage lookup history
+  mockExtras.ts        # WHOIS + URL Analysis default data
 .github/workflows/
-  deploy.yml           # GitHub Actions → GitHub Pages (static export, mock data)
+  deploy.yml           # CI workflow — lint + build check on every push/PR
+vercel.json            # Vercel project config
 ```
 
 ---
 
-## Mock vs Live Data
+## Live vs Not Configured
 
-Each tool page shows a **"Mock Data"** or **"Live Data"** badge in the top-right corner.
+Each tool page shows a status badge in the top-right corner after a lookup:
 
-| Condition | Result |
+| Condition | Badge |
 |---|---|
-| API key not set | Mock data (pre-defined sample results, clearly labelled) |
-| API key set, call succeeds | Live data |
-| API key set, call fails | Mock data fallback — no crash |
-| GitHub Pages deployment | Always mock (no server available) |
+| API key set, call succeeds | **Live Data** (green) |
+| API key not set | **Not configured** (grey) — shows safe default values |
+| API key set, call fails | Error message shown inline |
+| No lookup performed yet | No badge |
 
-Three preset queries demonstrate all status levels: `8.8.8.8` (Safe ✅), `example.com` (Warning ⚠️), `malicious-test.xyz` (Risk 🔴).
+WHOIS, Security Headers, and SSL Certificate always return live data (no key required).
 
 ---
 
@@ -185,36 +185,32 @@ npm run lint     # Run ESLint
 
 ## Deployment
 
-### GitHub Pages (demo / static)
+### Vercel (recommended)
 
-The repository ships with a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys to GitHub Pages on every push to `main`.
+Vercel runs Next.js natively — API routes become serverless functions and API keys stay on the server.
 
-**How it works:**
-1. API routes (`app/api/`) are excluded before the static build — they require a server that GitHub Pages can't provide.
-2. `NEXT_PUBLIC_USE_MOCK_API=true` tells `lib/lookup-client.ts` to return mock data in the browser instead of calling `/api/*` routes.
-3. `NEXT_STATIC_EXPORT=true` adds `output: "export"` and `basePath: "/cyber-tools"` to the Next.js config.
-4. The resulting `out/` directory is deployed to the `github-pages` environment.
-
-**Set up GitHub Pages for your fork:**
-1. Go to **Settings → Pages → Source** and choose **GitHub Actions**.
-2. Push to `main` — the workflow runs automatically.
-
-> ⚠️ **Limitation:** GitHub Pages is static hosting only. Real API integrations (AbuseIPDB, VirusTotal, etc.) are **not** available on GitHub Pages because they require server-side execution to keep API keys secret.
-
----
-
-### Vercel (recommended for live data)
-
-Vercel is the correct host when you want real API integrations. It runs the Next.js server natively, so all `/api/lookup/*` routes work and API keys stay server-side.
+1. Push this repo to GitHub
+2. Import the project at [vercel.com/new](https://vercel.com/new)
+3. Add environment variables in **Vercel → Project → Settings → Environment Variables**
+4. Deploy — every push to `main` redeploys automatically
 
 ```bash
+# Or deploy from the CLI:
 npm i -g vercel
 vercel
 ```
 
-Add environment variables in **Vercel → Project → Settings → Environment Variables**.
+**Required environment variables (add in Vercel dashboard):**
 
-No config changes are needed — `next.config.ts` automatically omits the static-export settings when `NEXT_STATIC_EXPORT` is not set.
+| Variable | Where to get it |
+|---|---|
+| `ABUSEIPDB_API_KEY` | https://www.abuseipdb.com/register |
+| `VIRUSTOTAL_API_KEY` | https://www.virustotal.com/gui/join-us |
+| `HETRIXTOOLS_API_KEY` | https://hetrixtools.com/dashboard/api-token/ |
+| `SECURITYTRAILS_API_KEY` | https://securitytrails.com/corp/api |
+| `SHODAN_API_KEY` | https://account.shodan.io/register |
+
+All keys are optional — tools without a key show a **Not configured** badge instead of an error.
 
 ---
 
@@ -224,6 +220,8 @@ No config changes are needed — `next.config.ts` automatically omits the static
 npm run build
 npm run start
 ```
+
+Set API keys as environment variables before running.
 
 ---
 
@@ -284,39 +282,6 @@ nvm use 20
 fnm install 20
 fnm use 20
 ```
-
----
-
-## Do this now on Windows
-
-Open **Command Prompt** or **PowerShell** and run:
-
-```cmd
-node -v
-```
-> Must print `v20.x.x` or higher. If not, install Node.js 20 from https://nodejs.org.
-
-```cmd
-git clone https://github.com/philr029/cyber-tools.git
-cd cyber-tools
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) — the dashboard loads with mock data immediately.
-
-To run a production build:
-```cmd
-npm run build
-npm run start
-```
-
-To run the linter:
-```cmd
-npm run lint
-```
-
-All four commands work in **Command Prompt**, **PowerShell**, and the **VS Code integrated terminal** with no extra setup required.
 
 ---
 
