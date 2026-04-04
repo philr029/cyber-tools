@@ -49,6 +49,28 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### macOS Apple Silicon (M1 / M2 / M3 / M4)
+
+If you see `Cannot find module '../lightningcss.darwin-arm64.node'` in the browser after `npm run dev`, you have stale `node_modules` built on a different platform (e.g., Docker / Linux). Run a clean install:
+
+```bash
+rm -rf node_modules
+npm install   # installs the darwin-arm64 native binaries
+npm run dev
+```
+
+**Why it happens:** Tailwind v4, Next.js, and ESLint ship platform-specific native binaries (lightningcss, @next/swc, @tailwindcss/oxide) as optional npm packages. The repo's `.npmrc` sets `workspaces=false` and `include=optional` so that `npm install` on any platform always fetches the right binaries. The issue only surfaces when `node_modules` from another OS is reused.
+
+**Workspace root confusion warning:** If npm warns about a `package-lock.json` in a parent directory (e.g., `/Users/<name>/`), delete that stray file:
+
+```bash
+# Only do this if you never intentionally ran npm install in your home directory
+rm ~/package-lock.json
+rm -rf ~/node_modules   # optional but recommended
+```
+
+Then run `npm install` in the project directory again.
+
 ---
 
 ## Environment Variables (optional)
