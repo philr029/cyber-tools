@@ -142,7 +142,7 @@ async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
   const res = await fetch(url);
   const json = await res.json();
   if (!res.ok) {
-    throw new Error(json.error ?? "Lookup failed.");
+    throw new Error(json.error ?? `Lookup failed (${url}).`);
   }
   return json as { data: T; mock: boolean };
 }
@@ -151,11 +151,15 @@ async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
 // Public lookup functions — each calls the corresponding server route
 // ---------------------------------------------------------------------------
 
+// lookupIP uses a dedicated fetch rather than apiLookup because the /api/lookup/ip
+// route returns a flat response object (not the standard { data, mock } envelope)
+// and requires score-based status computation on the client side.
 export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; mock: boolean }> {
-  const res = await fetch(`/api/lookup/ip?ip=${encodeURIComponent(ip)}`);
+  const url = `/api/lookup/ip?ip=${encodeURIComponent(ip)}`;
+  const res = await fetch(url);
   const json = await res.json();
   if (!res.ok) {
-    throw new Error(json.error ?? "Lookup failed.");
+    throw new Error(json.error ?? `Lookup failed (${url}).`);
   }
   const isMock: boolean = json.mock === true;
   const score: number = json.abuseConfidenceScore ?? 0;
