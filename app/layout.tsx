@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/app/components/Header";
+import ChatWidget from "@/components/ai/ChatWidget";
 
 export const metadata: Metadata = {
   title: "SecureScope – Cyber Intelligence Dashboard",
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-50 antialiased">
         <Header />
         {children}
+        <ChatWidget />
       </body>
     </html>
   );
