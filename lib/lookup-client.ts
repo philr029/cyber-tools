@@ -218,7 +218,13 @@ async function mockURL(url: string): Promise<{ data: URLAnalysisResult; mock: tr
 async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
   const res = await fetch(url);
   const json = await res.json();
-  if (!res.ok) throw new Error(json.error ?? "Lookup failed.");
+  if (!res.ok) {
+    console.error("[lookup-client] API error:", url, json);
+    throw new Error(json.error ?? "Lookup failed.");
+  }
+  if (process.env.NODE_ENV === "development") {
+    console.log("[lookup-client] API response:", url, json);
+  }
   return json as { data: T; mock: boolean };
 }
 
@@ -230,7 +236,13 @@ export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; 
   if (USE_MOCK) return mockIP(ip);
   const res = await fetch(`/api/lookup/ip?ip=${encodeURIComponent(ip)}`);
   const json = await res.json();
-  if (!res.ok) throw new Error(json.error ?? "Lookup failed.");
+  if (!res.ok) {
+    console.error("[lookup-client] IP lookup error:", json);
+    throw new Error(json.error ?? "Lookup failed.");
+  }
+  if (process.env.NODE_ENV === "development") {
+    console.log("[lookup-client] IP lookup response:", json);
+  }
   const score: number = json.abuseConfidenceScore ?? 0;
   const data: IPReputationResult = {
     ipAddress: json.ip,

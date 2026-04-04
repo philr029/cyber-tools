@@ -273,6 +273,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<LookupResult | null>(null);
   const [isMock, setIsMock] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   // Load history from localStorage on mount
@@ -282,12 +283,20 @@ export default function HomePage() {
 
   async function handleSearch(query: string) {
     setLoading(true);
+    setError(null);
     try {
       const { result: data, isMock: mock } = await lookupAll(query);
+      if (process.env.NODE_ENV === "development") {
+        console.log("[dashboard] lookup result:", data, "isMock:", mock);
+      }
       setResult(data);
       setIsMock(mock);
       saveToHistory(data);
       setHistory(loadHistory());
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      console.error("[dashboard] lookup error:", err);
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -330,6 +339,16 @@ export default function HomePage() {
                 <p className="text-xs text-gray-400 mt-1">
                   Checking reputation, blacklists, DNS records…
                 </p>
+              </div>
+            ) : error ? (
+              <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-red-50 mb-4">
+                  <svg className="w-7 h-7 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <p className="text-sm font-semibold text-gray-900 mb-1">Lookup failed</p>
+                <p className="text-sm text-red-600 max-w-sm">{error}</p>
               </div>
             ) : result ? (
               <ResultsGrid result={result} isMock={isMock} />
