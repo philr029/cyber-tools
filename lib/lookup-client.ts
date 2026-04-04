@@ -226,9 +226,25 @@ async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
 // Public exports
 // ---------------------------------------------------------------------------
 
-export function lookupIP(ip: string): Promise<{ data: IPReputationResult; mock: boolean }> {
+export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; mock: boolean }> {
   if (USE_MOCK) return mockIP(ip);
-  return apiLookup<IPReputationResult>(`/api/lookup/ip?ip=${encodeURIComponent(ip)}`);
+  const res = await fetch(`/api/lookup/ip?ip=${encodeURIComponent(ip)}`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error ?? "Lookup failed.");
+  const score: number = json.abuseConfidenceScore ?? 0;
+  const data: IPReputationResult = {
+    ipAddress: json.ip,
+    abuseConfidenceScore: score,
+    isp: json.isp ?? "Unknown",
+    usageType: json.usageType ?? "Unknown",
+    // The live route returns only countryCode; use it as the display name too.
+    country: json.countryCode ?? "--",
+    countryCode: json.countryCode ?? "--",
+    totalReports: json.totalReports ?? 0,
+    lastReportedAt: null,
+    status: score >= 50 ? "risk" : score >= 20 ? "warning" : "safe",
+  };
+  return { data, mock: false };
 }
 
 export function lookupDomain(domain: string): Promise<{ data: DomainReputationResult; mock: boolean }> {
