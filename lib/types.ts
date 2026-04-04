@@ -175,6 +175,41 @@ export interface VTURLResult {
   status: StatusLevel;
 }
 
+// ---------------------------------------------------------------------------
+// Unified Threat Intelligence (AbuseIPDB + VirusTotal combined)
+// ---------------------------------------------------------------------------
+
+export type ThreatVerdict = "Safe" | "Suspicious" | "Malicious";
+
+export interface ThreatIPAbuseIPDB {
+  abuseConfidenceScore: number;
+  countryCode: string;
+  isp: string;
+  domain: string;
+  totalReports: number;
+  lastReportedAt: string | null;
+}
+
+export interface ThreatIPVirusTotal {
+  harmless: number;
+  malicious: number;
+  suspicious: number;
+  reputation: number;
+  country: string;
+  as_owner: string;
+}
+
+export interface ThreatIPResult {
+  ip: string;
+  sources: {
+    abuseipdb: ThreatIPAbuseIPDB | null;
+    virustotal: ThreatIPVirusTotal | null;
+  };
+  threatScore: number;
+  verdict: ThreatVerdict;
+  warnings: string[];
+}
+
 export interface HistoryEntry {
   id: string;
   query: string;
