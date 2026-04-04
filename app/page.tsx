@@ -122,6 +122,18 @@ const TOOLS = [
       </svg>
     ),
   },
+  {
+    href: "/tools/keyforge",
+    title: "KeyForge",
+    description: "Generate strong passwords and passphrases client-side.",
+    badge: "Client-side",
+    color: "text-blue-600 bg-blue-50",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M8 7a5 5 0 114.546 4.978l-.285.286a.75.75 0 01-.531.22H11v.75a.75.75 0 01-.75.75H9.5v.75a.75.75 0 01-.75.75h-2A.75.75 0 016 15v-1.879a.75.75 0 01.22-.53l2.502-2.502A5.003 5.003 0 018 7zm5-1a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
 ];
 
 function ToolCards() {
