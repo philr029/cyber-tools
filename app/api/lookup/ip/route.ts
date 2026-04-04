@@ -11,11 +11,25 @@ export async function GET(request: NextRequest) {
   }
 
   const result = await fetchIPReputation(ip.trim());
+
+  // When no API key is configured the provider returns null; fall back to
+  // default values and signal to the client that this is mock data so the
+  // badge renders correctly instead of returning a 500 error.
   if (!result) {
-    return Response.json({ error: "Failed to fetch IP reputation data" }, { status: 500 });
+    console.log("[api/lookup/ip] no API key configured, returning mock fallback for", ip);
+    return Response.json({
+      mock: true,
+      ip: ip.trim(),
+      abuseConfidenceScore: 0,
+      countryCode: "--",
+      isp: "Unknown",
+      usageType: "Unknown",
+      totalReports: 0,
+    });
   }
 
   return Response.json({
+    mock: false,
     source: "live",
     provider: "AbuseIPDB",
     ip: result.ipAddress,

@@ -249,9 +249,13 @@ export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; 
     throw new Error(json.error ?? "Lookup failed.");
   }
   console.log("[lookup-client] API response:", json);
+  const isMock: boolean = json.mock === true;
+  if (!isMock && !json.ip) {
+    console.warn("[lookup-client] live IP response missing 'ip' field, falling back to input:", ip);
+  }
   const score: number = json.abuseConfidenceScore ?? 0;
   const data: IPReputationResult = {
-    ipAddress: json.ip,
+    ipAddress: json.ip ?? ip,
     abuseConfidenceScore: score,
     isp: json.isp ?? "Unknown",
     usageType: json.usageType ?? "Unknown",
@@ -262,7 +266,7 @@ export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; 
     lastReportedAt: null,
     status: score >= 50 ? "risk" : score >= 20 ? "warning" : "safe",
   };
-  return { data, mock: false };
+  return { data, mock: isMock };
 }
 
 export function lookupDomain(domain: string): Promise<{ data: DomainReputationResult; mock: boolean }> {
