@@ -286,9 +286,7 @@ export default function HomePage() {
     setError(null);
     try {
       const { result: data, isMock: mock } = await lookupAll(query);
-      if (process.env.NODE_ENV === "development") {
-        console.log("[dashboard] lookup result:", data, "isMock:", mock);
-      }
+      console.log("[dashboard] lookup result:", data, "isMock:", mock);
       setResult(data);
       setIsMock(mock);
       saveToHistory(data);
