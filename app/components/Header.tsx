@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { href: "/tools/blacklist", label: "Blacklist" },
   { href: "/tools/whois", label: "WHOIS" },
   { href: "/tools/url-analysis", label: "URL" },
+  { href: "/tools/keyforge", label: "KeyForge" },
 ];
 
 export default function Header() {
