@@ -31,7 +31,7 @@ Every tool works immediately with pre-labelled **mock data**. Add API keys to sw
 - **[Next.js 16](https://nextjs.org/)** — App Router, Turbopack, server-side API routes
 - **[TypeScript](https://www.typescriptlang.org/)** — strict mode throughout
 - **[Tailwind CSS v4](https://tailwindcss.com/)** — `@tailwindcss/postcss`, no config file needed
-- Zero Linux-only dependencies — fully cross-platform (macOS Apple Silicon ✓)
+- Zero platform-specific dependencies — fully cross-platform (Windows 10/11 ✓, macOS Apple Silicon ✓, Linux ✓)
 
 ---
 
@@ -49,6 +49,30 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+All `npm` scripts work in Command Prompt, PowerShell, and VS Code Terminal on Windows with no extra tooling.
+
+### Windows 10 / 11
+
+If you see an error about a missing native module (e.g., `lightningcss-win32-x64-msvc`) after `npm run dev`, you likely have stale `node_modules` built on a different platform. Run a clean install:
+
+**Command Prompt:**
+```cmd
+rmdir /s /q node_modules
+npm install
+npm run dev
+```
+
+**PowerShell:**
+```powershell
+Remove-Item -Recurse -Force node_modules
+npm install
+npm run dev
+```
+
+**Why it happens:** Tailwind v4, Next.js, and ESLint ship platform-specific native binaries (lightningcss, @next/swc, @tailwindcss/oxide) as optional npm packages. The repo's `.npmrc` sets `workspaces=false` and `include=optional` so that `npm install` on any platform always fetches the correct binaries. The issue only surfaces when `node_modules` from another OS is reused (e.g., after copying the project from macOS/Linux).
+
+**Workspace root confusion warning:** If npm warns about a `package-lock.json` in a parent directory (e.g., `C:\Users\<name>\`), delete that stray file and re-run `npm install` in the project directory.
+
 ### macOS Apple Silicon (M1 / M2 / M3 / M4)
 
 If you see `Cannot find module '../lightningcss.darwin-arm64.node'` in the browser after `npm run dev`, you have stale `node_modules` built on a different platform (e.g., Docker / Linux). Run a clean install:
@@ -58,8 +82,6 @@ rm -rf node_modules
 npm install   # installs the darwin-arm64 native binaries
 npm run dev
 ```
-
-**Why it happens:** Tailwind v4, Next.js, and ESLint ship platform-specific native binaries (lightningcss, @next/swc, @tailwindcss/oxide) as optional npm packages. The repo's `.npmrc` sets `workspaces=false` and `include=optional` so that `npm install` on any platform always fetches the right binaries. The issue only surfaces when `node_modules` from another OS is reused.
 
 **Workspace root confusion warning:** If npm warns about a `package-lock.json` in a parent directory (e.g., `/Users/<name>/`), delete that stray file:
 
@@ -77,8 +99,19 @@ Then run `npm install` in the project directory again.
 
 Copy `.env.example` to `.env.local` and add any API keys you have:
 
+**macOS / Linux:**
 ```bash
 cp .env.example .env.local
+```
+
+**Windows (Command Prompt):**
+```cmd
+copy .env.example .env.local
+```
+
+**Windows (PowerShell):**
+```powershell
+Copy-Item .env.example .env.local
 ```
 
 | Variable | Provider | Used by |
@@ -203,12 +236,26 @@ npm install
 npm run dev
 ```
 
-### `lightningcss` errors on macOS
+### `lightningcss` or native module errors
 
-Tailwind v4 uses `lightningcss` native binaries installed as optional deps.
+Tailwind v4 uses `lightningcss` native binaries installed as optional deps. Delete `node_modules` and reinstall for your current platform.
 
+**macOS / Linux:**
 ```bash
 rm -rf node_modules package-lock.json
+npm install
+```
+
+**Windows (Command Prompt):**
+```cmd
+rmdir /s /q node_modules
+del package-lock.json
+npm install
+```
+
+**Windows (PowerShell):**
+```powershell
+Remove-Item -Recurse -Force node_modules, package-lock.json
 npm install
 ```
 
@@ -220,11 +267,56 @@ npm run dev -- -p 3001
 
 ### Node version issues
 
-Use Node.js 20 or later ([nvm](https://github.com/nvm-sh/nvm)):
+Use Node.js 20 or later.
 
+**macOS / Linux** ([nvm](https://github.com/nvm-sh/nvm)):
 ```bash
 nvm install 20 && nvm use 20
 ```
+
+**Windows** ([nvm-windows](https://github.com/coreybutler/nvm-windows) or [fnm](https://github.com/Schniz/fnm)):
+```powershell
+# nvm-windows
+nvm install 20
+nvm use 20
+
+# or fnm (works in PowerShell and Command Prompt)
+fnm install 20
+fnm use 20
+```
+
+---
+
+## Do this now on Windows
+
+Open **Command Prompt** or **PowerShell** and run:
+
+```cmd
+node -v
+```
+> Must print `v20.x.x` or higher. If not, install Node.js 20 from https://nodejs.org.
+
+```cmd
+git clone https://github.com/philr029/cyber-tools.git
+cd cyber-tools
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) — the dashboard loads with mock data immediately.
+
+To run a production build:
+```cmd
+npm run build
+npm run start
+```
+
+To run the linter:
+```cmd
+npm run lint
+```
+
+All four commands work in **Command Prompt**, **PowerShell**, and the **VS Code integrated terminal** with no extra setup required.
 
 ---
 
