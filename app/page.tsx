@@ -19,6 +19,7 @@ import MockDataBanner from "@/app/components/ui/MockDataBanner";
 import VirusTotalIPCheck from "@/app/components/VirusTotalIPCheck";
 import VirusTotalDomainCheck from "@/app/components/VirusTotalDomainCheck";
 import VirusTotalURLCheck from "@/app/components/VirusTotalURLCheck";
+import ThreatIPCheck from "@/app/components/ThreatIPCheck";
 
 // ---------------------------------------------------------------------------
 // Tool cards
@@ -364,6 +365,21 @@ export default function HomePage() {
               {vtTab === "domain" && <VirusTotalDomainCheck />}
               {vtTab === "url" && <VirusTotalURLCheck />}
             </div>
+          </div>
+        </section>
+
+        {/* Unified Threat Intelligence section */}
+        <section className="mb-8">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-6">
+            <div className="mb-5">
+              <h2 className="text-base font-bold text-gray-900 mb-1">
+                Unified Threat Intelligence
+              </h2>
+              <p className="text-sm text-gray-500">
+                Combined AbuseIPDB + VirusTotal IP analysis with a single threat score and verdict.
+              </p>
+            </div>
+            <ThreatIPCheck />
           </div>
         </section>
 
