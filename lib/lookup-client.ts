@@ -234,15 +234,21 @@ async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
 
 export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; mock: boolean }> {
   if (USE_MOCK) return mockIP(ip);
-  const res = await fetch(`/api/lookup/ip?ip=${encodeURIComponent(ip)}`);
+  const url = `/api/lookup/ip?ip=${encodeURIComponent(ip)}`;
+  console.log("[lookup-client] fetch URL:", url);
+  let res: Response;
+  try {
+    res = await fetch(url);
+  } catch (fetchErr) {
+    console.error("[lookup-client] fetch error:", fetchErr);
+    throw fetchErr;
+  }
   const json = await res.json();
   if (!res.ok) {
     console.error("[lookup-client] IP lookup error:", json);
     throw new Error(json.error ?? "Lookup failed.");
   }
-  if (process.env.NODE_ENV === "development") {
-    console.log("[lookup-client] IP lookup response:", json);
-  }
+  console.log("[lookup-client] API response:", json);
   const score: number = json.abuseConfidenceScore ?? 0;
   const data: IPReputationResult = {
     ipAddress: json.ip,
@@ -352,8 +358,10 @@ export async function lookupAll(
   // Domain/SSL/headers/DNS are intentionally skipped for IP queries (they
   // resolve to default values with mock:true), so including them would force
   // isMock=true even when the IP reputation itself came from a live API call.
+  // Blacklist and ports are secondary lookups that may not have API keys
+  // configured; they must not affect the live/mock badge for IP queries.
   const relevantResults = ipQuery
-    ? [ip, blacklist, ports]
+    ? [ip]
     : [domain, blacklist, ssl, headers, dns];
   const isMock = relevantResults.some((r) => r.mock);
 
