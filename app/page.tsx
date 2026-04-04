@@ -16,6 +16,9 @@ import SecurityHeadersCard from "@/app/components/results/SecurityHeadersCard";
 import OpenPortsCard from "@/app/components/results/OpenPortsCard";
 import DNSCard from "@/app/components/results/DNSCard";
 import MockDataBanner from "@/app/components/ui/MockDataBanner";
+import VirusTotalIPCheck from "@/app/components/VirusTotalIPCheck";
+import VirusTotalDomainCheck from "@/app/components/VirusTotalDomainCheck";
+import VirusTotalURLCheck from "@/app/components/VirusTotalURLCheck";
 
 // ---------------------------------------------------------------------------
 // Tool cards
@@ -275,6 +278,7 @@ export default function HomePage() {
   const [isMock, setIsMock] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [vtTab, setVtTab] = useState<"ip" | "domain" | "url">("ip");
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -322,6 +326,43 @@ export default function HomePage() {
             </div>
             <div className="max-w-2xl mx-auto">
               <SearchBar onSearch={handleSearch} loading={loading} />
+            </div>
+          </div>
+        </section>
+
+        {/* VirusTotal Threat Checks section */}
+        <section className="mb-8">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-6">
+            <div className="mb-5">
+              <h2 className="text-base font-bold text-gray-900 mb-1">VirusTotal Threat Checks</h2>
+              <p className="text-sm text-gray-500">
+                Check IPs, domains, and URLs directly against VirusTotal&apos;s threat intelligence database.
+              </p>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mb-5" role="tablist" aria-label="VirusTotal check type">
+              {(["ip", "domain", "url"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  role="tab"
+                  aria-selected={vtTab === tab}
+                  onClick={() => setVtTab(tab)}
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                    vtTab === tab
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {tab === "ip" ? "IP" : tab === "domain" ? "Domain" : "URL"}
+                </button>
+              ))}
+            </div>
+
+            <div role="tabpanel">
+              {vtTab === "ip" && <VirusTotalIPCheck />}
+              {vtTab === "domain" && <VirusTotalDomainCheck />}
+              {vtTab === "url" && <VirusTotalURLCheck />}
             </div>
           </div>
         </section>

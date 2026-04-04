@@ -140,6 +140,41 @@ export interface URLAnalysisResult {
   status: StatusLevel;
 }
 
+export interface VTIPResult {
+  ip: string;
+  harmless: number;
+  malicious: number;
+  suspicious: number;
+  undetected: number;
+  reputation: number;
+  country: string;
+  asn: number | null;
+  asOwner: string;
+  network: string;
+  status: StatusLevel;
+}
+
+export interface VTDomainResult {
+  domain: string;
+  harmless: number;
+  malicious: number;
+  suspicious: number;
+  undetected: number;
+  reputation: number;
+  registrar: string;
+  createdDate: string;
+  status: StatusLevel;
+}
+
+export interface VTURLResult {
+  url: string;
+  harmless: number;
+  malicious: number;
+  suspicious: number;
+  undetected: number;
+  status: StatusLevel;
+}
+
 export interface HistoryEntry {
   id: string;
   query: string;

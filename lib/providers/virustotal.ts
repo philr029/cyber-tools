@@ -6,7 +6,7 @@
  * Used for domain reputation and URL analysis.
  */
 
-import type { DomainReputationResult, URLAnalysisResult } from "@/lib/types";
+import type { DomainReputationResult, URLAnalysisResult, VTIPResult, VTDomainResult } from "@/lib/types";
 
 interface VTAnalysisStats {
   malicious: number;
@@ -43,6 +43,90 @@ function unixToISO(unix: number | undefined): string {
 function vtCategories(cats: Record<string, string>): string[] {
   return [...new Set(Object.values(cats))];
 }
+
+interface VTIPAttributes {
+  last_analysis_stats: VTAnalysisStats;
+  reputation: number;
+  country: string;
+  asn: number | null;
+  as_owner: string;
+  network: string;
+}
+
+function vtStatus(malicious: number): import("@/lib/types").StatusLevel {
+  if (malicious === 0) return "safe";
+  if (malicious <= 3) return "warning";
+  return "risk";
+}
+
+export async function fetchVTIPReputation(ip: string): Promise<VTIPResult | null> {
+  const apiKey = process.env.VIRUSTOTAL_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch(
+      `https://www.virustotal.com/api/v3/ip_addresses/${encodeURIComponent(ip)}`,
+      { headers: { "x-apikey": apiKey }, next: { revalidate: 0 } },
+    );
+
+    if (!res.ok) return null;
+    const json = await res.json();
+    const attrs: VTIPAttributes = json.data.attributes;
+    const stats = attrs.last_analysis_stats;
+
+    return {
+      ip,
+      harmless: stats.harmless,
+      malicious: stats.malicious,
+      suspicious: stats.suspicious,
+      undetected: stats.undetected,
+      reputation: attrs.reputation ?? 0,
+      country: attrs.country ?? "Unknown",
+      asn: attrs.asn ?? null,
+      asOwner: attrs.as_owner ?? "Unknown",
+      network: attrs.network ?? "Unknown",
+      status: vtStatus(stats.malicious),
+    };
+  } catch {
+    return null;
+  }
+}
+
+interface VTDomainAttributesFull extends VTDomainAttributes {
+  reputation?: number;
+}
+
+export async function fetchVTDomainReputation(domain: string): Promise<VTDomainResult | null> {
+  const apiKey = process.env.VIRUSTOTAL_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch(
+      `https://www.virustotal.com/api/v3/domains/${encodeURIComponent(domain)}`,
+      { headers: { "x-apikey": apiKey }, next: { revalidate: 0 } },
+    );
+
+    if (!res.ok) return null;
+    const json = await res.json();
+    const attrs: VTDomainAttributesFull = json.data.attributes;
+    const stats = attrs.last_analysis_stats;
+
+    return {
+      domain,
+      harmless: stats.harmless,
+      malicious: stats.malicious,
+      suspicious: stats.suspicious,
+      undetected: stats.undetected,
+      reputation: attrs.reputation ?? 0,
+      registrar: attrs.registrar ?? "Unknown",
+      createdDate: unixToISO(attrs.creation_date),
+      status: vtStatus(stats.malicious),
+    };
+  } catch {
+    return null;
+  }
+}
+
 
 export async function fetchDomainReputation(
   domain: string,
