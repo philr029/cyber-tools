@@ -91,38 +91,42 @@ export default function SettingsPage() {
 
         <h1 className="text-xl font-bold text-gray-900 mb-1">Settings</h1>
         <p className="text-sm text-gray-500 mb-8">
-          Configure API keys for live data. Keys are stored as server environment variables — never in the browser.
+          Configure API keys for live data. Keys are stored as server-side environment variables — never exposed to the browser.
         </p>
 
-        {/* How to configure */}
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-8">
-          <h2 className="text-sm font-semibold text-blue-900 mb-2">How to configure API keys</h2>
+        {/* Vercel deployment instructions */}
+        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-6">
+          <h2 className="text-sm font-semibold text-blue-900 mb-2">Deploying on Vercel</h2>
           <ol className="text-sm text-blue-800 space-y-1.5 list-decimal list-inside">
+            <li>Push this repository to GitHub and import it into Vercel</li>
             <li>
-              Create a <code className="bg-blue-100 px-1 py-0.5 rounded text-xs font-mono">.env.local</code> file in the project root
+              Open your Vercel project → <strong>Settings</strong> → <strong>Environment Variables</strong>
             </li>
-            <li>Add each key as shown in the table below</li>
-            <li>
-              Restart the dev server:{" "}
-              <code className="bg-blue-100 px-1 py-0.5 rounded text-xs font-mono">npm run dev</code>
-            </li>
-            <li>Tools will automatically use live data when a valid key is present</li>
+            <li>Add each key from the table below as a new environment variable</li>
+            <li>Redeploy — tools will automatically use live data for any key that is present</li>
           </ol>
           <p className="text-xs text-blue-600 mt-3">
-            Without API keys, all tools fall back to mock data automatically — no errors, just sample results.
+            Tools without a configured key show a <span className="font-medium">Not configured</span> badge and return safe default values — no errors, just placeholder results.
           </p>
         </div>
 
-        {/* .env.local snippet */}
-        <div className="bg-gray-900 rounded-2xl p-5 mb-8 overflow-x-auto">
-          <p className="text-xs text-gray-400 mb-3 font-medium uppercase tracking-wide">.env.local</p>
-          <pre className="text-sm font-mono text-green-400 whitespace-pre leading-relaxed">
+        {/* Local development instructions */}
+        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-8">
+          <h2 className="text-sm font-semibold text-gray-800 mb-2">Local development</h2>
+          <p className="text-xs text-gray-500 mb-3">
+            Create a <code className="bg-gray-200 px-1 py-0.5 rounded font-mono">.env.local</code> file in the project root and add your keys there. Restart the dev server after saving.
+          </p>
+          <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+            <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">.env.local</p>
+            <pre className="text-sm font-mono text-green-400 whitespace-pre leading-relaxed">
 {`ABUSEIPDB_API_KEY=your_key_here
 VIRUSTOTAL_API_KEY=your_key_here
 HETRIXTOOLS_API_KEY=your_key_here
 SECURITYTRAILS_API_KEY=your_key_here
 SHODAN_API_KEY=your_key_here`}
-          </pre>
+            </pre>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">Run: <code className="bg-gray-200 px-1 py-0.5 rounded font-mono text-gray-600">npm run dev</code></p>
         </div>
 
         {/* API key cards */}
