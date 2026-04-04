@@ -320,7 +320,14 @@ export async function lookupAll(
   const dns = settled(dnsRes, defaultDNS(target));
   const ports = settled(portsRes, defaultPorts(target));
 
-  const isMock = [ip, domain, blacklist, ssl, headers, dns, ports].some((r) => r.mock);
+  // Only consider lookups that actually ran for this query type.
+  // Domain/SSL/headers/DNS are intentionally skipped for IP queries (they
+  // resolve to default values with mock:true), so including them would force
+  // isMock=true even when the IP reputation itself came from a live API call.
+  const relevantResults = ipQuery
+    ? [ip, blacklist, ports]
+    : [domain, blacklist, ssl, headers, dns];
+  const isMock = relevantResults.some((r) => r.mock);
 
   const result: LookupResult = {
     query: target,
