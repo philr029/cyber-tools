@@ -207,7 +207,7 @@ export default function ThreatIPCheck() {
           placeholder="e.g. 8.8.8.8"
           className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition"
           disabled={loading}
-          aria-label="IP address to analyse"
+          aria-label="IP address to analyze"
         />
         <button
           type="submit"
@@ -217,10 +217,10 @@ export default function ThreatIPCheck() {
           {loading ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Analysing…
+              Analyzing…
             </span>
           ) : (
-            "Analyse IP"
+            "Analyze IP"
           )}
         </button>
       </form>
