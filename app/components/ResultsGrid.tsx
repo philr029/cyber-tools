@@ -10,6 +10,7 @@ import OpenPortsCard from "@/app/components/results/OpenPortsCard";
 import DNSCard from "@/app/components/results/DNSCard";
 import MockDataBanner from "@/app/components/ui/MockDataBanner";
 import ShareButton from "@/app/components/ShareButton";
+import ExportButton from "@/app/components/ExportButton";
 
 interface Props {
   result: LookupResult;
@@ -48,6 +49,7 @@ export default function ResultsGrid({ result, isMock }: Props) {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          <ExportButton result={result} />
           <ShareButton result={result} />
           <MockDataBanner isMock={isMock} />
         </div>
