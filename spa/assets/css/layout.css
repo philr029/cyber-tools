@@ -1,0 +1,353 @@
+/* layout.css — App shell, sidebar, topbar, content area */
+
+/* ── App shell ──────────────────────────────────────────────────── */
+#app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Sidebar overlay (mobile) ───────────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity var(--t-normal);
+}
+.sidebar-overlay--visible {
+  opacity: 1;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 50;
+  width: var(--sidebar-w);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: var(--sp-3);
+  overflow-y: auto;
+  /* Hidden off-screen on mobile */
+  transform: translateX(-100%);
+  transition: transform var(--t-normal);
+}
+.sidebar--open {
+  transform: translateX(0);
+}
+
+/* Desktop: always visible */
+@media (min-width: 1024px) {
+  .sidebar {
+    position: relative;
+    transform: none !important;
+    flex-shrink: 0;
+  }
+  .sidebar-overlay { display: none !important; }
+}
+
+/* Mobile: overlay visible when open */
+@media (max-width: 1023px) {
+  .sidebar-overlay { display: block; }
+  .sidebar--open + .sidebar-overlay,
+  .sidebar-overlay--visible { opacity: 1; }
+}
+
+/* ── Sidebar logo row ───────────────────────────────────────────── */
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.sidebar__logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.sidebar__logo-text {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  flex: 1;
+}
+.sidebar__close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.sidebar__close-btn:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+@media (max-width: 1023px) {
+  .sidebar__close-btn { display: flex; }
+}
+
+/* ── User card ──────────────────────────────────────────────────── */
+.sidebar__user-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+.sidebar__user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.sidebar__user-info {
+  flex: 1;
+  min-width: 0;
+}
+.sidebar__user-name {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar__user-email {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Plan badge */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.plan-badge--free {
+  background: var(--surface);
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+}
+.plan-badge--pro {
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* ── Nav ────────────────────────────────────────────────────────── */
+.sidebar__nav {
+  flex: 1;
+}
+.sidebar__nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sidebar__nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color var(--t-fast), background var(--t-fast);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+}
+.sidebar__nav-link:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.sidebar__nav-link--active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+.sidebar__nav-link--active:hover {
+  background: var(--accent-dim);
+}
+.sidebar__nav-icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.sidebar__nav-link--active .sidebar__nav-icon,
+.sidebar__nav-link:hover .sidebar__nav-icon {
+  opacity: 1;
+}
+.sidebar__nav-pill {
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--surface-2);
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+}
+
+/* ── Sidebar footer ─────────────────────────────────────────────── */
+.sidebar__footer {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sidebar__signout-btn:hover {
+  color: var(--red) !important;
+  background: var(--red-dim) !important;
+}
+
+/* ── Content wrap ───────────────────────────────────────────────── */
+.content-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Topbar ─────────────────────────────────────────────────────── */
+.topbar {
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.topbar__menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.topbar__menu-btn:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+@media (max-width: 1023px) {
+  .topbar__menu-btn { display: flex; }
+}
+
+.topbar__breadcrumb {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.topbar__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  transition: color var(--t-fast), background var(--t-fast), transform var(--t-fast);
+  position: relative;
+}
+.topbar__icon-btn:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+/* Sun/moon icon switching */
+[data-theme="dark"]  .icon--moon { display: none; }
+[data-theme="dark"]  .icon--sun  { display: block; }
+[data-theme="light"] .icon--sun  { display: none; }
+[data-theme="light"] .icon--moon { display: block; }
+
+/* ── View (main content) ────────────────────────────────────────── */
+.view {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--sp-6) var(--sp-5);
+}
+@media (min-width: 768px) {
+  .view { padding: var(--sp-6); }
+}
+
+/* Page container — max-width centering */
+.page-container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ── Loading state (initial) ────────────────────────────────────── */
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.75s linear infinite;
+}
