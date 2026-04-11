@@ -356,3 +356,134 @@ export interface SavedScan {
   result: LookupResult;
 }
 
+// ---------------------------------------------------------------------------
+// Workspaces
+// ---------------------------------------------------------------------------
+
+export type WorkspaceRole = "owner" | "admin" | "viewer";
+
+export interface WorkspaceMember {
+  id: string;
+  name: string;
+  email: string;
+  role: WorkspaceRole;
+  joinedAt: string;
+}
+
+export interface Workspace {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  members: WorkspaceMember[];
+  createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Cases
+// ---------------------------------------------------------------------------
+
+export type CaseStatus = "open" | "investigating" | "resolved";
+export type CaseSeverity = "low" | "medium" | "high" | "critical";
+
+export interface CaseNote {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CaseAttachment {
+  id: string;
+  type: "scan" | "note";
+  label: string;
+  query?: string;
+  overallStatus?: StatusLevel;
+  timestamp: string;
+}
+
+export interface Case {
+  id: string;
+  title: string;
+  description: string;
+  severity: CaseSeverity;
+  status: CaseStatus;
+  assignee: string | null;
+  workspaceId: string;
+  notes: CaseNote[];
+  attachments: CaseAttachment[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Playbooks / Automation
+// ---------------------------------------------------------------------------
+
+export type PlaybookTrigger =
+  | "scan_high_risk"
+  | "scan_warning"
+  | "blacklist_hit"
+  | "ssl_expiry_7d"
+  | "new_alert";
+
+export type PlaybookAction =
+  | "create_case"
+  | "send_notification"
+  | "webhook_slack"
+  | "webhook_teams"
+  | "email_alert";
+
+export interface Playbook {
+  id: string;
+  name: string;
+  description: string;
+  trigger: PlaybookTrigger;
+  action: PlaybookAction;
+  enabled: boolean;
+  workspaceId: string;
+  runCount: number;
+  lastRunAt: string | null;
+  createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export type NotificationType = "alert" | "case_created" | "risk_changed" | "playbook_fired" | "member_invited";
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  read: boolean;
+  href?: string;
+  createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Activity Logs
+// ---------------------------------------------------------------------------
+
+export type ActivityAction =
+  | "scan_run"
+  | "case_created"
+  | "case_updated"
+  | "case_resolved"
+  | "playbook_fired"
+  | "alert_triggered"
+  | "member_invited"
+  | "workspace_created";
+
+export interface ActivityLogEntry {
+  id: string;
+  action: ActivityAction;
+  actor: string;
+  target: string;
+  detail: string;
+  workspaceId: string;
+  timestamp: string;
+}
+

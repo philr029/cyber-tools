@@ -4,11 +4,13 @@ import Header from "@/app/components/Header";
 import ChatWidget from "@/components/ai/ChatWidget";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/lib/toast-context";
+import { WorkspaceProvider } from "@/lib/workspace-context";
+import { NotificationsProvider } from "@/lib/notifications-context";
 
 export const metadata: Metadata = {
-  title: "SecureScope – Cyber Intelligence Dashboard",
+  title: "SecureScope – Enterprise Security Platform",
   description:
-    "Monitor IP reputation, domain security, SSL certificates, blacklist status, and more.",
+    "Enterprise-grade cyber intelligence platform. Monitor assets, manage cases, automate workflows, and respond to threats.",
 };
 
 export default function RootLayout({
@@ -21,9 +23,13 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#0b0f1a] antialiased">
         <AuthProvider>
           <ToastProvider>
-            <Header />
-            {children}
-            <ChatWidget />
+            <WorkspaceProvider>
+              <NotificationsProvider>
+                <Header />
+                {children}
+                <ChatWidget />
+              </NotificationsProvider>
+            </WorkspaceProvider>
           </ToastProvider>
         </AuthProvider>
       </body>
