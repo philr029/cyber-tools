@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { runAgentPipeline } from "@/lib/core/orchestrator";
 import { saveLastScan } from "@/lib/core/stateManager";
 import { loadAgentLog, clearAgentLog } from "@/lib/ai-agents/loggingAgent";
+import AIAssistantPanel from "@/components/ai/AIAssistantPanel";
 import type {
   AgentProgress,
   AgentScanResult,
@@ -799,6 +800,9 @@ export default function AgentScanPage() {
 
           {/* Single scan result */}
           {mode === "single" && result && <ResultsPanel result={result} />}
+
+          {/* AI Security Assistant — shown after a scan completes */}
+          {mode === "single" && result && <AIAssistantPanel result={result} />}
 
           {/* Single scan placeholder */}
           {mode === "single" && !result && !isScanning && !error && (
