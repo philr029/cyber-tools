@@ -115,6 +115,9 @@ Copy-Item .env.example .env.local
 
 | Variable | Provider | Used by |
 |---|---|---|
+| `SESSION_SECRET` | Generate with `openssl rand -hex 32` | JWT session signing — **required in production** |
+| `PASSWORD_PEPPER` | Generate with `openssl rand -hex 16` | Password hashing pepper — set before first user |
+| `NEXT_PUBLIC_STRIPE_PRO_LINK` | [Stripe Payment Links](https://dashboard.stripe.com/payment-links) | Pricing page "Upgrade to Pro" button |
 | `ABUSEIPDB_API_KEY` | [AbuseIPDB](https://www.abuseipdb.com/register) — free: 1,000/day | IP Reputation |
 | `VIRUSTOTAL_API_KEY` | [VirusTotal](https://www.virustotal.com/gui/join-us) — free: 500/day | Domain + URL Analysis |
 | `HETRIXTOOLS_API_KEY` | [HetrixTools](https://hetrixtools.com/dashboard/api-token/) — free tier | Blacklist Check |
@@ -202,15 +205,29 @@ vercel
 
 **Required environment variables (add in Vercel dashboard):**
 
-| Variable | Where to get it |
-|---|---|
-| `ABUSEIPDB_API_KEY` | https://www.abuseipdb.com/register |
-| `VIRUSTOTAL_API_KEY` | https://www.virustotal.com/gui/join-us |
-| `HETRIXTOOLS_API_KEY` | https://hetrixtools.com/dashboard/api-token/ |
-| `SECURITYTRAILS_API_KEY` | https://securitytrails.com/corp/api |
-| `SHODAN_API_KEY` | https://account.shodan.io/register |
+| Variable | Required | Where to get it |
+|---|---|---|
+| `SESSION_SECRET` | **Yes** | `openssl rand -hex 32` |
+| `PASSWORD_PEPPER` | Recommended | `openssl rand -hex 16` |
+| `NEXT_PUBLIC_STRIPE_PRO_LINK` | For payments | [dashboard.stripe.com/payment-links](https://dashboard.stripe.com/payment-links) |
+| `ABUSEIPDB_API_KEY` | Optional | https://www.abuseipdb.com/register |
+| `VIRUSTOTAL_API_KEY` | Optional | https://www.virustotal.com/gui/join-us |
+| `HETRIXTOOLS_API_KEY` | Optional | https://hetrixtools.com/dashboard/api-token/ |
+| `SECURITYTRAILS_API_KEY` | Optional | https://securitytrails.com/corp/api |
+| `SHODAN_API_KEY` | Optional | https://account.shodan.io/register |
 
-All keys are optional — tools without a key show a **Not configured** badge instead of an error.
+All threat intelligence keys are optional — tools without a key show a **Not configured** badge instead of an error.
+
+---
+
+### Enabling Stripe payments
+
+1. Create a **Payment Link** in the [Stripe dashboard](https://dashboard.stripe.com/payment-links) for your Pro plan ($19/month)
+2. Copy the link URL (e.g. `https://buy.stripe.com/…`)
+3. Set `NEXT_PUBLIC_STRIPE_PRO_LINK` to that URL in Vercel → Settings → Environment Variables
+4. Redeploy — the pricing page "Upgrade to Pro" button becomes a live checkout link
+
+No backend webhook is required for the MVP. Users who complete checkout can be manually upgraded; a future webhook can automate this (see Backend Roadmap below).
 
 ---
 
@@ -282,6 +299,52 @@ nvm use 20
 fnm install 20
 fnm use 20
 ```
+
+---
+
+## Backend Roadmap
+
+The current MVP uses an in-memory user store and localStorage for scan history. Here is the upgrade path to a production backend:
+
+### Phase 1 — Persistent database (Supabase / Postgres)
+
+| Current (MVP) | Production |
+|---|---|
+| `lib/users.ts` — in-memory `Map` | Supabase `users` table + Prisma ORM |
+| localStorage scan history | `scans` table keyed by `user_id` |
+| localStorage saved scans | `saved_scans` table |
+| No usage tracking server-side | `daily_usage` table with RLS |
+
+Steps:
+1. Create a Supabase project and copy the `DATABASE_URL` + `SUPABASE_KEY` env vars
+2. Add Prisma (`npm install prisma @prisma/client`) and define `User`, `Scan`, `SavedScan` models
+3. Replace `getUserByEmail` / `createUser` in `lib/users.ts` with Prisma queries
+4. Replace `loadHistory` / `saveToHistory` in `lib/mockData.ts` with API calls to new `/api/history` routes
+
+### Phase 2 — Stripe webhooks (automated plan upgrades)
+
+1. Add a Stripe webhook endpoint at `app/api/webhooks/stripe/route.ts`
+2. Listen for `checkout.session.completed` → update `user.plan = "pro"` in the database
+3. Listen for `customer.subscription.deleted` → downgrade back to `"free"`
+4. Add `STRIPE_WEBHOOK_SECRET` env var (from Stripe dashboard → Webhooks)
+
+### Phase 3 — Real API integrations
+
+| Tool | Current | Real integration |
+|---|---|---|
+| IP Reputation | AbuseIPDB (already live) | Keep + add MaxMind GeoIP |
+| Domain Reputation | VirusTotal (already live) | Keep + add Shodan |
+| Port Scanner | Mock data | Shodan `host` endpoint |
+| Subdomains | Mock data | SecurityTrails + crt.sh |
+| Phone Lookup | Mock data | Twilio Lookup |
+| Lead Intelligence | Mock data | Hunter.io / Apollo |
+
+### Phase 4 — Asset monitoring
+
+1. Store monitored domains/IPs in a `monitored_assets` table
+2. Use a Vercel Cron Job (`vercel.json` → `crons`) to re-scan assets daily
+3. Persist results and diff against previous scan to detect changes
+4. Send email alerts via Resend/SendGrid when blacklist status or SSL expiry changes
 
 ---
 

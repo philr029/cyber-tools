@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ProUpgradeButton from "./ProUpgradeButton";
 
 export const metadata: Metadata = {
   title: "Pricing – SecureScope",
@@ -99,15 +100,7 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            <button
-              type="button"
-              className="block w-full text-center py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-colors cursor-not-allowed opacity-80"
-              disabled
-              title="Payment simulation — demo only"
-            >
-              Coming soon
-            </button>
-            <p className="text-center text-xs text-slate-600 mt-2">Demo mode — no real payments</p>
+            <ProUpgradeButton />
           </div>
         </div>
 
