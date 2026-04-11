@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
     MAX_TIMEOUT_MS,
   );
 
-  // Build the target URL and request
-  let targetUrl = safeCheck.url.toString();
+  // Build the fetch URL and request using the validated URL object (never raw user input)
+  const targetURL = safeCheck.url;
   const fetchInit: RequestInit = {
     method: normalizedMethod,
     redirect: "follow",
@@ -91,14 +91,9 @@ export async function POST(request: NextRequest) {
   };
 
   if (normalizedMethod === "GET") {
-    // Append fields as query params
-    const params = new URLSearchParams();
+    // Append fields as query params via the URL object (safe — no string injection)
     for (const { key, value } of validFields) {
-      params.append(key, value);
-    }
-    const sep = targetUrl.includes("?") ? "&" : "?";
-    if (validFields.length > 0) {
-      targetUrl = `${targetUrl}${sep}${params.toString()}`;
+      targetURL.searchParams.append(key, value);
     }
   } else {
     // POST — encode body
@@ -129,7 +124,7 @@ export async function POST(request: NextRequest) {
   const startedAt = Date.now();
   let response: Response;
   try {
-    response = await fetch(targetUrl, fetchInit);
+    response = await fetch(targetURL, fetchInit);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Request failed.";
     const timedOut = message.toLowerCase().includes("timeout") || message.toLowerCase().includes("abort");
@@ -220,7 +215,7 @@ export async function POST(request: NextRequest) {
     body: responseBody,
     contentType: contentTypeResponse,
     durationMs,
-    finalUrl: response.url || targetUrl,
+    finalUrl: response.url || targetURL.toString(),
     redirected: response.redirected,
     observations,
   });
