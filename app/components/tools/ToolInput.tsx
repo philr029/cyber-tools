@@ -48,11 +48,11 @@ export default function ToolInput({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-5 mb-6">
+    <div className="bg-[#0f1629] rounded-2xl border border-[#1e2d4a] shadow-[0_4px_24px_rgba(0,0,0,0.3)] px-5 py-5 mb-6">
       <form onSubmit={handleSubmit}>
         <div className="flex gap-3">
           <div className="relative flex-1">
-            <span className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
+            <span className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500">
               <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fillRule="evenodd"
@@ -66,7 +66,7 @@ export default function ToolInput({
               value={value}
               onChange={handleChange}
               placeholder={placeholder}
-              className={`w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${error ? "border-red-300" : "border-gray-200"}`}
+              className={`w-full pl-11 pr-4 py-3.5 bg-[#0b0f1a] border rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 transition ${error ? "border-red-500/50" : "border-[#1e2d4a]"}`}
               disabled={loading}
               aria-describedby={error ? "input-error" : hint ? "input-hint" : undefined}
             />
@@ -74,7 +74,7 @@ export default function ToolInput({
           <button
             type="submit"
             disabled={loading || !value.trim()}
-            className="px-5 py-3.5 bg-gray-900 text-white text-sm font-medium rounded-xl shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap"
+            className="px-5 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-xl shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:from-cyan-400 hover:to-blue-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0f1629] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap"
           >
             {loading ? (
               <>
@@ -89,13 +89,13 @@ export default function ToolInput({
         </div>
 
         {error && (
-          <p id="input-error" className="mt-2 text-xs text-red-600 pl-1">{error}</p>
+          <p id="input-error" className="mt-2 text-xs text-red-400 pl-1">{error}</p>
         )}
         {!error && hint && (
-          <p id="input-hint" className="mt-2 text-xs text-gray-400 pl-1">{hint}</p>
+          <p id="input-hint" className="mt-2 text-xs text-slate-500 pl-1">{hint}</p>
         )}
         {!error && examples.length > 0 && (
-          <p className="mt-2 text-xs text-gray-400 pl-1">
+          <p className="mt-2 text-xs text-slate-500 pl-1">
             Try:{" "}
             {examples.map((ex, i) => (
               <span key={ex}>
@@ -103,7 +103,7 @@ export default function ToolInput({
                 <button
                   type="button"
                   onClick={() => { setValue(ex); setError(null); }}
-                  className="text-blue-500 hover:underline"
+                  className="text-cyan-400 hover:text-cyan-300 hover:underline transition-colors"
                 >
                   {ex}
                 </button>

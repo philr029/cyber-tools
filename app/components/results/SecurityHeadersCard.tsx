@@ -15,19 +15,19 @@ interface Props {
 function GradeCircle({ grade, score }: { grade: string; score: number }) {
   const colorClass =
     grade === "A" || grade === "A+"
-      ? "text-emerald-600 border-emerald-200"
+      ? "text-emerald-400 border-emerald-500/40"
       : grade === "B"
-      ? "text-blue-600 border-blue-200"
+      ? "text-cyan-400 border-cyan-500/40"
       : grade === "C"
-      ? "text-amber-600 border-amber-200"
+      ? "text-amber-400 border-amber-500/40"
       : grade === "D"
-      ? "text-orange-600 border-orange-200"
-      : "text-red-600 border-red-200";
+      ? "text-orange-400 border-orange-500/40"
+      : "text-red-400 border-red-500/40";
 
   return (
     <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 ${colorClass}`}>
       <span className={`text-2xl font-bold leading-none ${colorClass.split(" ")[0]}`}>{grade}</span>
-      <span className="text-xs text-gray-400 mt-0.5">{score}/100</span>
+      <span className="text-xs text-slate-500 mt-0.5">{score}/100</span>
     </div>
   );
 }
@@ -43,28 +43,28 @@ export default function SecurityHeadersCard({ data }: Props) {
     >
       <div className="space-y-4">
         {/* Grade + summary */}
-        <div className="flex items-center gap-4 p-3 rounded-xl bg-gray-50">
+        <div className="flex items-center gap-4 p-3 rounded-xl bg-slate-700/20 border border-[#162038]">
           <GradeCircle grade={data.grade} score={data.score} />
           <div>
-            <p className="text-sm font-semibold text-gray-800">
+            <p className="text-sm font-semibold text-slate-200">
               {presentCount} of {data.headers.length} headers present
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">{data.domain}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{data.domain}</p>
           </div>
         </div>
 
         {/* Header list */}
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-[#162038]">
           {data.headers.map((header) => (
             <div key={header.name} className="flex items-start justify-between py-2.5 gap-2">
               <div className="flex items-start gap-2.5 min-w-0">
                 <span
                   className={`flex-shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center ${
-                    header.present ? "bg-emerald-100" : "bg-red-100"
+                    header.present ? "bg-emerald-500/15" : "bg-red-500/15"
                   }`}
                 >
                   {header.present ? (
-                    <svg className="w-3 h-3 text-emerald-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg className="w-3 h-3 text-emerald-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path
                         fillRule="evenodd"
                         d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -72,27 +72,27 @@ export default function SecurityHeadersCard({ data }: Props) {
                       />
                     </svg>
                   ) : (
-                    <svg className="w-3 h-3 text-red-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg className="w-3 h-3 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                     </svg>
                   )}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-700 font-mono truncate">
+                  <p className="text-sm font-medium text-slate-300 font-mono truncate">
                     {header.name}
                   </p>
                   {header.value ? (
-                    <p className="text-xs text-gray-400 mt-0.5 truncate font-mono">{header.value}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate font-mono">{header.value}</p>
                   ) : (
-                    <p className="text-xs text-gray-400 mt-0.5">{header.description}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{header.description}</p>
                   )}
                 </div>
               </div>
               <span
                 className={`flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${
                   header.present
-                    ? "bg-emerald-50 text-emerald-600"
-                    : "bg-red-50 text-red-500"
+                    ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
+                    : "bg-red-500/10 text-red-400 ring-1 ring-red-500/20"
                 }`}
               >
                 {header.present ? "Present" : "Missing"}

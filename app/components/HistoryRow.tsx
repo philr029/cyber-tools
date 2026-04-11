@@ -24,12 +24,11 @@ export default function HistoryRow({ entry, onSelect }: HistoryRowProps) {
   return (
     <button
       onClick={() => onSelect(entry.query)}
-      className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group text-left"
+      className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group text-left"
       aria-label={`Re-scan ${entry.query}`}
     >
       <div className="flex items-center gap-3 min-w-0">
-        {/* Globe / network icon */}
-        <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-500 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+        <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-700/50 text-slate-400 group-hover:bg-cyan-500/10 group-hover:text-cyan-400 transition-colors">
           <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path
               fillRule="evenodd"
@@ -39,14 +38,14 @@ export default function HistoryRow({ entry, onSelect }: HistoryRowProps) {
           </svg>
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-medium text-gray-800 truncate">{entry.query}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{formatTime(entry.timestamp)}</p>
+          <p className="text-sm font-medium text-slate-200 truncate">{entry.query}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{formatTime(entry.timestamp)}</p>
         </div>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0 ml-4">
         <StatusBadge status={entry.overallStatus} size="sm" />
         <svg
-          className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors"
+          className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors"
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"

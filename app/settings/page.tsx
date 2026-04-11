@@ -49,7 +49,7 @@ const ENV_CARDS: EnvCard[] = [
 ];
 
 const CheckIcon = (
-  <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+  <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path
       fillRule="evenodd"
       d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
@@ -79,46 +79,46 @@ export default function SettingsPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-6">
-          <Link href="/" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+          <Link href="/" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-cyan-400 transition-colors">
             <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fillRule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clipRule="evenodd" />
             </svg>
             Dashboard
           </Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-sm font-medium text-gray-800">Settings</span>
+          <span className="text-slate-600">/</span>
+          <span className="text-sm font-medium text-slate-300">Settings</span>
         </div>
 
-        <h1 className="text-xl font-bold text-gray-900 mb-1">Settings</h1>
-        <p className="text-sm text-gray-500 mb-8">
+        <h1 className="text-xl font-bold text-slate-100 mb-1">Settings</h1>
+        <p className="text-sm text-slate-500 mb-8">
           Configure API keys for live data. Keys are stored as server-side environment variables — never exposed to the browser.
         </p>
 
         {/* Vercel deployment instructions */}
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-6">
-          <h2 className="text-sm font-semibold text-blue-900 mb-2">Deploying on Vercel</h2>
-          <ol className="text-sm text-blue-800 space-y-1.5 list-decimal list-inside">
+        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-2xl p-5 mb-6">
+          <h2 className="text-sm font-semibold text-cyan-300 mb-2">Deploying on Vercel</h2>
+          <ol className="text-sm text-slate-400 space-y-1.5 list-decimal list-inside">
             <li>Push this repository to GitHub and import it into Vercel</li>
             <li>
-              Open your Vercel project → <strong>Settings</strong> → <strong>Environment Variables</strong>
+              Open your Vercel project → <strong className="text-slate-200">Settings</strong> → <strong className="text-slate-200">Environment Variables</strong>
             </li>
             <li>Add each key from the table below as a new environment variable</li>
             <li>Redeploy — tools will automatically use live data for any key that is present</li>
           </ol>
-          <p className="text-xs text-blue-600 mt-3">
-            Tools without a configured key show a <span className="font-medium">Not configured</span> badge and return safe default values — no errors, just placeholder results.
+          <p className="text-xs text-slate-500 mt-3">
+            Tools without a configured key show a <span className="font-medium text-slate-400">Not configured</span> badge and return safe default values — no errors, just placeholder results.
           </p>
         </div>
 
         {/* Local development instructions */}
-        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-8">
-          <h2 className="text-sm font-semibold text-gray-800 mb-2">Local development</h2>
-          <p className="text-xs text-gray-500 mb-3">
-            Create a <code className="bg-gray-200 px-1 py-0.5 rounded font-mono">.env.local</code> file in the project root and add your keys there. Restart the dev server after saving.
+        <div className="bg-[#0f1629] border border-[#1e2d4a] rounded-2xl p-5 mb-8">
+          <h2 className="text-sm font-semibold text-slate-200 mb-2">Local development</h2>
+          <p className="text-xs text-slate-500 mb-3">
+            Create a <code className="bg-slate-700/50 px-1 py-0.5 rounded font-mono text-slate-300">.env.local</code> file in the project root and add your keys there. Restart the dev server after saving.
           </p>
-          <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
-            <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">.env.local</p>
-            <pre className="text-sm font-mono text-green-400 whitespace-pre leading-relaxed">
+          <div className="bg-[#080c14] rounded-xl p-4 overflow-x-auto border border-[#162038]">
+            <p className="text-xs text-slate-500 mb-2 font-medium uppercase tracking-wide">.env.local</p>
+            <pre className="text-sm font-mono text-emerald-400 whitespace-pre leading-relaxed">
 {`ABUSEIPDB_API_KEY=your_key_here
 VIRUSTOTAL_API_KEY=your_key_here
 HETRIXTOOLS_API_KEY=your_key_here
@@ -126,28 +126,28 @@ SECURITYTRAILS_API_KEY=your_key_here
 SHODAN_API_KEY=your_key_here`}
             </pre>
           </div>
-          <p className="text-xs text-gray-400 mt-2">Run: <code className="bg-gray-200 px-1 py-0.5 rounded font-mono text-gray-600">npm run dev</code></p>
+          <p className="text-xs text-slate-500 mt-2">Run: <code className="bg-slate-700/50 px-1 py-0.5 rounded font-mono text-slate-300">npm run dev</code></p>
         </div>
 
         {/* API key cards */}
         <div className="space-y-4">
-          <h2 className="text-base font-semibold text-gray-900">API Providers</h2>
+          <h2 className="text-base font-semibold text-slate-200">API Providers</h2>
           {ENV_CARDS.map((card) => (
             <div
               key={card.envKey}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+              className="bg-[#0f1629] rounded-2xl border border-[#1e2d4a] shadow-[0_4px_24px_rgba(0,0,0,0.3)] p-5 card-lift"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-semibold text-gray-900">{card.service}</h3>
-                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                    <h3 className="text-sm font-semibold text-slate-200">{card.service}</h3>
+                    <span className="text-xs text-slate-500 bg-slate-700/40 px-2 py-0.5 rounded-full ring-1 ring-[#1e2d4a]">
                       {card.freeTier}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">{card.description}</p>
+                  <p className="text-xs text-slate-500 mb-3">{card.description}</p>
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1.5 text-xs font-mono bg-gray-50 border border-gray-200 text-gray-600 px-2.5 py-1 rounded-lg">
+                    <span className="flex items-center gap-1.5 text-xs font-mono bg-slate-700/30 border border-[#1e2d4a] text-cyan-400 px-2.5 py-1 rounded-lg">
                       {card.envKey}
                     </span>
                   </div>
@@ -156,7 +156,7 @@ SHODAN_API_KEY=your_key_here`}
                   href={card.docsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
                 >
                   Get API key
                   {ExternalLinkIcon}
@@ -167,12 +167,12 @@ SHODAN_API_KEY=your_key_here`}
         </div>
 
         {/* WHOIS / SSL note */}
-        <div className="mt-8 bg-gray-50 border border-gray-100 rounded-2xl p-5">
+        <div className="mt-8 bg-[#0f1629] border border-[#1e2d4a] rounded-2xl p-5">
           <div className="flex items-start gap-3">
             <span className="flex-shrink-0 mt-0.5">{CheckIcon}</span>
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-1">WHOIS &amp; Security Headers — No key needed</h3>
-              <p className="text-xs text-gray-500">
+              <h3 className="text-sm font-semibold text-slate-200 mb-1">WHOIS &amp; Security Headers — No key needed</h3>
+              <p className="text-xs text-slate-500">
                 WHOIS lookups use the IANA RDAP bootstrap service (free, public).
                 Security Headers checks make a live HEAD request to the target domain directly from the server.
                 SSL certificate data uses the SSL Labs API (public, rate-limited, no key required).

@@ -9,9 +9,12 @@ export default function LoadingSpinner({
 }: LoadingSpinnerProps) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-500 rounded-full animate-spin mb-4" />
-      <p className="text-sm font-medium text-gray-600">{label}</p>
-      <p className="text-xs text-gray-400 mt-1">{sublabel}</p>
+      <div className="relative w-12 h-12 mb-4">
+        <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20" />
+        <div className="absolute inset-0 rounded-full border-2 border-t-cyan-500 animate-spin" />
+      </div>
+      <p className="text-sm font-semibold text-slate-200">{label}</p>
+      <p className="text-xs text-slate-500 mt-1">{sublabel}</p>
     </div>
   );
 }

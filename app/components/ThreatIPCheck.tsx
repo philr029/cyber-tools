@@ -73,7 +73,7 @@ function ThreatScoreRing({ score, verdict }: { score: number; verdict: ThreatVer
             cy="36"
             r={radius}
             fill="none"
-            stroke="#f3f4f6"
+            stroke="#1e2d4a"
             strokeWidth="7"
           />
           <circle
@@ -90,13 +90,13 @@ function ThreatScoreRing({ score, verdict }: { score: number; verdict: ThreatVer
           />
         </svg>
         <span
-          className="absolute inset-0 flex items-center justify-center text-xl font-bold text-gray-900"
+          className="absolute inset-0 flex items-center justify-center text-xl font-bold text-slate-200"
           aria-label={`Threat score: ${score}`}
         >
           {score}
         </span>
       </div>
-      <span className="text-xs text-gray-400 font-medium">Threat Score</span>
+      <span className="text-xs text-slate-500 font-medium">Threat Score</span>
     </div>
   );
 }
@@ -115,8 +115,8 @@ function VerdictBadge({ verdict }: { verdict: ThreatVerdict }) {
 
 function StatRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between py-2.5 border-b border-gray-50 last:border-0 gap-4">
-      <span className="text-xs font-medium text-gray-400 uppercase tracking-wide flex-shrink-0">
+    <div className="flex items-start justify-between py-2.5 border-b border-[#162038] last:border-0 gap-4">
+      <span className="text-xs font-medium text-slate-500 uppercase tracking-wide flex-shrink-0">
         {label}
       </span>
       <span className="text-sm font-semibold text-gray-800 text-right">{value}</span>
@@ -135,8 +135,8 @@ function SourcePill({
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
         available
-          ? "bg-blue-50 text-blue-700 ring-1 ring-blue-200"
-          : "bg-gray-100 text-gray-400 ring-1 ring-gray-200"
+          ? "bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-500/30"
+          : "bg-slate-700/50 text-slate-500 ring-1 ring-[#1e2d4a]"
       }`}
     >
       <span
@@ -205,14 +205,14 @@ export default function ThreatIPCheck() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="e.g. 8.8.8.8"
-          className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition"
+          className="flex-1 px-4 py-2.5 rounded-xl border border-[#1e2d4a] bg-[#0f1629] text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition"
           disabled={loading}
           aria-label="IP address to analyze"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors whitespace-nowrap"
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] whitespace-nowrap"
         >
           {loading ? (
             <span className="flex items-center gap-2">
@@ -227,9 +227,9 @@ export default function ThreatIPCheck() {
 
       {/* Error state */}
       {error && (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-100">
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
           <svg
-            className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0"
+            className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0"
             viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden="true"
@@ -240,15 +240,15 @@ export default function ThreatIPCheck() {
               clipRule="evenodd"
             />
           </svg>
-          <p className="text-sm text-red-700">{error}</p>
+          <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
 
       {/* Partial-failure warning banner */}
       {result && result.warnings.length > 0 && (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200">
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
           <svg
-            className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+            className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0"
             viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden="true"
@@ -260,10 +260,10 @@ export default function ThreatIPCheck() {
             />
           </svg>
           <div>
-            <p className="text-sm font-semibold text-amber-800">Partial results only</p>
+            <p className="text-sm font-semibold text-amber-300">Partial results only</p>
             <ul className="mt-0.5 space-y-0.5">
               {result.warnings.map((w) => (
-                <li key={w} className="text-xs text-amber-700">
+                <li key={w} className="text-xs text-amber-400">
                   {w}
                 </li>
               ))}
@@ -281,7 +281,7 @@ export default function ThreatIPCheck() {
         >
           <div className="space-y-5">
             {/* Score + top stats */}
-            <div className="flex flex-col sm:flex-row items-center gap-6 pb-4 border-b border-gray-50">
+            <div className="flex flex-col sm:flex-row items-center gap-6 pb-4 border-b border-[#162038]">
               <ThreatScoreRing score={result.threatScore} verdict={result.verdict} />
               <div className="flex-1 w-full">
                 <StatRow label="IP Address" value={result.ip} />
@@ -293,7 +293,7 @@ export default function ThreatIPCheck() {
             {/* Detail stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
                   AbuseIPDB
                 </p>
                 <StatRow
@@ -326,7 +326,7 @@ export default function ThreatIPCheck() {
                 />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
                   VirusTotal
                 </p>
                 <StatRow
@@ -371,8 +371,8 @@ export default function ThreatIPCheck() {
             </div>
 
             {/* Sources used */}
-            <div className="pt-3 border-t border-gray-50">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+            <div className="pt-3 border-t border-[#162038]">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
                 Sources Used
               </p>
               <div className="flex gap-2 flex-wrap">

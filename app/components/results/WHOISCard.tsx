@@ -19,8 +19,8 @@ interface Props {
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</span>
-      <span className="text-sm font-semibold text-gray-800 break-all">{value ?? "—"}</span>
+      <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">{label}</span>
+      <span className="text-sm font-semibold text-slate-200 break-all">{value ?? "—"}</span>
     </div>
   );
 }
@@ -34,15 +34,15 @@ export default function WHOISCard({ data }: Props) {
     >
       <div className="space-y-4">
         {/* Key dates */}
-        <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-gray-50">
+        <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-slate-700/20 border border-[#162038]">
           {[
             { label: "Registered", value: data.createdDate },
             { label: "Updated", value: data.updatedDate },
             { label: "Expires", value: data.expiryDate },
           ].map(({ label, value }) => (
             <div key={label} className="flex flex-col items-center text-center">
-              <span className="text-xs text-gray-400 mb-0.5">{label}</span>
-              <span className="text-sm font-semibold text-gray-800">{value}</span>
+              <span className="text-xs text-slate-500 mb-0.5">{label}</span>
+              <span className="text-sm font-semibold text-slate-200">{value}</span>
             </div>
           ))}
         </div>
@@ -54,19 +54,19 @@ export default function WHOISCard({ data }: Props) {
           <Row label="Organisation" value={data.registrantOrg} />
           <Row label="Country" value={data.registrantCountry} />
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">DNSSEC</span>
-            <span className={`text-sm font-semibold ${data.dnssec ? "text-emerald-600" : "text-gray-500"}`}>
+            <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">DNSSEC</span>
+            <span className={`text-sm font-semibold ${data.dnssec ? "text-emerald-400" : "text-slate-500"}`}>
               {data.dnssec ? "Enabled" : "Disabled"}
             </span>
           </div>
           {data.registrarUrl && (
             <div className="flex flex-col gap-0.5">
-              <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">Registrar URL</span>
+              <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Registrar URL</span>
               <a
                 href={data.registrarUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-blue-600 hover:underline truncate"
+                className="text-sm font-medium text-cyan-400 hover:text-cyan-300 hover:underline truncate transition-colors"
               >
                 {data.registrarUrl}
               </a>
@@ -77,10 +77,10 @@ export default function WHOISCard({ data }: Props) {
         {/* Nameservers */}
         {data.nameservers.length > 0 && (
           <div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1.5">Nameservers</p>
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1.5">Nameservers</p>
             <div className="flex flex-wrap gap-1.5">
               {data.nameservers.map((ns) => (
-                <span key={ns} className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-md font-mono">
+                <span key={ns} className="px-2 py-0.5 text-xs bg-slate-700/50 text-slate-300 rounded-md font-mono ring-1 ring-[#1e2d4a]">
                   {ns}
                 </span>
               ))}
@@ -91,10 +91,10 @@ export default function WHOISCard({ data }: Props) {
         {/* Domain status */}
         {data.status.length > 0 && (
           <div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1.5">Domain Status</p>
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1.5">Domain Status</p>
             <div className="flex flex-wrap gap-1.5">
               {data.status.map((s) => (
-                <span key={s} className="px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-md font-mono">
+                <span key={s} className="px-2 py-0.5 text-xs bg-cyan-500/10 text-cyan-400 rounded-md font-mono ring-1 ring-cyan-500/20">
                   {s}
                 </span>
               ))}

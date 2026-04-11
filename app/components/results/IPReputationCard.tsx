@@ -19,8 +19,8 @@ interface Props {
 function StatItem({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</span>
-      <span className="text-sm font-semibold text-gray-800">{value}</span>
+      <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">{label}</span>
+      <span className="text-sm font-semibold text-slate-200">{value}</span>
     </div>
   );
 }
@@ -28,10 +28,10 @@ function StatItem({ label, value }: { label: string; value: string | number }) {
 export default function IPReputationCard({ data }: Props) {
   const riskColor =
     data.abuseConfidenceScore >= 50
-      ? "text-red-600"
+      ? "text-red-400"
       : data.abuseConfidenceScore >= 20
-      ? "text-amber-600"
-      : "text-emerald-600";
+      ? "text-amber-400"
+      : "text-emerald-400";
 
   return (
     <Card
@@ -43,12 +43,12 @@ export default function IPReputationCard({ data }: Props) {
         {/* Score bar */}
         <div>
           <div className="flex items-end justify-between mb-1.5">
-            <span className="text-xs text-gray-500">Abuse Confidence Score</span>
+            <span className="text-xs text-slate-500">Abuse Confidence Score</span>
             <span className={`text-sm font-bold ${riskColor}`}>
               {data.abuseConfidenceScore}%
             </span>
           </div>
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-slate-700/50 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${
                 data.abuseConfidenceScore >= 50

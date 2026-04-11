@@ -52,14 +52,14 @@ export default function VirusTotalDomainCheck() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="e.g. example.com"
-          className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition"
+          className="flex-1 px-4 py-2.5 rounded-xl border border-[#1e2d4a] bg-[#0f1629] text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition"
           disabled={loading}
           aria-label="Domain to check"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]"
         >
           {loading ? (
             <span className="flex items-center gap-2">

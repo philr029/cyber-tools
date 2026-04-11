@@ -5,9 +5,9 @@
  */
 
 export function maliciousColor(count: number): string {
-  if (count === 0) return "text-emerald-600";
-  if (count <= 3) return "text-orange-500";
-  return "text-red-600";
+  if (count === 0) return "text-emerald-400";
+  if (count <= 3) return "text-orange-400";
+  return "text-red-400";
 }
 
 export function AnalysisBar({
@@ -25,18 +25,18 @@ export function AnalysisBar({
 }) {
   const total = malicious + suspicious + harmless + undetected || 1;
   const segments = [
-    { label: "Malicious", count: malicious, color: "bg-red-500", text: "text-red-600" },
-    { label: "Suspicious", count: suspicious, color: "bg-amber-400", text: "text-amber-600" },
-    { label: "Harmless", count: harmless, color: "bg-emerald-500", text: "text-emerald-600" },
-    { label: "Undetected", count: undetected, color: "bg-gray-200", text: "text-gray-500" },
+    { label: "Malicious", count: malicious, color: "bg-red-500", text: "text-red-400" },
+    { label: "Suspicious", count: suspicious, color: "bg-amber-400", text: "text-amber-400" },
+    { label: "Harmless", count: harmless, color: "bg-emerald-500", text: "text-emerald-400" },
+    { label: "Undetected", count: undetected, color: "bg-slate-600", text: "text-slate-400" },
   ];
 
   return (
     <div>
-      <p className="text-xs text-gray-500 mb-2">
+      <p className="text-xs text-slate-500 mb-2">
         {label} ({total} engines)
       </p>
-      <div className="flex w-full h-2.5 rounded-full overflow-hidden bg-gray-100">
+      <div className="flex w-full h-2.5 rounded-full overflow-hidden bg-slate-700/50">
         {segments.map((s) =>
           s.count > 0 ? (
             <div
@@ -70,17 +70,17 @@ export function StatItem({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</span>
-      <span className={`text-sm font-semibold ${valueClass ?? "text-gray-800"}`}>{value}</span>
+      <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">{label}</span>
+      <span className={`text-sm font-semibold ${valueClass ?? "text-slate-200"}`}>{value}</span>
     </div>
   );
 }
 
 export function VTErrorMessage({ message }: { message: string }) {
   return (
-    <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-100">
+    <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
       <svg
-        className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0"
+        className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0"
         viewBox="0 0 20 20"
         fill="currentColor"
         aria-hidden="true"
@@ -91,7 +91,7 @@ export function VTErrorMessage({ message }: { message: string }) {
           clipRule="evenodd"
         />
       </svg>
-      <p className="text-sm text-red-700">{message}</p>
+      <p className="text-sm text-red-400">{message}</p>
     </div>
   );
 }

@@ -34,20 +34,20 @@ export default function ToolPageLayout({
         <div className="flex items-center gap-2 mb-6">
           <Link
             href="/"
-            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-cyan-400 transition-colors"
           >
             {BackIcon}
             Dashboard
           </Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-sm font-medium text-gray-800">{title}</span>
+          <span className="text-slate-600">/</span>
+          <span className="text-sm font-medium text-slate-300">{title}</span>
         </div>
 
         {/* Page header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-            <p className="text-sm text-gray-500 mt-1 max-w-lg">{description}</p>
+            <h1 className="text-xl font-bold text-slate-100">{title}</h1>
+            <p className="text-sm text-slate-500 mt-1 max-w-lg">{description}</p>
           </div>
           {isMock !== null && isMock !== undefined && (
             <div className="flex-shrink-0 mt-1">

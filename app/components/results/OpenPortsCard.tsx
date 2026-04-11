@@ -18,9 +18,9 @@ interface Props {
 
 function StateChip({ state }: { state: PortEntry["state"] }) {
   const colors: Record<PortEntry["state"], string> = {
-    open: "bg-red-50 text-red-600",
-    closed: "bg-gray-100 text-gray-500",
-    filtered: "bg-amber-50 text-amber-600",
+    open: "bg-red-500/10 text-red-400 ring-1 ring-red-500/20",
+    closed: "bg-slate-700/40 text-slate-500 ring-1 ring-[#1e2d4a]",
+    filtered: "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20",
   };
   return (
     <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize ${colors[state]}`}>
@@ -38,24 +38,24 @@ export default function OpenPortsCard({ data }: Props) {
     >
       <div className="space-y-3">
         {/* Summary */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-700/20 border border-[#162038]">
           <div>
-            <p className="text-sm font-semibold text-gray-800">
+            <p className="text-sm font-semibold text-slate-200">
               {data.openCount} open port{data.openCount !== 1 ? "s" : ""} detected
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Scan completed in {(data.scanDuration / 1000).toFixed(1)}s · {data.target}
             </p>
           </div>
         </div>
 
         {data.ports.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-4">No ports scanned</p>
+          <p className="text-sm text-slate-500 text-center py-4">No ports scanned</p>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-100">
+          <div className="overflow-hidden rounded-xl border border-[#1e2d4a]">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-xs text-gray-400 font-medium uppercase tracking-wide">
+                <tr className="bg-slate-700/20 text-xs text-slate-500 font-medium uppercase tracking-wide">
                   <th className="px-3 py-2 text-left">Port</th>
                   <th className="px-3 py-2 text-left">Protocol</th>
                   <th className="px-3 py-2 text-left">Service</th>
@@ -63,18 +63,18 @@ export default function OpenPortsCard({ data }: Props) {
                   <th className="px-3 py-2 text-left hidden sm:table-cell">Version</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[#162038]">
                 {data.ports.map((port) => (
-                  <tr key={`${port.port}-${port.protocol}`} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono font-semibold text-gray-800">
+                  <tr key={`${port.port}-${port.protocol}`} className="hover:bg-white/5 transition-colors">
+                    <td className="px-3 py-2.5 font-mono font-semibold text-slate-200">
                       {port.port}
                     </td>
-                    <td className="px-3 py-2.5 text-gray-600">{port.protocol}</td>
-                    <td className="px-3 py-2.5 text-gray-700 font-medium">{port.service}</td>
+                    <td className="px-3 py-2.5 text-slate-400">{port.protocol}</td>
+                    <td className="px-3 py-2.5 text-slate-300 font-medium">{port.service}</td>
                     <td className="px-3 py-2.5">
                       <StateChip state={port.state} />
                     </td>
-                    <td className="px-3 py-2.5 text-gray-400 text-xs hidden sm:table-cell font-mono">
+                    <td className="px-3 py-2.5 text-slate-500 text-xs hidden sm:table-cell font-mono">
                       {port.version || "—"}
                     </td>
                   </tr>
