@@ -4,14 +4,35 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import ChatMessageBubble from "./ChatMessage";
 import type { ChatMessage } from "@/types/chat";
 import type { ChatRequest, ChatResponse, ChatErrorResponse } from "@/types/chat";
+import { loadLastScan, buildScanContext } from "@/lib/core/stateManager";
 
-const WELCOME_MESSAGE: ChatMessage = {
-  id: "welcome",
-  role: "assistant",
-  content:
-    "Hi — I'm your cyber admin assistant. Ask me about IPs, domains, Microsoft 365, security checks, or how to use the tools on this site.",
-  timestamp: Date.now(),
-};
+const SUGGESTED_PROMPTS = [
+  "Summarise risks from the last scan",
+  "What should I do next?",
+  "Explain like I'm new to IT",
+  "Is this safe to trust?",
+  "What does SPF mean?",
+];
+
+function buildWelcomeMessage(): ChatMessage {
+  if (typeof window === "undefined") {
+    return {
+      id: "welcome",
+      role: "assistant",
+      content: "Hi — I'm your cyber admin assistant. Ask me about IPs, domains, Microsoft 365, security checks, or how to use the tools on this site.",
+      timestamp: Date.now(),
+    };
+  }
+  const lastScan = loadLastScan();
+  return {
+    id: "welcome",
+    role: "assistant",
+    content: lastScan
+      ? `Hi — I'm your cyber assistant. I can see you recently scanned **${lastScan.query}** (Risk: ${lastScan.risk.level}, Score: ${lastScan.risk.score}/100). Ask me anything about it, or about security in general.`
+      : "Hi — I'm your cyber admin assistant. Ask me about IPs, domains, Microsoft 365, security checks, or how to use the tools on this site.",
+    timestamp: Date.now(),
+  };
+}
 
 function LoadingDots() {
   return (
@@ -36,9 +57,10 @@ function LoadingDots() {
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [buildWelcomeMessage()]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -58,8 +80,8 @@ export default function ChatWidget() {
     }
   }, [isOpen]);
 
-  const sendMessage = useCallback(async () => {
-    const text = input.trim();
+  const sendMessage = useCallback(async (textOverride?: string) => {
+    const text = (textOverride ?? input).trim();
     if (!text || isLoading) return;
 
     const userMsg: ChatMessage = {
@@ -72,14 +94,22 @@ export default function ChatWidget() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
+    setShowSuggestions(false);
 
     // Build conversation history excluding the welcome message
     const history = messages
       .filter((m) => m.id !== "welcome")
       .map((m) => ({ role: m.role, content: m.content }));
 
+    // Attach last scan context to system prompt if available
+    const lastScan = loadLastScan();
+    const scanContext = buildScanContext(lastScan);
+    const messageWithContext = scanContext
+      ? `[SCAN CONTEXT]\n${scanContext}\n\n[USER QUESTION]\n${text}`
+      : text;
+
     try {
-      const payload: ChatRequest = { message: text, history };
+      const payload: ChatRequest = { message: messageWithContext, history };
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,8 +154,9 @@ export default function ChatWidget() {
   };
 
   const clearChat = () => {
-    setMessages([WELCOME_MESSAGE]);
+    setMessages([buildWelcomeMessage()]);
     setInput("");
+    setShowSuggestions(true);
   };
 
   return (
@@ -214,6 +245,22 @@ export default function ChatWidget() {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Suggested prompts */}
+        {showSuggestions && messages.length <= 1 && !isLoading && (
+          <div className="px-3 pb-2 pt-1 flex flex-wrap gap-1.5">
+            {SUGGESTED_PROMPTS.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                onClick={() => sendMessage(prompt)}
+                className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 text-[11px] transition-colors"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Input */}
         <div className="px-3 pb-3 pt-2 border-t border-gray-100">
           <div className="flex items-end gap-2 bg-gray-50 rounded-xl border border-gray-200 px-3 py-2 focus-within:border-gray-400 transition-colors">
@@ -230,7 +277,7 @@ export default function ChatWidget() {
             />
             <button
               type="button"
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
               disabled={!input.trim() || isLoading}
               aria-label="Send message"
               className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-900 text-white flex items-center justify-center hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"

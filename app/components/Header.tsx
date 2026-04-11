@@ -32,6 +32,7 @@ const NAV_GROUPS = [
   {
     label: "Advanced",
     links: [
+      { href: "/tools/agent-scan", label: "🤖 Agent Scan" },
       { href: "/tools/port-scanner", label: "Port Scanner" },
       { href: "/tools/subdomains", label: "Subdomain Finder" },
       { href: "/tools/email-headers", label: "Email Headers" },
