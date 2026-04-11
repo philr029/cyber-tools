@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const NAV_GROUPS = [
   {
@@ -176,6 +177,9 @@ export default function Header() {
               </svg>
               Settings
             </Link>
+
+            {/* Notification bell — only shown when logged in */}
+            {!loading && user && <NotificationBell />}
 
             {/* Auth buttons */}
             {!loading && (
