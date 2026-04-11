@@ -2,6 +2,7 @@ import type {
   LookupResult,
   HistoryEntry,
   StatusLevel,
+  SavedScan,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -682,4 +683,103 @@ function deriveOverallStatus(statuses: StatusLevel[]): StatusLevel {
   if (statuses.includes("warning")) return "warning";
   if (statuses.includes("unknown")) return "unknown";
   return "safe";
+}
+
+// ---------------------------------------------------------------------------
+// Saved scans (client-side localStorage)
+// ---------------------------------------------------------------------------
+
+const SAVED_SCANS_KEY = "securescope_saved_scans";
+const MAX_SAVED = 50;
+
+export function saveScan(result: LookupResult, label: string): SavedScan {
+  const scan: SavedScan = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    label,
+    query: result.query,
+    timestamp: new Date().toISOString(),
+    overallStatus: deriveOverallStatus([
+      result.ipReputation.status,
+      result.domainReputation.status,
+      result.blacklist.status,
+      result.ssl.status,
+    ]),
+    result,
+  };
+  const existing = loadSavedScans();
+  const updated = [scan, ...existing].slice(0, MAX_SAVED);
+  localStorage.setItem(SAVED_SCANS_KEY, JSON.stringify(updated));
+  return scan;
+}
+
+export function loadSavedScans(): SavedScan[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(SAVED_SCANS_KEY);
+    return raw ? (JSON.parse(raw) as SavedScan[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function deleteSavedScan(id: string): void {
+  if (typeof window === "undefined") return;
+  const updated = loadSavedScans().filter((s) => s.id !== id);
+  localStorage.setItem(SAVED_SCANS_KEY, JSON.stringify(updated));
+}
+
+// ---------------------------------------------------------------------------
+// Mock monitored targets for alerts feature
+// ---------------------------------------------------------------------------
+
+export interface MonitoredTarget {
+  id: string;
+  target: string;
+  type: "ip" | "domain" | "url";
+  addedAt: string;
+  lastChecked: string;
+  status: StatusLevel;
+  alerts: MonitorAlert[];
+}
+
+export interface MonitorAlert {
+  id: string;
+  targetId: string;
+  message: string;
+  severity: "info" | "warning" | "critical";
+  timestamp: string;
+  read: boolean;
+}
+
+const MONITORS_KEY = "securescope_monitors";
+
+export function loadMonitors(): MonitoredTarget[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(MONITORS_KEY);
+    return raw ? (JSON.parse(raw) as MonitoredTarget[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addMonitor(target: string, type: "ip" | "domain" | "url"): MonitoredTarget {
+  const monitor: MonitoredTarget = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    target,
+    type,
+    addedAt: new Date().toISOString(),
+    lastChecked: new Date().toISOString(),
+    status: "unknown",
+    alerts: [],
+  };
+  const existing = loadMonitors();
+  localStorage.setItem(MONITORS_KEY, JSON.stringify([monitor, ...existing]));
+  return monitor;
+}
+
+export function removeMonitor(id: string): void {
+  if (typeof window === "undefined") return;
+  const updated = loadMonitors().filter((m) => m.id !== id);
+  localStorage.setItem(MONITORS_KEY, JSON.stringify(updated));
 }

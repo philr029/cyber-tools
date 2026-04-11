@@ -342,3 +342,17 @@ export interface SubdomainResult {
   source: string;
   status: StatusLevel;
 }
+
+// ---------------------------------------------------------------------------
+// Saved Scans
+// ---------------------------------------------------------------------------
+
+export interface SavedScan {
+  id: string;
+  label: string;
+  query: string;
+  timestamp: string;
+  overallStatus: StatusLevel;
+  result: LookupResult;
+}
+

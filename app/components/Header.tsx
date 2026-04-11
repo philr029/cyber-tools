@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/lib/toast-context";
 
 const NAV_GROUPS = [
   {
@@ -108,7 +110,16 @@ function NavDropdown({ group, pathname }: { group: (typeof NAV_GROUPS)[0]; pathn
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, loading, logout } = useAuth();
+  const { toast } = useToast();
+
+  async function handleLogout() {
+    await logout();
+    toast("Signed out.", "info");
+    router.push("/");
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-[#0b0f1a]/80 backdrop-blur-xl border-b border-[#1e2d4a] shadow-[0_1px_0_rgba(6,182,212,0.08)]">
@@ -139,7 +150,7 @@ export default function Header() {
               }`}
               aria-current={pathname === "/" ? "page" : undefined}
             >
-              Dashboard
+              Scanner
             </Link>
             {NAV_GROUPS.map((group) => (
               <NavDropdown key={group.label} group={group} pathname={pathname} />
@@ -165,6 +176,49 @@ export default function Header() {
               </svg>
               Settings
             </Link>
+
+            {/* Auth buttons */}
+            {!loading && (
+              user ? (
+                <div className="hidden sm:flex items-center gap-2">
+                  <Link
+                    href="/dashboard"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                      pathname.startsWith("/dashboard")
+                        ? "text-cyan-400 bg-cyan-400/10"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clipRule="evenodd" />
+                    </svg>
+                    Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <div className="hidden sm:flex items-center gap-2">
+                  <Link
+                    href="/login"
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors"
+                  >
+                    Get started
+                  </Link>
+                </div>
+              )
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -203,7 +257,7 @@ export default function Header() {
             }`}
             aria-current={pathname === "/" ? "page" : undefined}
           >
-            Dashboard
+            Scanner
           </Link>
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="mt-3">
@@ -230,15 +284,52 @@ export default function Header() {
               </nav>
             </div>
           ))}
-          <Link
-            href="/settings"
-            onClick={() => setMobileOpen(false)}
-            className={`block mt-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-            }`}
-          >
-            Settings
-          </Link>
+          <div className="mt-3 pt-3 border-t border-[#1e2d4a] flex flex-col gap-1">
+            <Link
+              href="/settings"
+              onClick={() => setMobileOpen(false)}
+              className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              Settings
+            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => { void handleLogout(); setMobileOpen(false); }}
+                  className="text-left block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/5 transition-colors"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-3 py-2 text-sm font-medium rounded-lg bg-cyan-600/20 text-cyan-400 transition-colors"
+                >
+                  Get started free
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
     </header>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/app/components/Header";
 import ChatWidget from "@/components/ai/ChatWidget";
+import { AuthProvider } from "@/lib/auth-context";
+import { ToastProvider } from "@/lib/toast-context";
 
 export const metadata: Metadata = {
   title: "SecureScope – Cyber Intelligence Dashboard",
@@ -17,9 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className="min-h-full flex flex-col bg-[#0b0f1a] antialiased">
-        <Header />
-        {children}
-        <ChatWidget />
+        <AuthProvider>
+          <ToastProvider>
+            <Header />
+            {children}
+            <ChatWidget />
+          </ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );
