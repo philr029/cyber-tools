@@ -7,10 +7,10 @@ import type { ChatRequest, ChatResponse, ChatErrorResponse } from "@/types/chat"
 import { loadLastScan, buildScanContext } from "@/lib/core/stateManager";
 
 const SUGGESTED_PROMPTS = [
-  "Summarise risks from the last scan",
+  "Explain this result",
+  "Is this safe?",
   "What should I do next?",
-  "Explain like I'm new to IT",
-  "Is this safe to trust?",
+  "Summarise for a non-technical user",
   "What does SPF mean?",
 ];
 
