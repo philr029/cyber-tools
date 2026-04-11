@@ -57,13 +57,13 @@ export default function ResultsGrid({ result, isMock }: Props) {
 
       {/* Cards grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <IPReputationCard data={result.ipReputation} />
-        <DomainReputationCard data={result.domainReputation} />
-        <BlacklistCard data={result.blacklist} />
-        <SSLCard data={result.ssl} />
-        <SecurityHeadersCard data={result.securityHeaders} />
-        <OpenPortsCard data={result.openPorts} />
-        <div className="lg:col-span-2">
+        <div className="card-stagger-1"><IPReputationCard data={result.ipReputation} /></div>
+        <div className="card-stagger-2"><DomainReputationCard data={result.domainReputation} /></div>
+        <div className="card-stagger-3"><BlacklistCard data={result.blacklist} /></div>
+        <div className="card-stagger-4"><SSLCard data={result.ssl} /></div>
+        <div className="card-stagger-5"><SecurityHeadersCard data={result.securityHeaders} /></div>
+        <div className="card-stagger-6"><OpenPortsCard data={result.openPorts} /></div>
+        <div className="lg:col-span-2 card-stagger-7">
           <DNSCard data={result.dns} />
         </div>
       </div>

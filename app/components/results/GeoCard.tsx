@@ -8,6 +8,10 @@ const GlobeIcon = (
   </svg>
 );
 
+// High-risk country codes (simplified illustrative list)
+const HIGH_RISK_COUNTRIES = new Set(["KP", "IR", "SY", "CU", "SD", "RU", "BY", "CN"]);
+const MEDIUM_RISK_COUNTRIES = new Set(["VN", "NG", "BD", "PK", "ID", "UA", "BR", "IN"]);
+
 interface Props {
   data: GeoResult;
 }
@@ -17,6 +21,40 @@ function Field({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-0.5">
       <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</span>
       <span className="text-sm font-semibold text-slate-200">{value || "—"}</span>
+    </div>
+  );
+}
+
+function RiskIndicator({ countryCode }: { countryCode: string }) {
+  const code = countryCode.toUpperCase();
+  if (HIGH_RISK_COUNTRIES.has(code)) {
+    return (
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 animate-ping-slow" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+        </span>
+        <span className="text-xs font-medium text-red-400">High-risk region</span>
+      </div>
+    );
+  }
+  if (MEDIUM_RISK_COUNTRIES.has(code)) {
+    return (
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 animate-ping-slow" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+        </span>
+        <span className="text-xs font-medium text-amber-400">Elevated-risk region</span>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+      <span className="relative flex h-2 w-2">
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+      </span>
+      <span className="text-xs font-medium text-emerald-400">Standard-risk region</span>
     </div>
   );
 }
@@ -33,6 +71,11 @@ export default function GeoCard({ data }: Props) {
       headerRight={<StatusBadge status={data.status} />}
     >
       <div className="space-y-4">
+        {/* Risk indicator */}
+        {data.countryCode && (
+          <RiskIndicator countryCode={data.countryCode} />
+        )}
+
         {/* Map preview */}
         {mapUrl && (
           <div className="rounded-xl overflow-hidden border border-[#1e2d4a] h-40">
