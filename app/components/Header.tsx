@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import { useTheme } from "@/lib/theme-context";
+import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
 
 const NAV_GROUPS = [
   {
@@ -119,6 +121,8 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, loading, logout } = useAuth();
   const { toast } = useToast();
+  const { theme, toggle: toggleTheme } = useTheme();
+  const { scansToday } = useDailyScans(user?.plan ?? null);
 
   async function handleLogout() {
     await logout();
@@ -181,6 +185,50 @@ export default function Header() {
               </svg>
               Settings
             </Link>
+
+            {/* Daily scan usage meter — shown for free-plan users when logged in */}
+            {!loading && user && user.plan === "free" && (
+              <Link
+                href="/pricing"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/15 transition-colors group"
+                title={`${scansToday}/${FREE_DAILY_LIMIT} scans used today — upgrade for unlimited`}
+              >
+                <svg className="w-3 h-3 text-amber-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+                <span className="text-xs font-medium text-amber-300">
+                  {scansToday}/{FREE_DAILY_LIMIT}
+                </span>
+                {/* Mini progress bar */}
+                <span className="hidden md:flex w-12 h-1.5 rounded-full bg-amber-500/20 overflow-hidden">
+                  <span
+                    className="h-full rounded-full bg-amber-400 transition-all duration-500"
+                    style={{ width: `${Math.min((scansToday / FREE_DAILY_LIMIT) * 100, 100)}%` }}
+                  />
+                </span>
+              </Link>
+            )}
+
+            {/* Theme toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? (
+                /* Sun icon */
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
+                </svg>
+              ) : (
+                /* Moon icon */
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fillRule="evenodd" d="M7.455 2.004a.75.75 0 01.26.77 7 7 0 009.958 7.967.75.75 0 011.067.853A8.5 8.5 0 116.647 1.921a.75.75 0 01.808.083z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
 
             {/* Notification bell — only shown when logged in */}
             {!loading && user && <NotificationBell />}
