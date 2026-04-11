@@ -3,7 +3,7 @@
  * In production, replace with a real database (e.g. Prisma + Postgres).
  */
 
-import { createHash, randomBytes } from "crypto";
+import { pbkdf2Sync, randomBytes } from "crypto";
 
 export interface User {
   id: string;
@@ -16,25 +16,43 @@ export interface User {
 }
 
 // ---------------------------------------------------------------------------
-// Password helpers using Node.js built-in crypto (no external deps)
+// Password helpers — PBKDF2-SHA256 with 200,000 iterations
+// (use bcrypt/argon2 in production for better memory-hardness)
 // ---------------------------------------------------------------------------
 
-function hashPassword(password: string, salt: string): string {
-  return createHash("sha256")
-    .update(salt + password + (process.env.PASSWORD_PEPPER ?? "ss-pepper"))
-    .digest("hex");
-}
+const PBKDF2_ITERATIONS = 200_000;
+const PBKDF2_KEY_LEN = 64;
+const PBKDF2_DIGEST = "sha256";
 
 export function createPasswordHash(password: string): string {
-  const salt = randomBytes(16).toString("hex");
-  const hash = hashPassword(password, salt);
+  const salt = randomBytes(32).toString("hex");
+  const hash = pbkdf2Sync(
+    password,
+    salt + (process.env.PASSWORD_PEPPER ?? "ss-pepper"),
+    PBKDF2_ITERATIONS,
+    PBKDF2_KEY_LEN,
+    PBKDF2_DIGEST,
+  ).toString("hex");
   return `${salt}:${hash}`;
 }
 
 export function verifyPassword(password: string, stored: string): boolean {
-  const [salt, hash] = stored.split(":");
-  if (!salt || !hash) return false;
-  return hashPassword(password, salt) === hash;
+  const [salt, storedHash] = stored.split(":");
+  if (!salt || !storedHash) return false;
+  const hash = pbkdf2Sync(
+    password,
+    salt + (process.env.PASSWORD_PEPPER ?? "ss-pepper"),
+    PBKDF2_ITERATIONS,
+    PBKDF2_KEY_LEN,
+    PBKDF2_DIGEST,
+  ).toString("hex");
+  // Constant-time comparison to prevent timing attacks
+  if (hash.length !== storedHash.length) return false;
+  let diff = 0;
+  for (let i = 0; i < hash.length; i++) {
+    diff |= hash.charCodeAt(i) ^ storedHash.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 // ---------------------------------------------------------------------------
