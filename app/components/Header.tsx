@@ -44,6 +44,14 @@ const NAV_GROUPS = [
       { href: "/tools/keyforge", label: "KeyForge" },
     ],
   },
+  {
+    label: "Intelligence",
+    links: [
+      { href: "/tools/lead-intelligence", label: "Lead Intelligence" },
+      { href: "/tools/domain-protection", label: "Domain Protection" },
+      { href: "/tools/ai-report", label: "✨ AI Report" },
+    ],
+  },
 ];
 
 function NavDropdown({ group, pathname }: { group: (typeof NAV_GROUPS)[0]; pathname: string }) {

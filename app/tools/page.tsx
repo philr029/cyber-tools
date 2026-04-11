@@ -71,6 +71,56 @@ const TOOL_CARDS = [
       </svg>
     ),
   },
+  {
+    href: "/tools/api-tester",
+    title: "API Tester",
+    description: "Send GET/POST/PUT requests and inspect responses.",
+    icon: (
+      <svg className="w-5 h-5 text-violet-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M2 5a3 3 0 013-3h10a3 3 0 013 3v10a3 3 0 01-3 3H5a3 3 0 01-3-3V5zm5.5 1.5a.75.75 0 00-1.5 0v.5H5a.75.75 0 000 1.5h1v.5a.75.75 0 001.5 0V8.5h5v.5a.75.75 0 001.5 0v-.5H15a.75.75 0 000-1.5h-1V6.5a.75.75 0 00-1.5 0v.5H7.5v-.5zM5 11a.75.75 0 000 1.5h10a.75.75 0 000-1.5H5zm0 3a.75.75 0 000 1.5h10a.75.75 0 000-1.5H5z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/form-tester",
+    title: "Form Testing Tool",
+    description: "Submit forms to any endpoint with security observations.",
+    icon: (
+      <svg className="w-5 h-5 text-pink-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M3 4a2 2 0 012-2h6a2 2 0 012 2v1h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V4zm2 0v12h10V7h-2v1a2 2 0 01-2 2H5a2 2 0 01-2-2V4h2z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/lead-intelligence",
+    title: "Lead Intelligence",
+    description: "Validate emails, domains & phones. Detect disposable accounts.",
+    icon: (
+      <svg className="w-5 h-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/domain-protection",
+    title: "Domain Protection",
+    description: "Detect typosquat & lookalike domains targeting your brand.",
+    icon: (
+      <svg className="w-5 h-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/ai-report",
+    title: "AI Report Generator",
+    description: "Generate professional security reports from scan findings.",
+    icon: (
+      <svg className="w-5 h-5 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
 ];
 
 // ---------------------------------------------------------------------------
