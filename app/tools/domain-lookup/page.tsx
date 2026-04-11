@@ -8,6 +8,8 @@ import ToolInput from "@/app/components/tools/ToolInput";
 import DomainReputationCard from "@/app/components/results/DomainReputationCard";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import ToolEmptyState from "@/app/components/ui/ToolEmptyState";
+import RiskScorePanel from "@/app/components/ui/RiskScorePanel";
+import { scoreDomainReputation } from "@/lib/risk-engine";
 
 const Icon = (
   <svg className="w-10 h-10 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
@@ -55,7 +57,12 @@ export default function DomainLookupPage() {
       {error && (
         <div className="rounded-xl bg-red-50 border border-red-100 p-4 text-sm text-red-700">{error}</div>
       )}
-      {!loading && !error && data && <DomainReputationCard data={data} />}
+      {!loading && !error && data && (
+        <div className="space-y-4">
+          <DomainReputationCard data={data} />
+          <RiskScorePanel risk={scoreDomainReputation(data)} />
+        </div>
+      )}
       {!loading && !error && !data && (
         <ToolEmptyState
           icon={Icon}

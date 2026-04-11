@@ -8,7 +8,8 @@ import ToolInput from "@/app/components/tools/ToolInput";
 import OpenPortsCard from "@/app/components/results/OpenPortsCard";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import ToolEmptyState from "@/app/components/ui/ToolEmptyState";
-import AISummaryPanel from "@/app/components/ui/AISummaryPanel";
+import RiskScorePanel from "@/app/components/ui/RiskScorePanel";
+import { scoreOpenPorts } from "@/lib/risk-engine";
 import type { ValidationResult } from "@/lib/validators";
 
 const Icon = (
@@ -47,12 +48,6 @@ export default function PortScannerPage() {
     }
   }
 
-  const aiContext = data
-    ? `Port scan of ${data.target}: ${data.openCount} open ports detected out of ${data.ports.length} scanned. Open ports: ${
-        data.ports.filter((p) => p.state === "open").map((p) => `${p.port}/${p.service}`).join(", ") || "none"
-      }. Filtered ports: ${data.ports.filter((p) => p.state === "filtered").length}.`
-    : "";
-
   return (
     <ToolPageLayout
       title="Port Scanner (Safe Mode)"
@@ -87,7 +82,7 @@ export default function PortScannerPage() {
       {!loading && !error && data && (
         <div className="space-y-4">
           <OpenPortsCard data={data} />
-          <AISummaryPanel toolName="Port Scanner" context={aiContext} />
+          <RiskScorePanel risk={scoreOpenPorts(data)} />
         </div>
       )}
       {!loading && !error && !data && (

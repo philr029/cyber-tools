@@ -9,6 +9,8 @@ import PhoneCard from "@/app/components/results/PhoneCard";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import ToolEmptyState from "@/app/components/ui/ToolEmptyState";
 import AISummaryPanel from "@/app/components/ui/AISummaryPanel";
+import RiskScorePanel from "@/app/components/ui/RiskScorePanel";
+import { scorePhone } from "@/lib/risk-engine";
 
 const Icon = (
   <svg className="w-10 h-10 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
@@ -69,6 +71,7 @@ export default function PhoneLookupPage() {
       {!loading && !error && data && (
         <div className="space-y-4">
           <PhoneCard data={data} />
+          <RiskScorePanel risk={scorePhone(data)} />
           <AISummaryPanel toolName="Phone Number Validator" context={aiContext} />
         </div>
       )}

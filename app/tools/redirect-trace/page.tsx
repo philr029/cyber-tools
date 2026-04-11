@@ -9,6 +9,8 @@ import RedirectTraceCard from "@/app/components/results/RedirectTraceCard";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import ToolEmptyState from "@/app/components/ui/ToolEmptyState";
 import AISummaryPanel from "@/app/components/ui/AISummaryPanel";
+import RiskScorePanel from "@/app/components/ui/RiskScorePanel";
+import { scoreRedirectTrace } from "@/lib/risk-engine";
 
 const Icon = (
   <svg className="w-10 h-10 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
@@ -73,6 +75,7 @@ export default function RedirectTracePage() {
       {!loading && !error && data && (
         <div className="space-y-4">
           <RedirectTraceCard data={data} />
+          <RiskScorePanel risk={scoreRedirectTrace(data)} />
           <AISummaryPanel toolName="URL Redirect Tracer" context={aiContext} />
         </div>
       )}
