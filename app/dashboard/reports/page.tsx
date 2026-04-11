@@ -21,6 +21,22 @@ function downloadJSON(data: unknown, filename: string) {
 }
 
 // ---------------------------------------------------------------------------
+// CSV export helper (client-side download)
+// ---------------------------------------------------------------------------
+
+function downloadCSV(rows: string[][], filename: string) {
+  const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
+  const csv = rows.map((row) => row.map(escape).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---------------------------------------------------------------------------
 // "PDF" export — generates a printable HTML page in a new tab
 // ---------------------------------------------------------------------------
 
@@ -68,12 +84,14 @@ function ReportCard({
   description,
   icon,
   onJSON,
+  onCSV,
   onPDF,
 }: {
   title: string;
   description: string;
   icon: React.ReactNode;
   onJSON: () => void;
+  onCSV: () => void;
   onPDF: () => void;
 }) {
   return (
@@ -96,7 +114,18 @@ function ReportCard({
           <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm2.25 8.5a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 3a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0-6a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clipRule="evenodd" />
           </svg>
-          Export PDF
+          PDF
+        </button>
+        <button
+          type="button"
+          onClick={onCSV}
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#131929] border border-[#1e2d4a] text-xs text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+            <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+          </svg>
+          CSV
         </button>
         <button
           type="button"
@@ -104,10 +133,9 @@ function ReportCard({
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#131929] border border-[#1e2d4a] text-xs text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 transition-colors"
         >
           <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
-            <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+            <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm4 6.5a.75.75 0 01.75-.75h4a.75.75 0 010 1.5h-4a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h4a.75.75 0 010 1.5h-4a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h4a.75.75 0 010 1.5h-4a.75.75 0 01-.75-.75zm-3.5-6a.75.75 0 100 1.5.75.75 0 000-1.5zm0 3a.75.75 0 100 1.5.75.75 0 000-1.5zm0 3a.75.75 0 100 1.5.75.75 0 000-1.5z" clipRule="evenodd" />
           </svg>
-          Export JSON
+          JSON
         </button>
       </div>
     </div>
@@ -130,6 +158,22 @@ export default function ReportsPage() {
     downloadJSON({ workspace: activeWorkspace?.name, generated: new Date().toISOString(), scans: history }, `securescope-scan-history-${Date.now()}.json`);
   }
 
+  function exportScanHistoryCSV() {
+    const rows: string[][] = [
+      ["Timestamp", "Query", "Overall Status", "IP Status", "Domain Status", "Blacklist Status", "SSL Status"],
+      ...history.map((h) => [
+        new Date(h.timestamp).toISOString(),
+        h.query,
+        h.overallStatus,
+        h.resultSnapshot.ipStatus,
+        h.resultSnapshot.domainStatus,
+        h.resultSnapshot.blacklistStatus,
+        h.resultSnapshot.sslStatus,
+      ]),
+    ];
+    downloadCSV(rows, `securescope-scan-history-${Date.now()}.csv`);
+  }
+
   function exportScanHistoryPDF() {
     const rows = history
       .map((h) => `<tr>
@@ -150,6 +194,21 @@ export default function ReportsPage() {
   // --- Case management report ---
   function exportCasesJSON() {
     downloadJSON({ workspace: activeWorkspace?.name, generated: new Date().toISOString(), cases }, `securescope-cases-${Date.now()}.json`);
+  }
+
+  function exportCasesCSV() {
+    const rows: string[][] = [
+      ["Title", "Severity", "Status", "Assignee", "Created", "Updated"],
+      ...cases.map((c) => [
+        c.title,
+        c.severity,
+        c.status,
+        c.assignee ?? "",
+        new Date(c.createdAt).toISOString(),
+        new Date(c.updatedAt).toISOString(),
+      ]),
+    ];
+    downloadCSV(rows, `securescope-cases-${Date.now()}.csv`);
   }
 
   function exportCasesPDF() {
@@ -195,6 +254,26 @@ export default function ReportsPage() {
       summary: { totalScans: history.length, safe, warning, risk, threatRate: history.length ? `${((risk / history.length) * 100).toFixed(1)}%` : "0%" },
       cases: { total: cases.length, open: cases.filter((c) => c.status === "open").length, resolved: cases.filter((c) => c.status === "resolved").length },
     }, `securescope-posture-${Date.now()}.json`);
+  }
+
+  function exportPostureCSV() {
+    const safe = history.filter((h) => h.overallStatus === "safe").length;
+    const warning = history.filter((h) => h.overallStatus === "warning").length;
+    const risk = history.filter((h) => h.overallStatus === "risk").length;
+    const rows: string[][] = [
+      ["Metric", "Value"],
+      ["Workspace", activeWorkspace?.name ?? ""],
+      ["Generated", new Date().toISOString()],
+      ["Total Scans", String(history.length)],
+      ["Safe", String(safe)],
+      ["Warnings", String(warning)],
+      ["High Risk", String(risk)],
+      ["Threat Rate", history.length ? `${((risk / history.length) * 100).toFixed(1)}%` : "0%"],
+      ["Total Cases", String(cases.length)],
+      ["Open Cases", String(cases.filter((c) => c.status === "open").length)],
+      ["Resolved Cases", String(cases.filter((c) => c.status === "resolved").length)],
+    ];
+    downloadCSV(rows, `securescope-posture-${Date.now()}.csv`);
   }
 
   function exportPosturePDF() {
@@ -262,6 +341,7 @@ export default function ReportsPage() {
           title="Security Posture"
           description="Executive summary of your overall security posture, risk trends, and findings."
           onJSON={exportPostureJSON}
+          onCSV={exportPostureCSV}
           onPDF={exportPosturePDF}
           icon={
             <svg className="w-5 h-5 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -273,6 +353,7 @@ export default function ReportsPage() {
           title="Scan History"
           description="Full list of all scans run with timestamps, targets, and status results."
           onJSON={exportScanHistoryJSON}
+          onCSV={exportScanHistoryCSV}
           onPDF={exportScanHistoryPDF}
           icon={
             <svg className="w-5 h-5 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -285,6 +366,7 @@ export default function ReportsPage() {
           title="Case Management"
           description="Security incidents and investigations — status, severity, and resolution details."
           onJSON={exportCasesJSON}
+          onCSV={exportCasesCSV}
           onPDF={exportCasesPDF}
           icon={
             <svg className="w-5 h-5 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

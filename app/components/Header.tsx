@@ -36,6 +36,8 @@ const NAV_GROUPS = [
       { href: "/tools/subdomains", label: "Subdomain Finder" },
       { href: "/tools/email-headers", label: "Email Headers" },
       { href: "/tools/phone-lookup", label: "Phone Validator" },
+      { href: "/tools/api-tester", label: "API Tester" },
+      { href: "/tools/form-tester", label: "Form Tester" },
       { href: "/tools/keyforge", label: "KeyForge" },
     ],
   },
