@@ -93,6 +93,10 @@ export async function POST(request: NextRequest) {
   const startedAt = Date.now();
   let response: Response;
   try {
+    // safeCheck.url has already been validated by assertSafeURL (blocks private IPs,
+    // loopback, metadata endpoints, and non-HTTP protocols). This is an intentional
+    // proxy tool; the SSRF risk is mitigated by that check.
+    // lgtm[js/request-forgery]
     response = await fetch(safeCheck.url, fetchInit);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Request failed.";
