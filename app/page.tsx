@@ -143,6 +143,86 @@ const TOOLS = [
       </svg>
     ),
   },
+  {
+    href: "/tools/geo-lookup",
+    title: "Geolocation & ASN",
+    description: "Country, city, ISP, ASN, timezone, and map preview.",
+    badge: "ip-api.com",
+    iconColor: "text-green-400",
+    bgColor: "bg-green-500/10",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/threat-score",
+    title: "Threat Score",
+    description: "Combined risk score from SSL, WHOIS age, and headers.",
+    badge: "Multi-source",
+    iconColor: "text-orange-400",
+    bgColor: "bg-orange-500/10",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/port-scanner",
+    title: "Port Scanner",
+    description: "Safe-mode TCP scan of 15 common ports.",
+    badge: "Safe Scan",
+    iconColor: "text-cyan-400",
+    bgColor: "bg-cyan-500/10",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M2 5a3 3 0 013-3h10a3 3 0 013 3v10a3 3 0 01-3 3H5a3 3 0 01-3-3V5zm6 0a1 1 0 012 0v2h2V5a1 1 0 112 0v2a2 2 0 01-2 2H9a2 2 0 01-2-2V5zm-1 7a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/email-headers",
+    title: "Email Headers",
+    description: "SPF/DKIM/DMARC analysis and sender IP extraction.",
+    badge: "Phishing Detection",
+    iconColor: "text-violet-400",
+    bgColor: "bg-violet-500/10",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+        <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/redirect-trace",
+    title: "Redirect Tracer",
+    description: "Follow URL redirect chains and flag suspicious hops.",
+    badge: "Server-side",
+    iconColor: "text-sky-400",
+    bgColor: "bg-sky-500/10",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z" clipRule="evenodd" />
+        <path d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/tools/subdomains",
+    title: "Subdomain Finder",
+    description: "Enumerate subdomains via certificate transparency logs.",
+    badge: "crt.sh",
+    iconColor: "text-teal-400",
+    bgColor: "bg-teal-500/10",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
+      </svg>
+    ),
+  },
 ];
 
 function ToolCards() {

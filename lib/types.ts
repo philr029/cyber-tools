@@ -222,3 +222,123 @@ export interface HistoryEntry {
     sslStatus: StatusLevel;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Geolocation + ASN
+// ---------------------------------------------------------------------------
+
+export interface GeoResult {
+  ip: string;
+  country: string;
+  countryCode: string;
+  region: string;
+  city: string;
+  lat: number;
+  lon: number;
+  timezone: string;
+  isp: string;
+  org: string;
+  asn: string;
+  status: StatusLevel;
+}
+
+// ---------------------------------------------------------------------------
+// Domain Threat Score Engine (aggregates blacklist + SSL + WHOIS + headers)
+// ---------------------------------------------------------------------------
+
+export interface ThreatScoreFactor {
+  name: string;
+  score: number;
+  maxScore: number;
+  detail: string;
+  status: StatusLevel;
+}
+
+export interface DomainThreatScoreResult {
+  target: string;
+  totalScore: number;
+  label: "Safe" | "Suspicious" | "High Risk";
+  factors: ThreatScoreFactor[];
+  status: StatusLevel;
+}
+
+// ---------------------------------------------------------------------------
+// Email Header Analyzer
+// ---------------------------------------------------------------------------
+
+export interface EmailHeaderField {
+  name: string;
+  value: string;
+}
+
+export interface SPFResult {
+  present: boolean;
+  result: string | null;
+  pass: boolean;
+}
+
+export interface DKIMResult {
+  present: boolean;
+  domain: string | null;
+  result: string | null;
+  pass: boolean;
+}
+
+export interface DMARCResult {
+  present: boolean;
+  policy: string | null;
+  result: string | null;
+  pass: boolean;
+}
+
+export interface EmailHeaderResult {
+  senderIP: string | null;
+  fromAddress: string | null;
+  replyTo: string | null;
+  subject: string | null;
+  date: string | null;
+  receivedChain: string[];
+  spf: SPFResult;
+  dkim: DKIMResult;
+  dmarc: DMARCResult;
+  suspiciousIndicators: string[];
+  status: StatusLevel;
+}
+
+// ---------------------------------------------------------------------------
+// Redirect Trace
+// ---------------------------------------------------------------------------
+
+export interface RedirectHop {
+  url: string;
+  statusCode: number;
+  isSuspicious: boolean;
+  reason?: string;
+}
+
+export interface RedirectTraceResult {
+  originalUrl: string;
+  finalUrl: string;
+  hopCount: number;
+  hops: RedirectHop[];
+  isSuspicious: boolean;
+  suspiciousReasons: string[];
+  status: StatusLevel;
+}
+
+// ---------------------------------------------------------------------------
+// Subdomain Enumeration
+// ---------------------------------------------------------------------------
+
+export interface SubdomainEntry {
+  subdomain: string;
+  isWildcard: boolean;
+}
+
+export interface SubdomainResult {
+  domain: string;
+  subdomains: SubdomainEntry[];
+  totalFound: number;
+  source: string;
+  status: StatusLevel;
+}
