@@ -83,3 +83,21 @@ export function validateIPOrDomain(value: string): ValidationResult {
   if (!isValidIPOrDomain(value.trim())) return { ok: false, message: "Please enter a valid IP address (e.g. 8.8.8.8) or domain (e.g. example.com)." };
   return { ok: true };
 }
+
+// ---------------------------------------------------------------------------
+// Phone number
+// ---------------------------------------------------------------------------
+
+/** Loose check: must start with optional +, then 7–15 digits (with spaces/dashes/parens). */
+const PHONE_RE = /^\+?[\d\s\-().]{7,20}$/;
+
+export function isValidPhone(value: string): boolean {
+  return PHONE_RE.test(value.trim());
+}
+
+export function validatePhone(value: string): ValidationResult {
+  if (!value.trim()) return { ok: false, message: "Please enter a phone number." };
+  if (!isValidPhone(value.trim()))
+    return { ok: false, message: "That doesn't look like a valid phone number. Try +1 202 555 1234." };
+  return { ok: true };
+}
