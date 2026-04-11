@@ -3,11 +3,11 @@
 /* ── Design Tokens ──────────────────────────────────────────────── */
 :root {
   /* Palette (dark default) */
-  --bg:              #0b0f1a;
-  --surface:         #0e1525;
-  --surface-2:       #121d30;
-  --border:          #1e2d4a;
-  --border-subtle:   #182138;
+  --bg:              #0f172a;
+  --surface:         #1e293b;
+  --surface-2:       #162032;
+  --border:          #334155;
+  --border-subtle:   #1e2d4a;
 
   --text:            #f1f5f9;
   --text-muted:      #94a3b8;
