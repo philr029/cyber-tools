@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { LookupResult } from "@/lib/types";
 
 interface Insight {
@@ -136,6 +137,30 @@ function deriveInsights(result: LookupResult): Insight[] {
   return insights;
 }
 
+// ---------------------------------------------------------------------------
+// Plain-language client-mode text
+// ---------------------------------------------------------------------------
+
+function toClientLanguage(insight: Insight): { headline: string; body: string } {
+  switch (insight.severity) {
+    case "critical":
+      return {
+        headline: "⚠️ Action needed",
+        body: `This could cause real problems. ${insight.action}`,
+      };
+    case "warning":
+      return {
+        headline: "📋 Worth reviewing",
+        body: `Nothing urgent, but it's worth looking at. ${insight.action}`,
+      };
+    default:
+      return {
+        headline: "✅ Looks good",
+        body: insight.detail,
+      };
+  }
+}
+
 const SEVERITY_STYLES: Record<Insight["severity"], { border: string; icon: string; badge: string }> = {
   critical: {
     border: "border-red-500/30 bg-red-500/5",
@@ -178,20 +203,47 @@ function SeverityIcon({ severity }: { severity: Insight["severity"] }) {
 
 export function SmartInsightsPanel({ result }: { result: LookupResult }) {
   const insights = deriveInsights(result);
+  const [clientMode, setClientMode] = useState(false);
 
   return (
-    <div className="rounded-2xl bg-[#0d1321] border border-[#1e2d4a] p-5">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="rounded-2xl bg-[#0d1321] border border-[#1e2d4a] p-5 animate-fade-in">
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
         <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
         </svg>
         <h3 className="text-sm font-semibold text-slate-200">Smart Insights</h3>
-        <span className="ml-auto text-xs text-slate-500">{insights.length} finding{insights.length !== 1 ? "s" : ""}</span>
+        <span className="text-xs text-slate-500">{insights.length} finding{insights.length !== 1 ? "s" : ""}</span>
+
+        {/* Client-mode toggle */}
+        <button
+          type="button"
+          onClick={() => setClientMode((v) => !v)}
+          className={`ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 btn-micro ${
+            clientMode
+              ? "bg-purple-500/15 border-purple-500/30 text-purple-300"
+              : "bg-slate-700/40 border-[#1e2d4a] text-slate-400 hover:text-slate-200 hover:bg-slate-700/60"
+          }`}
+          title="Toggle plain-language client view"
+        >
+          <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+          </svg>
+          {clientMode ? "Client view" : "Explain like a client"}
+        </button>
       </div>
 
       <div className="space-y-3">
         {insights.map((insight, i) => {
           const styles = SEVERITY_STYLES[insight.severity];
+          if (clientMode) {
+            const plain = toClientLanguage(insight);
+            return (
+              <div key={i} className={`rounded-xl border p-3.5 ${styles.border} animate-scale-in`}>
+                <p className="text-sm font-semibold text-slate-200 mb-1">{plain.headline}</p>
+                <p className="text-xs text-slate-400 leading-relaxed">{plain.body}</p>
+              </div>
+            );
+          }
           return (
             <div key={i} className={`rounded-xl border p-3.5 ${styles.border}`}>
               <div className="flex items-start gap-2.5">

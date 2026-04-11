@@ -19,37 +19,9 @@ import VirusTotalIPCheck from "@/app/components/VirusTotalIPCheck";
 import VirusTotalDomainCheck from "@/app/components/VirusTotalDomainCheck";
 import VirusTotalURLCheck from "@/app/components/VirusTotalURLCheck";
 import ThreatIPCheck from "@/app/components/ThreatIPCheck";
-
-// ---------------------------------------------------------------------------
-// Loading state with skeleton cards
-// ---------------------------------------------------------------------------
-function ScanningState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="relative w-16 h-16 mb-6">
-        <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20" />
-        <div className="absolute inset-0 rounded-full border-2 border-t-cyan-500 animate-spin" />
-        <div className="absolute inset-2 rounded-full border-2 border-t-blue-500/60 animate-spin-reverse" />
-      </div>
-      <p className="text-sm font-semibold text-slate-200">Scanning target…</p>
-      <p className="text-xs text-slate-500 mt-1">Checking reputation, blacklists, DNS records…</p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl mt-8">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-[#0f1629] rounded-2xl border border-[#1e2d4a] p-5 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="skeleton w-8 h-8 rounded-lg" />
-              <div className="skeleton h-4 w-32" />
-            </div>
-            <div className="skeleton h-3 w-full" />
-            <div className="skeleton h-3 w-3/4" />
-            <div className="skeleton h-3 w-1/2" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+import ScanTimeline from "@/app/components/ScanTimeline";
+import QuickToolsBar from "@/app/components/QuickToolsBar";
+import ToolPresets from "@/app/components/ToolPresets";
 
 // ---------------------------------------------------------------------------
 // Error state
@@ -227,7 +199,7 @@ export default function HomePage() {
               onClick={() => {
                 document.getElementById("search-section")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="btn-glow inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-sm shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-200 hover:from-cyan-400 hover:to-blue-500"
+              className="btn-glow btn-micro inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-sm shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-200 hover:from-cyan-400 hover:to-blue-500"
             >
               <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
@@ -272,6 +244,10 @@ export default function HomePage() {
                 </div>
               </div>
             )}
+            {/* Preset buttons below search bar */}
+            <div className="mt-5">
+              <ToolPresets onSelect={handleSearch} />
+            </div>
           </div>
         </div>
       </section>
@@ -303,6 +279,11 @@ export default function HomePage() {
 
       {/* ── Main content ─────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quick Tools Bar */}
+        <section className="mb-8">
+          <QuickToolsBar />
+        </section>
+
         {/* VirusTotal Threat Checks */}
         <section className="mb-8">
           <div className="bg-[#0f1629] rounded-2xl border border-[#1e2d4a] px-6 py-6 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
@@ -357,7 +338,7 @@ export default function HomePage() {
           {/* Results area */}
           <div className="flex-1 min-w-0">
             {loading ? (
-              <ScanningState />
+              <ScanTimeline />
             ) : error ? (
               <ErrorState message={error} />
             ) : result ? (
@@ -380,7 +361,7 @@ export default function HomePage() {
                     type="button"
                     onClick={handleSaveScan}
                     disabled={saving}
-                    className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0"
+                    className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0 btn-micro"
                   >
                     Save scan
                   </button>
