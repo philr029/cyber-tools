@@ -344,6 +344,47 @@ export interface SubdomainResult {
 }
 
 // ---------------------------------------------------------------------------
+// Phone Number Validator
+// ---------------------------------------------------------------------------
+
+export type PhoneNumberType =
+  | "mobile"
+  | "landline"
+  | "toll-free"
+  | "premium-rate"
+  | "voip"
+  | "unknown";
+
+export interface PhoneRiskFlag {
+  code: string;
+  label: string;
+  severity: "info" | "warning" | "high";
+}
+
+export interface PhoneResult {
+  /** The raw input provided by the user */
+  raw: string;
+  /** Normalised E.164 form, e.g. +12025551234 */
+  e164: string | null;
+  /** Local display format, e.g. (202) 555-1234 */
+  formatted: string | null;
+  /** Dial code extracted from the number, e.g. "+1" */
+  dialCode: string | null;
+  /** Country name, e.g. "United States" */
+  country: string | null;
+  /** ISO 3166-1 alpha-2 country code, e.g. "US" */
+  countryCode: string | null;
+  /** Broad classification of the number */
+  numberType: PhoneNumberType;
+  /** Mocked carrier name based on prefix/country heuristics */
+  carrier: string | null;
+  /** Risk flags surfaced by the analyser */
+  flags: PhoneRiskFlag[];
+  /** Overall status driven by the highest-severity flag present */
+  status: StatusLevel;
+}
+
+// ---------------------------------------------------------------------------
 // Saved Scans
 // ---------------------------------------------------------------------------
 

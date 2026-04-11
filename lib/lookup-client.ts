@@ -26,6 +26,7 @@ import type {
   EmailHeaderResult,
   RedirectTraceResult,
   SubdomainResult,
+  PhoneResult,
 } from "@/lib/types";
 import { isValidIP } from "@/lib/validators";
 
@@ -245,6 +246,10 @@ export function lookupRedirectTrace(url: string): Promise<{ data: RedirectTraceR
 
 export function lookupSubdomains(domain: string): Promise<{ data: SubdomainResult; mock: boolean }> {
   return apiLookup<SubdomainResult>(`/api/lookup/subdomains?domain=${encodeURIComponent(domain)}`);
+}
+
+export function lookupPhone(phone: string): Promise<{ data: PhoneResult; mock: boolean }> {
+  return apiLookup<PhoneResult>(`/api/tools/phone?phone=${encodeURIComponent(phone)}`);
 }
 
 // ---------------------------------------------------------------------------

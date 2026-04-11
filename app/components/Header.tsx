@@ -35,6 +35,7 @@ const NAV_GROUPS = [
       { href: "/tools/port-scanner", label: "Port Scanner" },
       { href: "/tools/subdomains", label: "Subdomain Finder" },
       { href: "/tools/email-headers", label: "Email Headers" },
+      { href: "/tools/phone-lookup", label: "Phone Validator" },
       { href: "/tools/keyforge", label: "KeyForge" },
     ],
   },
