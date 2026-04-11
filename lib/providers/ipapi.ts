@@ -27,7 +27,7 @@ export async function fetchGeo(ip: string): Promise<GeoResult | null> {
   try {
     const fields = "status,message,country,countryCode,region,regionName,city,lat,lon,timezone,isp,org,as,query";
     const res = await fetch(
-      `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=${fields}`,
+      `https://ip-api.com/json/${encodeURIComponent(ip)}?fields=${fields}`,
       { next: { revalidate: 0 } },
     );
 

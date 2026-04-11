@@ -47,7 +47,8 @@ function extractSenderIP(raw: string): string | null {
   }
   if (current) receivedHeaders.push(current);
 
-  // The last Received header is usually the originating server
+  // The last Received header in the array represents the earliest hop (originating server),
+  // since Received headers are prepended by each server in FIFO order (newest first in raw text).
   const originating = receivedHeaders[receivedHeaders.length - 1] ?? receivedHeaders[0] ?? "";
 
   const ipMatch = originating.match(

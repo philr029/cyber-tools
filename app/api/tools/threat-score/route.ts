@@ -17,21 +17,6 @@ import type {
   StatusLevel,
 } from "@/lib/types";
 
-function scoreBlacklist(listedCount: number, totalChecked: number): ThreatScoreFactor {
-  const pct = totalChecked > 0 ? listedCount / totalChecked : 0;
-  const score = Math.round(pct * 30); // max 30 pts
-  return {
-    name: "Blacklist Status",
-    score,
-    maxScore: 30,
-    detail:
-      listedCount === 0
-        ? "Not listed on any checked blacklists"
-        : `Listed on ${listedCount} of ${totalChecked} blacklists`,
-    status: listedCount === 0 ? "safe" : listedCount <= 2 ? "warning" : "risk",
-  };
-}
-
 function scoreSSL(daysRemaining: number, isValid: boolean): ThreatScoreFactor {
   let score = 0;
   let detail = "";
@@ -135,9 +120,14 @@ export async function GET(request: NextRequest) {
   const headers = headersResult.status === "fulfilled" ? headersResult.value : null;
 
   // We don't import blacklist here to keep this endpoint self-contained;
-  // blacklist factor uses a neutral default when not configured.
-  const blacklistFactor: ThreatScoreFactor = scoreBlacklist(0, 0);
-  blacklistFactor.detail = "Blacklist check not included in this view";
+  // blacklist factor uses a neutral placeholder when not configured.
+  const blacklistFactor: ThreatScoreFactor = {
+    name: "Blacklist Status",
+    score: 0,
+    maxScore: 30,
+    detail: "Blacklist check not included in this view — use the dedicated Blacklist tool",
+    status: "unknown" as StatusLevel,
+  };
 
   const sslFactor = ssl
     ? scoreSSL(ssl.daysRemaining, ssl.status !== "risk")
