@@ -22,12 +22,12 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <header className="sticky top-0 z-50 bg-[#0b0f1a]/80 backdrop-blur-xl border-b border-[#1e2d4a] shadow-[0_1px_0_rgba(6,182,212,0.08)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900">
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_12px_rgba(6,182,212,0.4)] transition-shadow group-hover:shadow-[0_0_20px_rgba(6,182,212,0.6)]">
               <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fillRule="evenodd"
@@ -36,7 +36,7 @@ export default function Header() {
                 />
               </svg>
             </div>
-            <span className="text-base font-bold text-gray-900 tracking-tight">SecureScope</span>
+            <span className="text-base font-bold text-slate-100 tracking-tight">SecureScope</span>
           </Link>
 
           {/* Desktop nav */}
@@ -49,8 +49,8 @@ export default function Header() {
                   href={href}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     active
-                      ? "text-gray-900 bg-gray-100"
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      ? "text-cyan-400 bg-cyan-400/10"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
                   }`}
                   aria-current={active ? "page" : undefined}
                 >
@@ -66,8 +66,8 @@ export default function Header() {
               href="/settings"
               className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                 pathname === "/settings"
-                  ? "text-gray-900 bg-gray-100"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                  ? "text-cyan-400 bg-cyan-400/10"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
               }`}
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -84,7 +84,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+              className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors"
               aria-label="Toggle menu"
               aria-expanded={mobileOpen}
             >
@@ -108,7 +108,7 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-gray-100 bg-white px-4 pb-3 pt-2">
+        <div className="lg:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-3 pt-2">
           <nav className="flex flex-col gap-0.5" aria-label="Mobile navigation">
             {NAV_LINKS.map(({ href, label }) => {
               const active = pathname === href;
@@ -118,7 +118,7 @@ export default function Header() {
                   href={href}
                   onClick={() => setMobileOpen(false)}
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    active ? "text-gray-900 bg-gray-100" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
                   }`}
                   aria-current={active ? "page" : undefined}
                 >
@@ -130,7 +130,7 @@ export default function Header() {
               href="/settings"
               onClick={() => setMobileOpen(false)}
               className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/settings" ? "text-gray-900 bg-gray-100" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
               }`}
             >
               Settings

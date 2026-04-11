@@ -8,7 +8,7 @@ interface ToolEmptyStateProps {
 
 const DefaultIcon = (
   <svg
-    className="w-10 h-10 text-blue-400"
+    className="w-10 h-10 text-cyan-400"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -30,11 +30,11 @@ export default function ToolEmptyState({
 }: ToolEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-blue-50 mb-5">
+      <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 mb-5 shadow-[0_0_20px_rgba(6,182,212,0.08)]">
         {icon}
       </div>
-      <h3 className="text-base font-semibold text-gray-800 mb-1">{title}</h3>
-      <p className="text-sm text-gray-400 max-w-xs">{description}</p>
+      <h3 className="text-base font-semibold text-slate-200 mb-1">{title}</h3>
+      <p className="text-sm text-slate-500 max-w-xs">{description}</p>
     </div>
   );
 }

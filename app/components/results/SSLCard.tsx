@@ -30,20 +30,20 @@ function formatDate(iso: string): string {
 }
 
 function DaysRemainingBadge({ days }: { days: number }) {
-  let color = "bg-emerald-50 text-emerald-700";
+  let classes = "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20";
   let label = `${days} days remaining`;
   if (days <= 0) {
-    color = "bg-red-50 text-red-700";
+    classes = "bg-red-500/10 text-red-400 ring-1 ring-red-500/20";
     label = "Expired";
   } else if (days <= 30) {
-    color = "bg-red-50 text-red-700";
+    classes = "bg-red-500/10 text-red-400 ring-1 ring-red-500/20";
     label = `${days} days remaining`;
   } else if (days <= 90) {
-    color = "bg-amber-50 text-amber-700";
+    classes = "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20";
     label = `${days} days remaining`;
   }
   return (
-    <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${color}`}>
+    <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${classes}`}>
       {label}
     </span>
   );
@@ -58,10 +58,10 @@ export default function SSLCard({ data }: Props) {
     >
       <div className="space-y-4">
         {/* Expiry highlight */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-700/20 border border-[#162038]">
           <div>
-            <p className="text-xs text-gray-400 mb-1">Certificate Expiry</p>
-            <p className="text-sm font-semibold text-gray-800">{formatDate(data.validTo)}</p>
+            <p className="text-xs text-slate-500 mb-1">Certificate Expiry</p>
+            <p className="text-sm font-semibold text-slate-200">{formatDate(data.validTo)}</p>
           </div>
           <DaysRemainingBadge days={data.daysRemaining} />
         </div>
@@ -77,10 +77,10 @@ export default function SSLCard({ data }: Props) {
             { label: "Algorithm", value: data.signatureAlgorithm },
           ].map(({ label, value }) => (
             <div key={label} className="flex flex-col gap-0.5">
-              <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">
+              <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">
                 {label}
               </span>
-              <span className="text-sm font-semibold text-gray-800 truncate">{value}</span>
+              <span className="text-sm font-semibold text-slate-200 truncate">{value}</span>
             </div>
           ))}
         </div>
@@ -88,14 +88,14 @@ export default function SSLCard({ data }: Props) {
         {/* SANs */}
         {data.subjectAltNames.length > 0 && (
           <div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1.5">
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1.5">
               Subject Alt Names
             </p>
             <div className="flex flex-wrap gap-1.5">
               {data.subjectAltNames.map((san) => (
                 <span
                   key={san}
-                  className="inline-block px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-md font-mono"
+                  className="inline-block px-2 py-0.5 text-xs bg-cyan-500/10 text-cyan-400 rounded-md font-mono ring-1 ring-cyan-500/20"
                 >
                   {san}
                 </span>

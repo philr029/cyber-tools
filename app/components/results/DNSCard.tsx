@@ -9,13 +9,13 @@ const DNSIcon = (
 );
 
 const TYPE_COLORS: Record<string, string> = {
-  A: "bg-blue-50 text-blue-700",
-  AAAA: "bg-indigo-50 text-indigo-700",
-  MX: "bg-purple-50 text-purple-700",
-  TXT: "bg-orange-50 text-orange-700",
-  NS: "bg-teal-50 text-teal-700",
-  CNAME: "bg-pink-50 text-pink-700",
-  SOA: "bg-gray-100 text-gray-600",
+  A: "bg-blue-500/10 text-blue-400",
+  AAAA: "bg-indigo-500/10 text-indigo-400",
+  MX: "bg-purple-500/10 text-purple-400",
+  TXT: "bg-orange-500/10 text-orange-400",
+  NS: "bg-teal-500/10 text-teal-400",
+  CNAME: "bg-pink-500/10 text-pink-400",
+  SOA: "bg-slate-500/10 text-slate-400",
 };
 
 interface Props {
@@ -33,14 +33,14 @@ export default function DNSCard({ data }: Props) {
         {/* Nameservers */}
         {data.nameservers.length > 0 && (
           <div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1.5">
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1.5">
               Nameservers
             </p>
             <div className="flex flex-wrap gap-1.5">
               {data.nameservers.map((ns) => (
                 <span
                   key={ns}
-                  className="inline-block px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-md font-mono"
+                  className="inline-block px-2 py-0.5 text-xs bg-slate-700/50 text-slate-300 rounded-md font-mono ring-1 ring-[#1e2d4a]"
                 >
                   {ns}
                 </span>
@@ -50,44 +50,44 @@ export default function DNSCard({ data }: Props) {
         )}
 
         {/* Reverse DNS */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-          <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-700/20 border border-[#162038]">
+          <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">
             Reverse DNS
           </span>
-          <span className="text-sm font-semibold text-gray-800 font-mono">
+          <span className="text-sm font-semibold text-slate-200 font-mono">
             {data.reverseDNS ?? "None"}
           </span>
         </div>
 
         {/* DNS records */}
         {data.records.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-4">No DNS records found</p>
+          <p className="text-sm text-slate-500 text-center py-4">No DNS records found</p>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-100">
+          <div className="overflow-hidden rounded-xl border border-[#1e2d4a]">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-xs text-gray-400 font-medium uppercase tracking-wide">
+                <tr className="bg-slate-700/20 text-xs text-slate-500 font-medium uppercase tracking-wide">
                   <th className="px-3 py-2 text-left">Type</th>
                   <th className="px-3 py-2 text-left">Value</th>
                   <th className="px-3 py-2 text-left">TTL</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[#162038]">
                 {data.records.map((record, i) => (
-                  <tr key={i} className="hover:bg-gray-50 transition-colors">
+                  <tr key={i} className="hover:bg-white/5 transition-colors">
                     <td className="px-3 py-2.5">
                       <span
                         className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-md ${
-                          TYPE_COLORS[record.type] ?? "bg-gray-100 text-gray-600"
+                          TYPE_COLORS[record.type] ?? "bg-slate-500/10 text-slate-400"
                         }`}
                       >
                         {record.type}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 font-mono text-xs text-gray-700 max-w-[180px] truncate">
+                    <td className="px-3 py-2.5 font-mono text-xs text-slate-300 max-w-[180px] truncate">
                       {record.value}
                     </td>
-                    <td className="px-3 py-2.5 text-xs text-gray-400">{record.ttl}s</td>
+                    <td className="px-3 py-2.5 text-xs text-slate-500">{record.ttl}s</td>
                   </tr>
                 ))}
               </tbody>

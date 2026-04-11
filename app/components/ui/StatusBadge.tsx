@@ -11,23 +11,23 @@ const CONFIG: Record<
 > = {
   safe: {
     label: "Safe",
-    classes: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-    dot: "bg-emerald-500",
+    classes: "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30",
+    dot: "bg-emerald-400",
   },
   warning: {
     label: "Warning",
-    classes: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-    dot: "bg-amber-500",
+    classes: "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30",
+    dot: "bg-amber-400",
   },
   risk: {
     label: "Risk",
-    classes: "bg-red-50 text-red-700 ring-1 ring-red-200",
-    dot: "bg-red-500",
+    classes: "bg-red-500/10 text-red-400 ring-1 ring-red-500/30",
+    dot: "bg-red-400",
   },
   unknown: {
     label: "Unknown",
-    classes: "bg-gray-50 text-gray-600 ring-1 ring-gray-200",
-    dot: "bg-gray-400",
+    classes: "bg-slate-500/10 text-slate-400 ring-1 ring-slate-500/30",
+    dot: "bg-slate-500",
   },
 };
 

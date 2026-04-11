@@ -20,10 +20,10 @@ export default function DomainReputationCard({ data }: Props) {
   const total = data.malicious + data.suspicious + data.undetected + data.harmless || 1;
 
   const segments = [
-    { label: "Malicious", count: data.malicious, color: "bg-red-500", text: "text-red-600" },
-    { label: "Suspicious", count: data.suspicious, color: "bg-amber-400", text: "text-amber-600" },
-    { label: "Harmless", count: data.harmless, color: "bg-emerald-500", text: "text-emerald-600" },
-    { label: "Undetected", count: data.undetected, color: "bg-gray-200", text: "text-gray-500" },
+    { label: "Malicious", count: data.malicious, color: "bg-red-500", text: "text-red-400" },
+    { label: "Suspicious", count: data.suspicious, color: "bg-amber-400", text: "text-amber-400" },
+    { label: "Harmless", count: data.harmless, color: "bg-emerald-500", text: "text-emerald-400" },
+    { label: "Undetected", count: data.undetected, color: "bg-slate-600", text: "text-slate-400" },
   ];
 
   return (
@@ -35,8 +35,8 @@ export default function DomainReputationCard({ data }: Props) {
       <div className="space-y-4">
         {/* Stacked bar */}
         <div>
-          <p className="text-xs text-gray-500 mb-2">Vendor Analysis ({total} engines)</p>
-          <div className="flex w-full h-2.5 rounded-full overflow-hidden bg-gray-100">
+          <p className="text-xs text-slate-500 mb-2">Vendor Analysis ({total} engines)</p>
+          <div className="flex w-full h-2.5 rounded-full overflow-hidden bg-slate-700/50">
             {segments.map((s) =>
               s.count > 0 ? (
                 <div
@@ -60,31 +60,31 @@ export default function DomainReputationCard({ data }: Props) {
         {/* Domain details */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">Domain</span>
-            <span className="text-sm font-semibold text-gray-800 truncate">{data.domain}</span>
+            <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Domain</span>
+            <span className="text-sm font-semibold text-slate-200 truncate">{data.domain}</span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">Registrar</span>
-            <span className="text-sm font-semibold text-gray-800 truncate">{data.registrar}</span>
+            <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Registrar</span>
+            <span className="text-sm font-semibold text-slate-200 truncate">{data.registrar}</span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">Created</span>
-            <span className="text-sm font-semibold text-gray-800">{data.createdDate}</span>
+            <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Created</span>
+            <span className="text-sm font-semibold text-slate-200">{data.createdDate}</span>
           </div>
           <div className="flex flex-col gap-0.5 col-span-1">
-            <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">Categories</span>
+            <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Categories</span>
             <div className="flex flex-wrap gap-1 mt-0.5">
               {data.categories.length > 0 ? (
                 data.categories.map((cat) => (
                   <span
                     key={cat}
-                    className="inline-block px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-md"
+                    className="inline-block px-2 py-0.5 text-xs bg-cyan-500/10 text-cyan-400 rounded-md ring-1 ring-cyan-500/20"
                   >
                     {cat}
                   </span>
                 ))
               ) : (
-                <span className="text-sm font-semibold text-gray-800">—</span>
+                <span className="text-sm font-semibold text-slate-400">—</span>
               )}
             </div>
           </div>
