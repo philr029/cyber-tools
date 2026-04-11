@@ -161,6 +161,17 @@ export default function Header() {
             >
               Scanner
             </Link>
+            <Link
+              href="/tools"
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                pathname === "/tools"
+                  ? "text-cyan-400 bg-cyan-400/10"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              }`}
+              aria-current={pathname === "/tools" ? "page" : undefined}
+            >
+              Tools
+            </Link>
             {NAV_GROUPS.map((group) => (
               <NavDropdown key={group.label} group={group} pathname={pathname} />
             ))}
@@ -314,6 +325,16 @@ export default function Header() {
             aria-current={pathname === "/" ? "page" : undefined}
           >
             Scanner
+          </Link>
+          <Link
+            href="/tools"
+            onClick={() => setMobileOpen(false)}
+            className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 ${
+              pathname === "/tools" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            }`}
+            aria-current={pathname === "/tools" ? "page" : undefined}
+          >
+            Tools
           </Link>
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="mt-3">
