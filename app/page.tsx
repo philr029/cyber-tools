@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import type { LookupResult, HistoryEntry } from "@/lib/types";
 import { lookupAll } from "@/lib/lookup-client";
 import { saveToHistory, loadHistory, clearHistory, saveScan } from "@/lib/mockData";
 import { SmartInsightsPanel } from "@/app/components/SmartInsightsPanel";
 import { useToast } from "@/lib/toast-context";
+import { useAuth } from "@/lib/auth-context";
+import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
 
 import SearchBar from "@/app/components/SearchBar";
 import HistoryRow from "@/app/components/HistoryRow";
@@ -22,6 +24,76 @@ import VirusTotalIPCheck from "@/app/components/VirusTotalIPCheck";
 import VirusTotalDomainCheck from "@/app/components/VirusTotalDomainCheck";
 import VirusTotalURLCheck from "@/app/components/VirusTotalURLCheck";
 import ThreatIPCheck from "@/app/components/ThreatIPCheck";
+
+// ---------------------------------------------------------------------------
+// Share button — copies a plain-text summary of the scan to the clipboard
+// ---------------------------------------------------------------------------
+function ShareButton({ result }: { result: LookupResult }) {
+  const [copied, setCopied] = useState(false);
+
+  function buildSummary(r: LookupResult): string {
+    const lines: string[] = [
+      `🔍 SecureScope Scan Report`,
+      `Target: ${r.query}`,
+      `Scanned: ${new Date(r.timestamp).toLocaleString()}`,
+      ``,
+      `IP Reputation: ${r.ipReputation.status.toUpperCase()} (Abuse score: ${r.ipReputation.abuseConfidenceScore}%)`,
+      `Domain Reputation: ${r.domainReputation.status.toUpperCase()} (Malicious vendors: ${r.domainReputation.malicious})`,
+      `Blacklist: ${r.blacklist.listedCount}/${r.blacklist.totalChecked} lists flagged`,
+      `SSL Certificate: ${r.ssl.status.toUpperCase()} (${r.ssl.daysRemaining} days remaining)`,
+      `Security Headers: ${r.securityHeaders.grade} grade (${r.securityHeaders.score}/100)`,
+      `Open Ports: ${r.openPorts.openCount} open`,
+      ``,
+      `Run your own scan at: ${typeof window !== "undefined" ? window.location.origin : "https://securescope.io"}`,
+    ];
+    return lines.join("\n");
+  }
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(buildSummary(result));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // fallback — create a temp textarea
+      const el = document.createElement("textarea");
+      el.value = buildSummary(result);
+      el.style.position = "fixed";
+      el.style.opacity = "0";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1e2d4a] bg-white/5 hover:bg-white/10 hover:border-slate-600 text-slate-400 hover:text-slate-200 text-xs font-medium transition-all shrink-0"
+      aria-label="Copy scan summary to clipboard"
+    >
+      {copied ? (
+        <>
+          <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+          </svg>
+          <span className="text-emerald-400">Copied!</span>
+        </>
+      ) : (
+        <>
+          <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M13 4.5a2.5 2.5 0 11.702 1.737L6.97 9.604a2.518 2.518 0 010 .792l6.733 3.367a2.5 2.5 0 11-.671 1.341l-6.733-3.367a2.5 2.5 0 110-3.474l6.733-3.366A2.52 2.52 0 0113 4.5z" />
+          </svg>
+          Share
+        </>
+      )}
+    </button>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Tool cards
@@ -371,7 +443,7 @@ function ResultsGrid({ result, isMock }: { result: LookupResult; isMock: boolean
             />
           </svg>
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-base font-semibold text-slate-100 truncate">{result.query}</p>
           <p className="text-xs text-slate-500 mt-0.5">
             Scanned{" "}
@@ -383,7 +455,8 @@ function ResultsGrid({ result, isMock }: { result: LookupResult; isMock: boolean
             }).format(new Date(result.timestamp))}
           </p>
         </div>
-        <div className="ml-auto flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <ShareButton result={result} />
           <MockDataBanner isMock={isMock} />
         </div>
       </div>
@@ -418,13 +491,23 @@ export default function HomePage() {
   const [saving, setSaving] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { scansToday, canScan, increment: incrementScan } = useDailyScans(user?.plan ?? null);
 
   // Load history from localStorage on mount
   useEffect(() => {
     setHistory(loadHistory());
   }, []);
 
-  async function handleSearch(query: string) {
+  const handleSearch = useCallback(async (query: string) => {
+    // Enforce free-tier daily limit
+    if (!canScan) {
+      toast(
+        `Free tier limit reached (${FREE_DAILY_LIMIT} scans/day). Upgrade to Pro for unlimited scans.`,
+        "error",
+      );
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -434,6 +517,7 @@ export default function HomePage() {
       setIsMock(mock);
       saveToHistory(data);
       setHistory(loadHistory());
+      incrementScan();
       // Scroll to results smoothly
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -445,7 +529,7 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [canScan, incrementScan, toast]);
 
   function handleHistoryClear() {
     clearHistory();
@@ -532,6 +616,31 @@ export default function HomePage() {
           {/* Search bar */}
           <div id="search-section" className="max-w-2xl mx-auto animate-fade-in-delay-2">
             <SearchBar onSearch={handleSearch} loading={loading} />
+            {/* Usage meter below search bar for free-plan users */}
+            {user && user.plan === "free" && (
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0d1321]/80 border border-[#1e2d4a] text-xs">
+                  <span className={scansToday >= FREE_DAILY_LIMIT ? "text-red-400" : "text-slate-400"}>
+                    {scansToday}/{FREE_DAILY_LIMIT} scans today
+                  </span>
+                  <span className="w-20 h-1.5 rounded-full bg-slate-700/60 overflow-hidden">
+                    <span
+                      className={`block h-full rounded-full transition-all duration-500 ${
+                        scansToday >= FREE_DAILY_LIMIT ? "bg-red-500" : "bg-cyan-500"
+                      }`}
+                      style={{ width: `${Math.min((scansToday / FREE_DAILY_LIMIT) * 100, 100)}%` }}
+                    />
+                  </span>
+                  {scansToday >= FREE_DAILY_LIMIT ? (
+                    <Link href="/pricing" className="text-cyan-400 hover:text-cyan-300 underline transition-colors">
+                      Upgrade to Pro
+                    </Link>
+                  ) : (
+                    <span className="text-slate-600">{FREE_DAILY_LIMIT - scansToday} remaining</span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

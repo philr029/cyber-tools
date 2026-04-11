@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/lib/toast-context";
 import { WorkspaceProvider } from "@/lib/workspace-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
+import { ThemeProvider } from "@/lib/theme-context";
 
 export const metadata: Metadata = {
   title: "SecureScope – Enterprise Security Platform",
@@ -25,9 +26,11 @@ export default function RootLayout({
           <ToastProvider>
             <WorkspaceProvider>
               <NotificationsProvider>
-                <Header />
-                {children}
-                <ChatWidget />
+                <ThemeProvider>
+                  <Header />
+                  {children}
+                  <ChatWidget />
+                </ThemeProvider>
               </NotificationsProvider>
             </WorkspaceProvider>
           </ToastProvider>
