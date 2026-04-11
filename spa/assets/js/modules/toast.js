@@ -50,9 +50,10 @@ function buildToast(message, type) {
   el.setAttribute('role', 'alert');
   el.setAttribute('aria-live', 'assertive');
 
+  // Build structure with trusted icon HTML; set message via textContent to prevent XSS
   el.innerHTML = `
     <div class="toast__icon">${ICONS[type] ?? ICONS.info}</div>
-    <div class="toast__message">${message}</div>
+    <div class="toast__message"></div>
     <button class="toast__close" type="button" aria-label="Dismiss">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
         <path d="M2.22 2.22a.75.75 0 0 1 1.06 0L6 4.94l2.72-2.72a.75.75 0 1 1 1.06 1.06L7.06
@@ -61,6 +62,9 @@ function buildToast(message, type) {
       </svg>
     </button>
   `;
+
+  // Set message as plain text to prevent any HTML injection
+  el.querySelector('.toast__message').textContent = message;
 
   return el;
 }
