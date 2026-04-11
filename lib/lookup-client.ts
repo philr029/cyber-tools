@@ -21,6 +21,11 @@ import type {
   URLAnalysisResult,
   OpenPortsResult,
   LookupResult,
+  GeoResult,
+  DomainThreatScoreResult,
+  EmailHeaderResult,
+  RedirectTraceResult,
+  SubdomainResult,
 } from "@/lib/types";
 import { isValidIP } from "@/lib/validators";
 
@@ -207,6 +212,39 @@ export function lookupURL(url: string): Promise<{ data: URLAnalysisResult; mock:
 
 export function lookupPorts(target: string): Promise<{ data: OpenPortsResult; mock: boolean }> {
   return apiLookup<OpenPortsResult>(`/api/lookup/ports?target=${encodeURIComponent(target)}`);
+}
+
+export function lookupPortScan(target: string): Promise<{ data: OpenPortsResult; mock: boolean }> {
+  return apiLookup<OpenPortsResult>(`/api/tools/port-scan?target=${encodeURIComponent(target)}`);
+}
+
+export function lookupGeo(ip: string): Promise<{ data: GeoResult; mock: boolean }> {
+  return apiLookup<GeoResult>(`/api/lookup/geo?ip=${encodeURIComponent(ip)}`);
+}
+
+export function lookupThreatScore(target: string): Promise<{ data: DomainThreatScoreResult; mock: boolean }> {
+  return apiLookup<DomainThreatScoreResult>(`/api/tools/threat-score?target=${encodeURIComponent(target)}`);
+}
+
+export async function analyseEmailHeaders(headers: string): Promise<{ data: EmailHeaderResult; mock: boolean }> {
+  const res = await fetch("/api/tools/email-headers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ headers }),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error((json as { error?: string }).error ?? "Email header analysis failed.");
+  }
+  return json as { data: EmailHeaderResult; mock: boolean };
+}
+
+export function lookupRedirectTrace(url: string): Promise<{ data: RedirectTraceResult; mock: boolean }> {
+  return apiLookup<RedirectTraceResult>(`/api/tools/redirect-trace?url=${encodeURIComponent(url)}`);
+}
+
+export function lookupSubdomains(domain: string): Promise<{ data: SubdomainResult; mock: boolean }> {
+  return apiLookup<SubdomainResult>(`/api/lookup/subdomains?domain=${encodeURIComponent(domain)}`);
 }
 
 // ---------------------------------------------------------------------------

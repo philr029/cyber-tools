@@ -2,20 +2,109 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
-const NAV_LINKS = [
-  { href: "/", label: "Dashboard" },
-  { href: "/tools/ip-lookup", label: "IP Lookup" },
-  { href: "/tools/domain-lookup", label: "Domain" },
-  { href: "/tools/dns-lookup", label: "DNS" },
-  { href: "/tools/ssl-checker", label: "SSL" },
-  { href: "/tools/security-headers", label: "Headers" },
-  { href: "/tools/blacklist", label: "Blacklist" },
-  { href: "/tools/whois", label: "WHOIS" },
-  { href: "/tools/url-analysis", label: "URL" },
-  { href: "/tools/keyforge", label: "KeyForge" },
+const NAV_GROUPS = [
+  {
+    label: "Lookup",
+    links: [
+      { href: "/tools/ip-lookup", label: "IP Reputation" },
+      { href: "/tools/geo-lookup", label: "Geolocation & ASN" },
+      { href: "/tools/domain-lookup", label: "Domain Reputation" },
+      { href: "/tools/dns-lookup", label: "DNS Lookup" },
+      { href: "/tools/whois", label: "WHOIS" },
+      { href: "/tools/url-analysis", label: "URL Analysis" },
+    ],
+  },
+  {
+    label: "Analysis",
+    links: [
+      { href: "/tools/ssl-checker", label: "SSL Certificate" },
+      { href: "/tools/security-headers", label: "HTTP Headers" },
+      { href: "/tools/blacklist", label: "Blacklist Check" },
+      { href: "/tools/threat-score", label: "Threat Score" },
+      { href: "/tools/redirect-trace", label: "Redirect Tracer" },
+    ],
+  },
+  {
+    label: "Advanced",
+    links: [
+      { href: "/tools/port-scanner", label: "Port Scanner" },
+      { href: "/tools/subdomains", label: "Subdomain Finder" },
+      { href: "/tools/email-headers", label: "Email Headers" },
+      { href: "/tools/keyforge", label: "KeyForge" },
+    ],
+  },
 ];
+
+function NavDropdown({ group, pathname }: { group: (typeof NAV_GROUPS)[0]; pathname: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const isGroupActive = group.links.some((l) => pathname === l.href);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+          isGroupActive
+            ? "text-cyan-400 bg-cyan-400/10"
+            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+        }`}
+        aria-expanded={open}
+        aria-haspopup="menu"
+      >
+        {group.label}
+        <svg
+          className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z" clipRule="evenodd" />
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute top-full left-0 mt-1.5 w-48 rounded-xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] py-1 z-50"
+        >
+          {group.links.map(({ href, label }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className={`block px-4 py-2 text-xs font-medium transition-colors ${
+                  active
+                    ? "text-cyan-400 bg-cyan-400/10"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                }`}
+                aria-current={active ? "page" : undefined}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Header() {
   const pathname = usePathname();
@@ -39,25 +128,22 @@ export default function Header() {
             <span className="text-base font-bold text-slate-100 tracking-tight">SecureScope</span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-0.5" aria-label="Main navigation">
-            {NAV_LINKS.map(({ href, label }) => {
-              const active = pathname === href;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                    active
-                      ? "text-cyan-400 bg-cyan-400/10"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                  }`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {label}
-                </Link>
-              );
-            })}
+          {/* Desktop nav — grouped dropdowns */}
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
+            <Link
+              href="/"
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                pathname === "/"
+                  ? "text-cyan-400 bg-cyan-400/10"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              }`}
+              aria-current={pathname === "/" ? "page" : undefined}
+            >
+              Dashboard
+            </Link>
+            {NAV_GROUPS.map((group) => (
+              <NavDropdown key={group.label} group={group} pathname={pathname} />
+            ))}
           </nav>
 
           {/* Right actions */}
@@ -108,34 +194,51 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-3 pt-2">
-          <nav className="flex flex-col gap-0.5" aria-label="Mobile navigation">
-            {NAV_LINKS.map(({ href, label }) => {
-              const active = pathname === href;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                  }`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-            <Link
-              href="/settings"
-              onClick={() => setMobileOpen(false)}
-              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-              }`}
-            >
-              Settings
-            </Link>
-          </nav>
+        <div className="lg:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-4 pt-2">
+          <Link
+            href="/"
+            onClick={() => setMobileOpen(false)}
+            className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 ${
+              pathname === "/" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            }`}
+            aria-current={pathname === "/" ? "page" : undefined}
+          >
+            Dashboard
+          </Link>
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="mt-3">
+              <p className="px-3 py-1 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                {group.label}
+              </p>
+              <nav className="flex flex-col gap-0.5">
+                {group.links.map(({ href, label }) => {
+                  const active = pathname === href;
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                      }`}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
+          <Link
+            href="/settings"
+            onClick={() => setMobileOpen(false)}
+            className={`block mt-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            }`}
+          >
+            Settings
+          </Link>
         </div>
       )}
     </header>
