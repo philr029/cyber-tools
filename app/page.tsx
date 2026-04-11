@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { LookupResult, HistoryEntry } from "@/lib/types";
 import { lookupAll } from "@/lib/lookup-client";
-import { saveToHistory, loadHistory, clearHistory } from "@/lib/mockData";
+import { saveToHistory, loadHistory, clearHistory, saveScan } from "@/lib/mockData";
+import { SmartInsightsPanel } from "@/app/components/SmartInsightsPanel";
+import { useToast } from "@/lib/toast-context";
 
 import SearchBar from "@/app/components/SearchBar";
 import HistoryRow from "@/app/components/HistoryRow";
@@ -373,7 +375,10 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [vtTab, setVtTab] = useState<"ip" | "domain" | "url">("ip");
+  const [saveLabel, setSaveLabel] = useState("");
+  const [saving, setSaving] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -406,6 +411,21 @@ export default function HomePage() {
   function handleHistoryClear() {
     clearHistory();
     setHistory([]);
+  }
+
+  function handleSaveScan() {
+    if (!result) return;
+    const label = saveLabel.trim() || result.query;
+    setSaving(true);
+    try {
+      saveScan(result, label);
+      toast(`Scan saved as "${label}"`, "success");
+      setSaveLabel("");
+    } catch {
+      toast("Failed to save scan.", "error");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -598,7 +618,31 @@ export default function HomePage() {
                 <p className="text-sm text-red-400 max-w-sm">{error}</p>
               </div>
             ) : result ? (
-              <ResultsGrid result={result} isMock={isMock} />
+              <div className="space-y-4">
+                <ResultsGrid result={result} isMock={isMock} />
+                <SmartInsightsPanel result={result} />
+                {/* Save scan */}
+                <div className="rounded-2xl bg-[#0d1321] border border-[#1e2d4a] p-4 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                  <svg className="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={saveLabel}
+                    onChange={(e) => setSaveLabel(e.target.value)}
+                    placeholder={`Label (default: ${result.query})`}
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-[#131929] border border-[#1e2d4a] text-slate-200 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveScan}
+                    disabled={saving}
+                    className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0"
+                  >
+                    Save scan
+                  </button>
+                </div>
+              </div>
             ) : (
               <EmptyState onExample={handleSearch} />
             )}
