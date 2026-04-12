@@ -96,6 +96,8 @@ export default function ChatWidget() {
     setIsLoading(true);
     setShowSuggestions(false);
 
+    console.log("[ChatWidget] Sending message:", text.substring(0, 80));
+
     // Build conversation history excluding the welcome message
     const history = messages
       .filter((m) => m.id !== "welcome")
@@ -118,12 +120,15 @@ export default function ChatWidget() {
 
       const data: ChatResponse | ChatErrorResponse = await res.json();
 
-      const replyContent =
-        "reply" in data
-          ? data.reply
-          : "error" in data
-            ? `Sorry, I couldn't get a response right now. Please try again.`
-            : "Sorry, I couldn't get a response right now. Please try again.";
+      let replyContent: string;
+      if ("reply" in data) {
+        replyContent = data.reply;
+      } else if ("error" in data) {
+        console.error("[ChatWidget] API error:", data.error);
+        replyContent = "Sorry, I couldn't get a response right now. Please try again.";
+      } else {
+        replyContent = "Sorry, I couldn't get a response right now. Please try again.";
+      }
 
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),
