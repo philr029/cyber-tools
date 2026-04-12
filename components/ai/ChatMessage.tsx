@@ -6,6 +6,33 @@ interface ChatMessageProps {
   message: ChatMessage;
 }
 
+/** Matches **bold** markdown syntax */
+const BOLD_MARKDOWN_PATTERN = /\*\*(.*?)\*\*/g;
+
+/**
+ * Renders basic inline markdown:
+ *   **bold** → <strong>
+ *   Preserves newlines as block elements for readability.
+ */
+function renderMarkdown(text: string) {
+  return text.split("\n").map((line, i) => {
+    const parts = line.split(BOLD_MARKDOWN_PATTERN);
+    return (
+      <span key={i} className="block leading-relaxed">
+        {parts.map((part, j) =>
+          j % 2 === 1 ? (
+            <strong key={j} className="font-semibold">
+              {part}
+            </strong>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  });
+}
+
 export default function ChatMessageBubble({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
 
@@ -24,13 +51,13 @@ export default function ChatMessageBubble({ message }: ChatMessageProps) {
       )}
 
       <div
-        className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
+        className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm break-words ${
           isUser
             ? "bg-gray-900 text-white rounded-br-sm"
             : "bg-gray-100 text-gray-800 rounded-bl-sm"
         }`}
       >
-        {message.content}
+        {isUser ? message.content : renderMarkdown(message.content)}
       </div>
     </div>
   );

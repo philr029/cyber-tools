@@ -264,7 +264,7 @@ export default function AIAssistantPage() {
           </svg>
           <p className="text-sm text-slate-400 mt-3">Enter a question or target above to get a security assessment.</p>
           <p className="text-xs text-slate-600 mt-1">
-            Powered by OpenAI gpt-4o-mini · API key stays server-side
+            Powered by Gemini · API key stays server-side
           </p>
         </div>
       )}
