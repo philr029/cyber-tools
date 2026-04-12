@@ -39,8 +39,8 @@ Rules:
 // Model names — change here to update everywhere
 // ---------------------------------------------------------------------------
 
-const CHAT_MODEL = "gemini-2.0-flash";
-const REPORT_MODEL = "gemini-2.0-flash";
+const CHAT_MODEL = "gemini-2.5-flash";
+const REPORT_MODEL = "gemini-2.5-flash";
 
 /** Milliseconds before a Gemini request is considered timed out */
 const REQUEST_TIMEOUT_MS = 25_000;
