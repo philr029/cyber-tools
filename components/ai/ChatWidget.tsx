@@ -124,8 +124,8 @@ export default function ChatWidget() {
       if ("reply" in data) {
         replyContent = data.reply;
       } else if ("error" in data) {
-        console.error("[ChatWidget] API error:", data.error);
-        replyContent = "Sorry, I couldn't get a response right now. Please try again.";
+        console.error("[ChatWidget] API error:", data.error, "| HTTP status:", res.status);
+        replyContent = data.error;
       } else {
         replyContent = "Sorry, I couldn't get a response right now. Please try again.";
       }
