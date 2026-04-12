@@ -48,8 +48,7 @@ export async function POST(request: NextRequest) {
     const reply = await generateChatReply(userMessage, history);
     return Response.json({ reply });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("[api/chat] Gemini error:", message);
+    console.error("[api/chat] Gemini error:", err);
     return Response.json(
       { error: "Failed to get a response from the AI assistant." },
       { status: 502 }

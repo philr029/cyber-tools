@@ -74,7 +74,7 @@ export async function generateChatReply(
   const client = getClient();
 
   const model = client.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-pro",
     systemInstruction: CHAT_SYSTEM_INSTRUCTION,
   });
 
