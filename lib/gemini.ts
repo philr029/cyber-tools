@@ -103,7 +103,7 @@ export async function generateStructuredReport(userMessage: string): Promise<AIR
 
   const parsed = JSON.parse(rawText) as AIReport;
 
-  // Sanitise — ensure required fields have sensible types/values
+  // Sanitize — ensure required fields have sensible types/values
   const validRiskLevels: AIReport["riskLevel"][] = ["Low", "Medium", "High", "Critical"];
   if (!validRiskLevels.includes(parsed.riskLevel)) parsed.riskLevel = "Medium";
   if (typeof parsed.summary !== "string") parsed.summary = "";
