@@ -13,8 +13,8 @@ export interface ZoneData {
   name: string;
   status: string;
   paused: boolean;
-  name_servers: string[];
-  original_name_servers?: string[];
+  name_servers: (string | NameServer)[];
+  original_name_servers?: (string | NameServer)[];
   plan?: ZonePlan;
 }
 
@@ -97,7 +97,7 @@ export default function ZoneCard({
           <div>
             <p className="text-xs text-slate-500 mb-1">Nameservers</p>
             <div className="space-y-1">
-              {(data.name_servers as (string | NameServer)[]).map((ns, i) => (
+              {data.name_servers.map((ns, i) => (
                 <p key={i} className="text-xs font-mono text-slate-400 bg-[#131929] rounded-lg px-2.5 py-1.5">
                   {typeof ns === "string" ? ns : ns.name}
                 </p>
