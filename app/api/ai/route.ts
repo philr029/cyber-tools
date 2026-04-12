@@ -139,7 +139,7 @@ async function handleRequest(message: string): Promise<Response> {
     );
   }
 
-  // Sanitise — ensure required fields are present with sensible defaults
+  // Sanitize — ensure required fields are present with sensible defaults
   const validRiskLevels: AIResponse["riskLevel"][] = ["Low", "Medium", "High", "Critical"];
   if (!validRiskLevels.includes(parsed.riskLevel)) parsed.riskLevel = "Medium";
   if (typeof parsed.summary !== "string") parsed.summary = "";

@@ -49,7 +49,7 @@ const RISK_SCORE: Record<string, number> = {
 // ---------------------------------------------------------------------------
 
 const EXAMPLES = [
-  { label: "Analyse 192.0.2.100",    message: "Analyse the IP address 192.0.2.100 for potential security threats." },
+  { label: "Analyze 192.0.2.100",    message: "Analyze the IP address 192.0.2.100 for potential security threats." },
   { label: "Check example.com",      message: "Perform a security assessment of the domain example.com." },
   { label: "Explain SQL injection",  message: "Explain SQL injection and how to defend against it." },
   { label: "Phishing indicators",    message: "What are the key indicators of a phishing email?" },
@@ -212,7 +212,7 @@ export default function AIAssistantPage() {
               id="ai-message"
               value={message}
               onChange={(e) => { setMessage(e.target.value); setResult(null); setError(null); }}
-              placeholder="e.g. Analyse 192.168.1.1 for threats, or ask a cybersecurity question…"
+              placeholder="e.g. Analyze 192.168.1.1 for threats, or ask a cybersecurity question…"
               rows={4}
               disabled={loading}
               className="w-full px-4 py-3 rounded-xl border border-[#1e2d4a] bg-[#0b0f1a] text-slate-300 text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition resize-y disabled:opacity-50"
@@ -227,7 +227,7 @@ export default function AIAssistantPage() {
             {loading ? (
               <>
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Analysing…
+                Analyzing…
               </>
             ) : (
               <>
@@ -235,7 +235,7 @@ export default function AIAssistantPage() {
                   <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
                   <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                 </svg>
-                Analyse
+                Analyze
               </>
             )}
           </button>
