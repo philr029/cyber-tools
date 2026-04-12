@@ -10,6 +10,7 @@ import { initTheme }          from './modules/theme.js';
 import { initSidebar }        from './modules/sidebar.js';
 import { router }             from './modules/router.js';
 import { toast }              from './modules/toast.js';
+import { initAiFab }          from './ui/ai-fab.js';
 
 import { renderDashboard }    from './views/dashboard.js';
 import { renderAccount }      from './views/account.js';
@@ -27,6 +28,9 @@ import { renderPricing }      from './views/pricing.js';
 
   // 3. Wire the mobile sidebar
   initSidebar();
+
+  // 4. Mount the floating AI assistant
+  initAiFab();
 
   // 4. Register routes
   router.register('/dashboard', renderDashboard);
