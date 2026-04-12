@@ -36,6 +36,16 @@ Rules:
 - Respond with raw JSON only — no markdown fences, no extra commentary.`;
 
 // ---------------------------------------------------------------------------
+// Model names — change here to update everywhere
+// ---------------------------------------------------------------------------
+
+const CHAT_MODEL = "gemini-2.0-flash";
+const REPORT_MODEL = "gemini-2.0-flash";
+
+/** Milliseconds before a Gemini request is considered timed out */
+const REQUEST_TIMEOUT_MS = 25_000;
+
+// ---------------------------------------------------------------------------
 // Internal helper — returns a configured Gemini client
 // ---------------------------------------------------------------------------
 
@@ -73,15 +83,34 @@ export async function generateChatReply(
 ): Promise<string> {
   const client = getClient();
 
+  console.log("[gemini] generateChatReply — model:", CHAT_MODEL, "| history length:", history.length);
+
   const model = client.getGenerativeModel({
-    model: "gemini-pro",
+    model: CHAT_MODEL,
     systemInstruction: CHAT_SYSTEM_INSTRUCTION,
   });
 
   const chat = model.startChat({ history });
 
-  const result = await chat.sendMessage(userMessage);
-  return result.response.text();
+  // Race the Gemini call against a timeout. The SDK does not expose an
+  // AbortSignal parameter, so we reject early and let the serverless runtime
+  // clean up. This prevents the function from hanging indefinitely.
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(
+      () => reject(new Error(`Gemini request timed out after ${REQUEST_TIMEOUT_MS}ms`)),
+      REQUEST_TIMEOUT_MS
+    )
+  );
+
+  const result = await Promise.race([chat.sendMessage(userMessage), timeoutPromise]);
+
+  const text = result.response.text();
+  if (!text) {
+    throw new Error("Gemini returned an empty response.");
+  }
+
+  console.log("[gemini] generateChatReply — response length:", text.length);
+  return text;
 }
 
 // ---------------------------------------------------------------------------
@@ -93,7 +122,7 @@ export async function generateStructuredReport(userMessage: string): Promise<AIR
 
   // Ask Gemini to respond with JSON directly
   const model = client.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: REPORT_MODEL,
     systemInstruction: REPORT_SYSTEM_INSTRUCTION,
     generationConfig: { responseMimeType: "application/json" },
   });

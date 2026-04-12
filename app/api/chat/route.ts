@@ -45,10 +45,13 @@ export async function POST(request: NextRequest) {
   }));
 
   try {
+    console.log("[api/chat] Request received — message length:", userMessage.length, "| history length:", history.length);
     const reply = await generateChatReply(userMessage, history);
+    console.log("[api/chat] Reply generated — length:", reply.length);
     return Response.json({ reply });
   } catch (err) {
-    console.error("[api/chat] Gemini error:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[api/chat] Gemini error:", message, err);
     return Response.json(
       { error: "Failed to get a response from the AI assistant." },
       { status: 502 }
