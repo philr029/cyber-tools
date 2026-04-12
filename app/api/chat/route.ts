@@ -12,9 +12,12 @@ import { generateChatReply, type GeminiMessage } from "@/lib/gemini";
 import type { ChatRequest } from "@/types/chat";
 
 export async function POST(request: NextRequest) {
+  console.log("Chat route hit");
+  console.log("API key exists:", !!process.env.GEMINI_API_KEY);
+
   if (!process.env.GEMINI_API_KEY) {
     return Response.json(
-      { error: "AI assistant is not configured on this server." },
+      { error: "AI assistant is not configured on this server. (GEMINI_API_KEY is missing — add it to your Vercel environment variables and redeploy.)" },
       { status: 503 }
     );
   }
@@ -27,6 +30,8 @@ export async function POST(request: NextRequest) {
   }
 
   const userMessage = (body.message ?? "").trim();
+  console.log("Message received:", userMessage.substring(0, 100));
+
   if (!userMessage) {
     return Response.json({ error: "Message must not be empty." }, { status: 400 });
   }
