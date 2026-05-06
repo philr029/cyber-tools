@@ -149,7 +149,10 @@ function ResultCard({ result }: { result: AIAssistantResult }) {
 
 function AIAssistantContent() {
   const params = useSearchParams();
-  const [message, setMessage]   = useState(() => params.get("prompt") ?? "");
+  const [message, setMessage]   = useState(() => {
+    const raw = params.get("prompt") ?? "";
+    return raw.slice(0, 4000);
+  });
   const [loading, setLoading]   = useState(false);
   const [result,  setResult]    = useState<AIAssistantResult | null>(null);
   const [error,   setError]     = useState<string | null>(null);
@@ -282,7 +285,13 @@ function AIAssistantContent() {
 
 export default function AIAssistantPage() {
   return (
-    <Suspense fallback={<div className="h-40" />}>
+    <Suspense
+      fallback={
+        <div className="h-40" role="status" aria-live="polite">
+          <span className="sr-only">Loading…</span>
+        </div>
+      }
+    >
       <AIAssistantContent />
     </Suspense>
   );
