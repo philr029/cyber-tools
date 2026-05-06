@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolve4 } from "node:dns/promises";
 
 interface MxToolboxBlacklistResponse {
   Failed: { Name: string; Info: string }[];
@@ -30,11 +31,27 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // --- Step 1: Query MX Toolbox blacklist endpoint ---
+  // --- Step 1: Resolve the sending domain's A record to its IPv4 address ---
+  // MxToolbox returns only ~5 lists when queried by domain name. Querying by IP
+  // address unlocks the full 202-list coverage.
+  let sendingIp: string;
+  try {
+    const addresses = await resolve4(domain);
+    sendingIp = addresses[0];
+    console.log(`Resolved "${domain}" → ${sendingIp}`);
+  } catch (err) {
+    console.error(`DNS A-record lookup failed for "${domain}":`, err);
+    return NextResponse.json(
+      { error: `DNS A-record lookup failed for "${domain}".` },
+      { status: 500 },
+    );
+  }
+
+  // --- Step 2: Query MX Toolbox blacklist endpoint using the resolved IP ---
   let blacklistData: MxToolboxBlacklistResponse;
   try {
     const mxRes = await fetch(
-      `https://api.mxtoolbox.com/api/v1/lookup/blacklist/${encodeURIComponent(domain)}`,
+      `https://api.mxtoolbox.com/api/v1/lookup/blacklist/${encodeURIComponent(sendingIp)}`,
       {
         headers: { Authorization: mxToolboxApiKey },
       },
@@ -62,22 +79,24 @@ export async function GET(request: NextRequest) {
   const passedCount = blacklistData.Passed?.length ?? 0;
   const totalCount = passedCount + failedCount;
 
-  console.log(`Status: ${passedCount}/${totalCount} Passed`);
+  console.log(`Status: ${passedCount}/${totalCount} Passed (IP: ${sendingIp})`);
 
   if (failedCount === 0) {
-    console.log(`Domain "${domain}" is clean. No action required.`);
+    console.log(`IP "${sendingIp}" (${domain}) is clean. No action required.`);
     return NextResponse.json({
       status: "clean",
-      message: `Domain "${domain}" passed all ${totalCount} checks.`,
+      message: `IP "${sendingIp}" for domain "${domain}" passed all ${totalCount} checks.`,
+      domain,
+      ip: sendingIp,
       passed: passedCount,
       failed: failedCount,
     });
   }
 
-  // --- Step 2: Domain is blacklisted — pause the Instantly campaign ---
+  // --- Step 3: IP is blacklisted — pause the Instantly campaign ---
   const flaggedLists = blacklistData.Failed.map((f) => f.Name);
   console.warn(
-    `Domain "${domain}" is listed on ${failedCount} blacklist(s): ${flaggedLists.join(", ")}`,
+    `IP "${sendingIp}" (${domain}) is listed on ${failedCount} blacklist(s): ${flaggedLists.join(", ")}`,
   );
 
   let campaignResponse: InstantlyCampaignResponse;
@@ -99,6 +118,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         status: "already_paused",
         message: "Campaign was already paused.",
+        domain,
+        ip: sendingIp,
         passed: passedCount,
         failed: failedCount,
         flaggedLists,
@@ -135,6 +156,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       status: "already_paused",
       message: "Campaign was already paused.",
+      domain,
+      ip: sendingIp,
       passed: passedCount,
       failed: failedCount,
       flaggedLists,
@@ -144,7 +167,9 @@ export async function GET(request: NextRequest) {
   console.log(`Campaign "${campaignId}" paused successfully.`);
   return NextResponse.json({
     status: "paused",
-    message: `Campaign paused. Domain "${domain}" is listed on ${failedCount} blacklist(s).`,
+    message: `Campaign paused. IP "${sendingIp}" for domain "${domain}" is listed on ${failedCount} blacklist(s).`,
+    domain,
+    ip: sendingIp,
     passed: passedCount,
     failed: failedCount,
     flaggedLists,
