@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { BlacklistResult } from "@/lib/types";
 import { validateIPOrDomain } from "@/lib/validators";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
@@ -21,6 +22,7 @@ const Icon = (
 );
 
 export default function BlacklistPage() {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("single");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<BlacklistResult | null>(null);
@@ -96,6 +98,44 @@ export default function BlacklistPage() {
             <div className="space-y-4">
               <BlacklistCard data={data} />
               <RiskScorePanel risk={scoreBlacklist(data)} />
+              {data.listedCount === 0 && (
+                <div className="rounded-2xl bg-[#0d1321] border border-emerald-500/20 overflow-hidden">
+                  <div className="px-5 py-4 border-b border-emerald-500/10 bg-emerald-500/5 flex items-center gap-3">
+                    <svg className="w-5 h-5 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm font-semibold text-emerald-400">Clean Sweep</span>
+                  </div>
+                  <div className="px-5 py-4 space-y-3">
+                    <p className="text-sm text-slate-300 leading-relaxed">
+                      All {data.totalChecked} blacklist checks passed for <span className="font-mono text-cyan-400">{data.target}</span>.
+                      Ask the AI assistant what this means for your email deliverability and how to stay clean as you scale.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const prompt =
+                          `I have just completed a Multi-RBL check for ${data.target}. ` +
+                          `The results show ${data.totalChecked} of ${data.totalChecked} checks passed with zero listings found.\n\n` +
+                          `Based on these 'clean' results, does this guarantee my emails will land in the Primary Inbox, ` +
+                          `or are there other factors like provider-specific filters (Google/Outlook) I should still be worried about?\n\n` +
+                          `If my IP/domain is clean across all ${data.totalChecked} checks but my open rates are still low, ` +
+                          `how can I check if my domain reputation is the culprit despite passing these RBLs?\n\n` +
+                          `Provide a 'Maintenance Schedule' to ensure these numbers stay at 100% as I scale my sending volume.\n\n` +
+                          `Explain the difference between these Public RBLs and Private Internal Filters used by Gmail and Microsoft.`;
+                        router.push(`/tools/ai-assistant?prompt=${encodeURIComponent(prompt)}`);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-semibold rounded-xl shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                        <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                      Ask AI Assistant
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           {!loading && !error && !data && (

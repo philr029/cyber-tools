@@ -7,7 +7,8 @@
  * cybersecurity report returned by the route.
  */
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 
@@ -53,6 +54,7 @@ const EXAMPLES = [
   { label: "Check example.com",      message: "Perform a security assessment of the domain example.com." },
   { label: "Explain SQL injection",  message: "Explain SQL injection and how to defend against it." },
   { label: "Phishing indicators",    message: "What are the key indicators of a phishing email?" },
+  { label: "Clean Sweep analysis",   message: "I have just completed a Multi-RBL check. All checks passed with zero listings found.\n\nBased on these 'clean' results, does this guarantee my emails will land in the Primary Inbox, or are there other factors like provider-specific filters (Google/Outlook) I should still be worried about?\n\nIf my IP is clean across all RBL checks but my open rates are still low, how can I check if my domain reputation is the culprit despite passing these RBLs?\n\nProvide a 'Maintenance Schedule' to ensure these numbers stay at 100% as I scale my sending volume.\n\nExplain the difference between these Public RBLs and Private Internal Filters used by Gmail and Microsoft." },
 ];
 
 // ---------------------------------------------------------------------------
@@ -142,11 +144,12 @@ function ResultCard({ result }: { result: AIAssistantResult }) {
 }
 
 // ---------------------------------------------------------------------------
-// Page
+// Page (inner — uses useSearchParams, must be wrapped in Suspense)
 // ---------------------------------------------------------------------------
 
-export default function AIAssistantPage() {
-  const [message, setMessage]   = useState("");
+function AIAssistantContent() {
+  const params = useSearchParams();
+  const [message, setMessage]   = useState(() => params.get("prompt") ?? "");
   const [loading, setLoading]   = useState(false);
   const [result,  setResult]    = useState<AIAssistantResult | null>(null);
   const [error,   setError]     = useState<string | null>(null);
@@ -269,5 +272,18 @@ export default function AIAssistantPage() {
         </div>
       )}
     </ToolPageLayout>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Default export — wraps inner component in Suspense (required for
+// useSearchParams in Next.js App Router)
+// ---------------------------------------------------------------------------
+
+export default function AIAssistantPage() {
+  return (
+    <Suspense fallback={<div className="h-40" />}>
+      <AIAssistantContent />
+    </Suspense>
   );
 }
