@@ -80,7 +80,7 @@ function buildResultCSV(rows: BulkRow[]): string {
 // Upload icon
 // ---------------------------------------------------------------------------
 
-const UploadIcon = (
+const DownloadIcon = (
   <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path
       fillRule="evenodd"
@@ -375,7 +375,7 @@ export default function BulkBlacklistUploader() {
                   className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-xl shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:from-cyan-400 hover:to-blue-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
                   aria-label="Download results as CSV"
                 >
-                  {UploadIcon}
+                  {DownloadIcon}
                   Download Results
                 </button>
               </>
