@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (instantlyRes.status === 409) {
-      // Campaign is already paused — idempotent skip.
+      // 409 Conflict: the campaign is already in a paused state — idempotent skip.
       console.log(`Campaign "${campaignId}" is already paused. Skipping.`);
       return NextResponse.json({
         status: "already_paused",
@@ -125,7 +125,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Handle the case where the campaign was already paused via response body.
+  // Defensive fallback: some Instantly API versions return 200 with a "paused"
+  // status body instead of 409 when the campaign is already paused.
   if (
     campaignResponse.status === "paused" ||
     campaignResponse.status === "already_paused"
