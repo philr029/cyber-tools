@@ -11,6 +11,13 @@
 const _routes   = new Map();
 let   _current  = null;
 
+function _normalizePath(path) {
+  const trimmed = String(path ?? '').trim();
+  if (!trimmed) return '/dashboard';
+  const base = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return base.toLowerCase();
+}
+
 /* ── Public API ─────────────────────────────────────────────────── */
 export const router = {
   /**
@@ -19,12 +26,12 @@ export const router = {
    * @param {Function} handler  called when this route is active
    */
   register(path, handler) {
-    _routes.set(path, handler);
+    _routes.set(_normalizePath(path), handler);
   },
 
   /** Navigate to a path (writes to location.hash). */
   navigate(path) {
-    window.location.hash = path;
+    window.location.hash = _normalizePath(path);
   },
 
   /** Return the currently-active route path. */
@@ -43,7 +50,7 @@ export const router = {
 function _resolve() {
   // Strip the leading '#' from the hash, fall back to /dashboard
   const hash = window.location.hash.slice(1);
-  const path = hash.split('?')[0] || '/dashboard';
+  const path = _normalizePath(hash.split('?')[0] || '/dashboard');
 
   // Avoid re-rendering the same view
   if (_current === path && document.getElementById('view')?.children.length) return;

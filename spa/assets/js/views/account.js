@@ -8,6 +8,7 @@
 import { state, prefs, history } from '../modules/state.js';
 import { toast }  from '../modules/toast.js';
 import { setTheme, getTheme } from '../modules/theme.js';
+import { isValidDisplayName, isValidEmail } from '../modules/validation.js';
 
 /* ── Safe HTML escape ───────────────────────────────────────────── */
 function escapeHtml(str) {
@@ -198,6 +199,14 @@ export function renderAccount() {
 
     if (!name)  { toast.error('Name cannot be empty.');  return; }
     if (!email) { toast.error('Email cannot be empty.'); return; }
+    if (!isValidDisplayName(name)) {
+      toast.error('Display name must be 2-60 letters and may include spaces, apostrophes, or hyphens.');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      toast.error('Enter a valid email address.');
+      return;
+    }
 
     const initials = name.split(' ').map(w => w[0].toUpperCase()).join('').slice(0, 2);
 
