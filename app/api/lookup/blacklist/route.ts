@@ -94,10 +94,11 @@ export async function GET(request: NextRequest) {
         detail: entry.Info ?? "Listed",
       }));
 
-    const failedBlacklists = [...failedFromFailedArray, ...failedFromInformation].filter(
-      (entry, index, arr) =>
-        arr.findIndex((candidate) => candidate.source === entry.source && candidate.detail === entry.detail) === index,
-    );
+    const failedBlacklistsMap = new Map<string, { source: string; detail: string }>();
+    for (const entry of [...failedFromFailedArray, ...failedFromInformation]) {
+      failedBlacklistsMap.set(`${entry.source}::${entry.detail}`, entry);
+    }
+    const failedBlacklists = [...failedBlacklistsMap.values()];
 
     const passedEntries = (payload.Passed ?? []).map((entry) => ({
       source: entry.Name ?? "Unknown blacklist",
@@ -113,7 +114,7 @@ export async function GET(request: NextRequest) {
 
     const entries = [...failedEntries, ...passedEntries];
 
-    const listedCount = failedEntries.length;
+    const listedCount = failedBlacklists.length;
     const totalChecked = entries.length;
     const status =
       listedCount >= BLACKLIST_RISK_THRESHOLD
