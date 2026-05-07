@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
 import {
   sanitizeFieldName,
   sanitizeHeaderValue,
   sanitizeSingleLineInput,
 } from "@/lib/input-sanitization";
+import { useAuth } from "@/lib/auth-context";
+import { FREE_DAILY_LIMIT, useDailyScans } from "@/lib/use-daily-scans";
+import ReviewTargetModal from "@/app/components/tools/ReviewTargetModal";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -268,6 +271,9 @@ function ResponseViewer({ result }: { result: FormTestResult }) {
 // ---------------------------------------------------------------------------
 
 export default function FormTesterPage() {
+  const COOLDOWN_SECONDS = 10;
+  const { user } = useAuth();
+  const { scansToday, increment: incrementScan } = useDailyScans(user?.plan ?? null);
   const [method, setMethod] = useState<"GET" | "POST">("POST");
   const [url, setUrl] = useState("");
   const [contentType, setContentType] = useState<ContentType>("application/x-www-form-urlencoded");
@@ -277,6 +283,15 @@ export default function FormTesterPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<FormTestResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [permissionChecked, setPermissionChecked] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = setTimeout(() => setCooldownSeconds((prev) => Math.max(0, prev - 1)), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldownSeconds]);
 
   function addField() {
     setFields((prev) => [...prev, { id: Date.now(), key: "", value: "" }]);
@@ -297,8 +312,7 @@ export default function FormTesterPage() {
     setFields(ex.fields);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function runFormTest() {
     const safeUrl = sanitizeSingleLineInput(url, { maxLength: 4096 });
     if (!safeUrl) {
       setError("Please enter a target URL.");
@@ -333,12 +347,32 @@ export default function FormTesterPage() {
         setError(data.error ?? "Request failed.");
       } else {
         setResult(data);
+        incrementScan();
+        setCooldownSeconds(COOLDOWN_SECONDS);
       }
     } catch {
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (loading || cooldownSeconds > 0) return;
+    const safeUrl = sanitizeSingleLineInput(url, { maxLength: 4096 });
+    if (!safeUrl) {
+      setError("Please enter a target URL.");
+      return;
+    }
+    setPermissionChecked(false);
+    setReviewOpen(true);
+  }
+
+  function confirmReview() {
+    if (!permissionChecked || cooldownSeconds > 0) return;
+    setReviewOpen(false);
+    void runFormTest();
   }
 
   return (
@@ -360,6 +394,18 @@ export default function FormTesterPage() {
         ))}
       </div>
 
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${cooldownSeconds > 0 ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${cooldownSeconds > 0 ? "bg-amber-400" : "bg-emerald-400"}`} />
+          {cooldownSeconds > 0 ? `Cooldown ${cooldownSeconds}s` : "Ready"}
+        </span>
+        {user?.plan === "free" && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/25 bg-pink-500/10 px-2.5 py-1 text-xs text-pink-300">
+            Credits {Math.min(scansToday, FREE_DAILY_LIMIT)}/{FREE_DAILY_LIMIT}
+          </span>
+        )}
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="rounded-2xl bg-[#0d1321] border border-[#1e2d4a] p-5 space-y-4">
           {/* URL + method */}
@@ -372,14 +418,20 @@ export default function FormTesterPage() {
               <option value="GET">GET</option>
               <option value="POST">POST</option>
             </select>
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com/submit"
-              className="flex-1 bg-[#0b0f1a] border border-[#1e2d4a] rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-            />
-          </div>
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://example.com/submit"
+                className="flex-1 bg-[#0b0f1a] border border-[#1e2d4a] rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+              />
+            </div>
+            <p className="text-xs text-emerald-400 inline-flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fillRule="evenodd" d="M10 1.5A4.5 4.5 0 005.5 6v1.25H5A2 2 0 003 9.25v6.5a2 2 0 002 2h10a2 2 0 002-2v-6.5a2 2 0 00-2-2h-.5V6A4.5 4.5 0 0010 1.5zM7 6a3 3 0 116 0v1.25H7V6z" clipRule="evenodd" />
+              </svg>
+              Data sent over HTTPS/TLS
+            </p>
 
           {/* Content type (POST only) */}
           {method === "POST" && (
@@ -405,12 +457,17 @@ export default function FormTesterPage() {
           )}
 
           {/* Fields */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-slate-400">Form Fields</span>
-              <button
-                type="button"
-                onClick={addField}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-slate-400 inline-flex items-center gap-1.5">
+                  Form Fields
+                  <svg className="w-3 h-3 text-emerald-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M10 1.5A4.5 4.5 0 005.5 6v1.25H5A2 2 0 003 9.25v6.5a2 2 0 002 2h10a2 2 0 002-2v-6.5a2 2 0 00-2-2h-.5V6A4.5 4.5 0 0010 1.5zM7 6a3 3 0 116 0v1.25H7V6z" clipRule="evenodd" />
+                  </svg>
+                </span>
+                <button
+                  type="button"
+                  onClick={addField}
                 className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -428,7 +485,7 @@ export default function FormTesterPage() {
 
           <button
             type="submit"
-            disabled={loading || !url.trim()}
+            disabled={loading || cooldownSeconds > 0 || !url.trim()}
             className="w-full py-2.5 bg-pink-500 hover:bg-pink-400 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             {loading ? (
@@ -473,6 +530,17 @@ export default function FormTesterPage() {
           <p className="text-xs text-slate-600 mt-1">Security observations check for CSRF tokens, missing headers, and server disclosure.</p>
         </div>
       )}
+
+      <ReviewTargetModal
+        open={reviewOpen}
+        target={sanitizeSingleLineInput(url, { maxLength: 4096 })}
+        targetLabel="URL"
+        permissionChecked={permissionChecked}
+        onPermissionChange={setPermissionChecked}
+        onCancel={() => setReviewOpen(false)}
+        onConfirm={confirmReview}
+        loading={loading}
+      />
     </ToolPageLayout>
   );
 }
