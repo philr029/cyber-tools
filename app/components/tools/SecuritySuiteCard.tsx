@@ -7,6 +7,7 @@ interface SecuritySuiteCardProps {
   description: string;
   category: string;
   badge: string;
+  cornerTag?: string;
   size?: "square" | "wide";
   emphasis?: "cyan" | "violet" | "emerald" | "amber" | "rose";
   active?: boolean;
@@ -28,6 +29,7 @@ export default function SecuritySuiteCard({
   description,
   category,
   badge,
+  cornerTag,
   size = "square",
   emphasis = "cyan",
   active = false,
@@ -41,6 +43,11 @@ export default function SecuritySuiteCard({
     >
       <div className={`absolute inset-0 bg-gradient-to-br opacity-80 ${EMPHASIS_STYLES[emphasis]}`} aria-hidden="true" />
       <div className="absolute inset-x-0 top-0 h-px bg-white/8" aria-hidden="true" />
+      {cornerTag && (
+        <span className="absolute right-4 top-4 z-10 max-w-[12rem] rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.15em] text-amber-100">
+          {cornerTag}
+        </span>
+      )}
       <div className="relative flex h-full flex-col gap-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/25 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
