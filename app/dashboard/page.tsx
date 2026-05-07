@@ -272,7 +272,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const timer = window.setInterval(() => {
       const source = GEO_POINTS[Math.floor(Math.random() * GEO_POINTS.length)];
-      const target = GEO_POINTS[Math.floor(Math.random() * GEO_POINTS.length)];
+      const possibleTargets = GEO_POINTS.filter((point) => point.label !== source.label);
+      const target = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
       const severity: ThreatEvent["severity"] = Math.random() > 0.62 ? "high" : "medium";
       const next: ThreatEvent = {
         id: `evt-${crypto.randomUUID()}`,
@@ -495,10 +496,10 @@ export default function DashboardPage() {
                   <div className="mt-3 text-xs text-slate-300 space-y-1">
                     <p>
                       Score:{" "}
-                      <span className="text-orange-300">{latestByTool["shadow-governance"]?.score}</span> · Confidence{" "}
-                      <span className="text-cyan-300">{latestByTool["shadow-governance"]?.confidence}%</span>
+                      <span className="text-orange-300">{latestByTool["shadow-governance"].score}</span> · Confidence{" "}
+                      <span className="text-cyan-300">{latestByTool["shadow-governance"].confidence}%</span>
                     </p>
-                    <p className="text-slate-400">{latestByTool["shadow-governance"]?.summary}</p>
+                    <p className="text-slate-400">{latestByTool["shadow-governance"].summary}</p>
                   </div>
                 )}
               </div>

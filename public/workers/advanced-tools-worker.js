@@ -61,5 +61,14 @@ self.onmessage = (event) => {
 
   if (tool === "shadow-governance") {
     self.postMessage(runShadowGovernance(payload));
+    return;
   }
+
+  self.postMessage({
+    tool,
+    score: 0,
+    confidence: 0,
+    summary: "Unsupported tool request.",
+    recommendations: ["Verify the tool identifier before retrying."],
+  });
 };
