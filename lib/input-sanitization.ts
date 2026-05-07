@@ -22,20 +22,20 @@ export function sanitizeSingleLineInput(
     collapseSpaces = true,
   } = options;
 
-  let sanitised = value
+  let sanitized = value
     .replace(CONTROL_CHARS_RE, "")
     .replace(LINE_BREAK_RE, " ")
     .replace(/\t+/g, " ");
 
   if (collapseSpaces) {
-    sanitised = sanitised.replace(/ {2,}/g, " ");
+    sanitized = sanitized.replace(/ {2,}/g, " ");
   }
 
   if (trim) {
-    sanitised = sanitised.trim();
+    sanitized = sanitized.trim();
   }
 
-  return applyMaxLength(sanitised, maxLength);
+  return applyMaxLength(sanitized, maxLength);
 }
 
 export function sanitizeMultilineInput(
@@ -47,17 +47,17 @@ export function sanitizeMultilineInput(
     maxLength = 8000,
   } = options;
 
-  let sanitised = value
+  let sanitized = value
     .replace(CONTROL_CHARS_RE, "")
     .replace(LINE_BREAK_RE, "\n");
 
-  sanitised = sanitised.replace(/\n{3,}/g, "\n\n");
+  sanitized = sanitized.replace(/\n{3,}/g, "\n\n");
 
   if (trim) {
-    sanitised = sanitised.trim();
+    sanitized = sanitized.trim();
   }
 
-  return applyMaxLength(sanitised, maxLength);
+  return applyMaxLength(sanitized, maxLength);
 }
 
 export function sanitizePasswordInput(value: string): string {
