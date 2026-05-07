@@ -7,11 +7,12 @@
 
 import { state, history }            from '../modules/state.js';
 import { toast }                     from '../modules/toast.js';
-import { getActivityEntries, logActivity, onActivityChange } from '../modules/activity-log.js';
+import { getActivityEntries, logActivity } from '../modules/activity-log.js';
 import { isValidActiveTarget } from '../modules/validation.js';
 import { runScan, TYPE_META, SCAN_STEPS, detectType } from '../tools/scanner.js';
 
 let _openGuardrail = null;
+let _consoleBootLogged = false;
 
 /* ── Date helpers ───────────────────────────────────────────────── */
 function relativeTime(iso) {
@@ -31,6 +32,11 @@ function escapeHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function _pushActivity(level, message) {
+  logActivity(level, message);
+  _renderActivityConsole();
 }
 
 /* ── Hero section ───────────────────────────────────────────────── */
@@ -446,6 +452,7 @@ export function renderDashboard() {
               <input id="guardrail-target-input" class="field-input" type="text" maxlength="256"
                      placeholder="domain.com, 8.8.8.8, or https://target.com" autocomplete="off" />
               <p class="guardrail-modal__hint">Step 1: verify a valid authorized target before running.</p>
+              <p class="guardrail-modal__status" id="guardrail-status"></p>
               <p class="guardrail-modal__error" id="guardrail-error"></p>
             </div>
             <div class="guardrail-modal__actions">
@@ -492,14 +499,18 @@ export function renderDashboard() {
 /* ── Event wiring ───────────────────────────────────────────────── */
 function _wireDashboard(view) {
   _renderActivityConsole();
-  const unsubscribeActivity = onActivityChange(() => _renderActivityConsole());
+  if (!_consoleBootLogged) {
+    _pushActivity('status', '[STATUS] Sanitizing URL inputs...');
+    _pushActivity('success', '[SUCCESS] Site Verified.');
+    _consoleBootLogged = true;
+  }
 
   // Example chips fill the input
   view.querySelectorAll('.hero-scan__ex-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       const input = document.getElementById('hero-scan-input');
       if (input) { input.value = btn.dataset.example ?? ''; input.focus(); }
-      logActivity('status', '[STATUS] Example target populated.');
+      _pushActivity('status', '[STATUS] Example target populated.');
     });
   });
 
@@ -511,11 +522,11 @@ function _wireDashboard(view) {
     const isActive = card.dataset.toolActive === '1';
     const handler = () => {
       if (isActive) {
-        _openGuardrailModal(toolName);
+        _triggerGuardrailModal(toolName);
         return;
       }
       toast.info(`${toolName} module is queued and ready for rollout.`);
-      logActivity('status', `[STATUS] ${toolName} selected.`);
+      _pushActivity('status', `[STATUS] ${toolName} selected.`);
     };
     card.addEventListener('click',   handler);
     card.addEventListener('keydown', e => {
@@ -527,7 +538,6 @@ function _wireDashboard(view) {
   document.getElementById('hero-scan-form')
     ?.addEventListener('submit', e => { e.preventDefault(); _doScan(view); });
 
-  window.addEventListener('hashchange', () => unsubscribeActivity(), { once: true });
 }
 
 /* ── Scan runner ────────────────────────────────────────────────── */
@@ -541,17 +551,17 @@ async function _doScan(view) {
   const query = input?.value?.trim() ?? '';
   if (!query) {
     toast.warning('Please enter something to scan.');
-    logActivity('warning', '[WARNING] Scan blocked: empty target.');
+    _pushActivity('warning', '[WARNING] Scan blocked: empty target.');
     input?.focus();
     return;
   }
   if (detectType(query) === 'unknown') {
     toast.warning('Target format not recognized. Enter a valid domain, IP, URL, email, or phone.');
-    logActivity('warning', '[WARNING] Scan blocked: malformed target.');
+    _pushActivity('warning', '[WARNING] Scan blocked: malformed target.');
     input?.focus();
     return;
   }
-  logActivity('status', `[STATUS] Scan queued for "${query}".`);
+  _pushActivity('status', `[STATUS] Scan queued for "${query}".`);
 
   // Enter scanning state
   if (input)    input.disabled  = true;
@@ -593,7 +603,7 @@ async function _doScan(view) {
         const b   = document.getElementById('hero-scan-btn');
         if (inp) inp.disabled = false;
         if (b)   b.disabled   = false;
-        logActivity('success', `[SUCCESS] Scan complete: ${res.query} (${res.riskClass}).`);
+        _pushActivity('success', `[SUCCESS] Scan complete: ${res.query} (${res.riskClass}).`);
 
         _refreshHistory(view);
       }, 400);
@@ -611,7 +621,7 @@ function _resetScan() {
   if (btn)      btn.disabled  = false;
   if (progress) progress.hidden = true;
   if (result)   { result.hidden = true; result.innerHTML = ''; }
-  logActivity('status', '[STATUS] Scan form reset.');
+  _pushActivity('status', '[STATUS] Scan form reset.');
 }
 
 /* ── Copy helper ────────────────────────────────────────────────── */
@@ -650,6 +660,7 @@ function _wireGuardrailModal(view) {
   const verifyBtn = modal.querySelector('#guardrail-verify-btn');
   const runBtn = modal.querySelector('#guardrail-run-btn');
   const cancelBtn = modal.querySelector('#guardrail-cancel-btn');
+  const statusEl = modal.querySelector('#guardrail-status');
   const errorEl = modal.querySelector('#guardrail-error');
   const titleEl = modal.querySelector('#guardrail-modal-title');
   const subEl = modal.querySelector('#guardrail-modal-sub');
@@ -664,6 +675,7 @@ function _wireGuardrailModal(view) {
     verified = false;
     targetInput.value = '';
     ackInput.checked = false;
+    statusEl.textContent = '';
     errorEl.textContent = '';
     syncRunState();
   };
@@ -672,14 +684,16 @@ function _wireGuardrailModal(view) {
     const target = targetInput.value.trim();
     if (!isValidActiveTarget(target)) {
       verified = false;
+      statusEl.textContent = '';
       errorEl.textContent = 'Target must be a valid domain, IPv4, or https URL.';
-      logActivity('warning', '[WARNING] Guardrail verify failed: invalid target format.');
+      _pushActivity('warning', '[WARNING] Guardrail verify failed: invalid target format.');
       syncRunState();
       return;
     }
     verified = true;
-    errorEl.textContent = 'Target verified. Now acknowledge permission to proceed.';
-    logActivity('success', `[SUCCESS] Guardrail verification passed for ${target}.`);
+    statusEl.textContent = 'Target verified. Now acknowledge permission to proceed.';
+    errorEl.textContent = '';
+    _pushActivity('success', `[SUCCESS] Guardrail verification passed for ${target}.`);
     syncRunState();
   });
 
@@ -693,7 +707,7 @@ function _wireGuardrailModal(view) {
   runBtn.addEventListener('click', () => {
     const target = targetInput.value.trim();
     toast.success(`${selectedTool} started for ${target}.`);
-    logActivity('success', `[SUCCESS] ${selectedTool} executed against ${target}.`);
+    _pushActivity('success', `[SUCCESS] ${selectedTool} executed against ${target}.`);
     modal.hidden = true;
     resetModal();
   });
@@ -712,11 +726,11 @@ function _wireGuardrailModal(view) {
     resetModal();
     modal.hidden = false;
     targetInput.focus();
-    logActivity('status', `[STATUS] Guardrail opened for ${toolName}.`);
+    _pushActivity('status', `[STATUS] Guardrail opened for ${toolName}.`);
   };
 }
 
-function _openGuardrailModal(toolName) {
+function _triggerGuardrailModal(toolName) {
   _openGuardrail?.(toolName);
 }
 

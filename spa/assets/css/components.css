@@ -1259,6 +1259,11 @@
   color: var(--red);
   min-height: 16px;
 }
+.guardrail-modal__status {
+  font-size: 0.75rem;
+  color: var(--green);
+  min-height: 16px;
+}
 .guardrail-modal__actions {
   display: flex;
   align-items: center;

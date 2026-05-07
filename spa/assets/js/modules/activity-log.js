@@ -1,8 +1,7 @@
 const MAX_ENTRIES = 60;
 const listeners = new Set();
 let entries = [
-  { id: 'activity-1', level: 'status', message: '[STATUS] Sanitizing URL inputs...' },
-  { id: 'activity-2', level: 'success', message: '[SUCCESS] Site Verified.' },
+  { id: 'activity-1', level: 'status', message: '[STATUS] Activity console initialized.' },
 ];
 
 function emit() {
@@ -27,4 +26,3 @@ export function onActivityChange(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
-
