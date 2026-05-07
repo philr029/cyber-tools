@@ -245,21 +245,21 @@ export async function GET(request: NextRequest) {
       const addresses = await resolve4(domain);
       sendingIp = addresses[0];
       console.log(`Resolved "${domain}" → ${sendingIp}`);
-  } catch (err) {
-    console.error(`DNS A-record lookup failed for "${domain}":`, err);
-    results.push({
-      domain,
-      passed: 0,
-      failed: 0,
-      total: 0,
-      criticalHits: [],
-      warningHits: [],
-      health: "Error",
-      summary: `Target: ${domain} | Status: DNS Lookup Failed | Health: Error.`,
-      error: `DNS A-record lookup failed for "${domain}".`,
-    });
-    continue;
-  }
+    } catch (err) {
+      console.error(`DNS A-record lookup failed for "${domain}":`, err);
+      results.push({
+        domain,
+        passed: 0,
+        failed: 0,
+        total: 0,
+        criticalHits: [],
+        warningHits: [],
+        health: "Error",
+        summary: `Target: ${domain} | Status: DNS Lookup Failed | Health: Error.`,
+        error: `DNS A-record lookup failed for "${domain}".`,
+      });
+      continue;
+    }
 
     if (!sendingIp) {
       results.push({
