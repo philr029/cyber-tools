@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ThreatIPResult, ThreatVerdict } from "@/lib/types";
+import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
 import Card from "@/app/components/ui/Card";
 
 // ---------------------------------------------------------------------------
@@ -169,7 +170,7 @@ export default function ThreatIPCheck() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = input.trim();
+    const trimmed = sanitizeSingleLineInput(input);
     if (!trimmed) return;
 
     setLoading(true);
@@ -203,7 +204,7 @@ export default function ThreatIPCheck() {
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => setInput(sanitizeSingleLineInput(e.target.value, { trim: false }))}
           placeholder="e.g. 8.8.8.8"
           className="flex-1 px-4 py-2.5 rounded-xl border border-[#1e2d4a] bg-[#0f1629] text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition"
           disabled={loading}

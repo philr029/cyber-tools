@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
+import {
+  sanitizeHeaderName,
+  sanitizeHeaderValue,
+  sanitizeMultilineInput,
+  sanitizeSingleLineInput,
+} from "@/lib/input-sanitization";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -217,7 +223,8 @@ export default function APITesterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!url.trim()) {
+    const safeUrl = sanitizeSingleLineInput(url, { maxLength: 4096 });
+    if (!safeUrl) {
       setError("Please enter a URL.");
       return;
     }
@@ -227,20 +234,25 @@ export default function APITesterPage() {
 
     const headersObj: Record<string, string> = {};
     for (const h of headers) {
-      if (h.key.trim()) {
-        headersObj[h.key.trim()] = h.value;
+      const key = sanitizeHeaderName(h.key);
+      if (key) {
+        headersObj[key] = sanitizeHeaderValue(h.value);
       }
     }
+
+    const safeBody = hasBody && body.trim()
+      ? sanitizeMultilineInput(body, { trim: false, maxLength: 20000 })
+      : undefined;
 
     try {
       const res = await fetch("/api/tools/api-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          url: url.trim(),
+          url: safeUrl,
           method,
           headers: headersObj,
-          body: hasBody && body.trim() ? body.trim() : undefined,
+          body: safeBody,
         }),
       });
 

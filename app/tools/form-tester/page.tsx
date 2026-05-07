@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
+import {
+  sanitizeFieldName,
+  sanitizeHeaderValue,
+  sanitizeSingleLineInput,
+} from "@/lib/input-sanitization";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -294,7 +299,8 @@ export default function FormTesterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!url.trim()) {
+    const safeUrl = sanitizeSingleLineInput(url, { maxLength: 4096 });
+    if (!safeUrl) {
       setError("Please enter a target URL.");
       return;
     }
@@ -302,14 +308,20 @@ export default function FormTesterPage() {
     setError(null);
     setResult(null);
 
-    const validFields = fields.filter((f) => f.key.trim());
+    const validFields = fields
+      .map((f) => ({
+        ...f,
+        key: sanitizeFieldName(f.key),
+        value: sanitizeHeaderValue(f.value),
+      }))
+      .filter((f) => f.key);
 
     try {
       const res = await fetch("/api/tools/form-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          url: url.trim(),
+          url: safeUrl,
           method,
           contentType,
           fields: validFields,

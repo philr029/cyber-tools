@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { AgentScanResult } from "@/lib/ai-agents/agentTypes";
+import { sanitizeMultilineInput } from "@/lib/input-sanitization";
 import type { ChatMessage } from "@/types/chat";
 import { buildScanContext } from "@/lib/core/stateManager";
 
@@ -261,7 +262,7 @@ export default function AIAssistantPanel({ result }: AIAssistantPanelProps) {
 
   const sendMessage = useCallback(
     async (textOverride?: string, promptKey?: SuggestedPrompt["key"]) => {
-      const text = (textOverride ?? input).trim();
+      const text = sanitizeMultilineInput(textOverride ?? input, { maxLength: 4000 });
       if (!text || isLoading) return;
 
       const userMsg: ChatMessage = {

@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import {
+  sanitizeMultilineInput,
+  sanitizeSingleLineInput,
+} from "@/lib/input-sanitization";
 
 interface AISummaryPanelProps {
   context: string;
@@ -26,7 +30,9 @@ export default function AISummaryPanel({ context, toolName }: AISummaryPanelProp
     setSummary(null);
     setExpanded(true);
 
-    const prompt = `You are a cybersecurity analyst. A user ran the "${toolName}" tool and got the following result:\n\n${context}\n\nIn 3–5 short bullet points, explain:\n1. What the key findings mean in plain language\n2. The risk level and why\n3. What action (if any) the user should take\n\nBe direct and concise. Use "•" for bullets.`;
+    const safeToolName = sanitizeSingleLineInput(toolName, { maxLength: 120 });
+    const safeContext = sanitizeMultilineInput(context, { maxLength: 6000 });
+    const prompt = `You are a cybersecurity analyst. A user ran the "${safeToolName}" tool and got the following result:\n\n${safeContext}\n\nIn 3–5 short bullet points, explain:\n1. What the key findings mean in plain language\n2. The risk level and why\n3. What action (if any) the user should take\n\nBe direct and concise. Use "•" for bullets.`;
 
     try {
       const res = await fetch("/api/chat", {

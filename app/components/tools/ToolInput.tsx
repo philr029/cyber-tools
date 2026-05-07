@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
 import type { ValidationResult } from "@/lib/validators";
 
 interface ToolInputProps {
@@ -26,13 +27,13 @@ export default function ToolInput({
   const [error, setError] = useState<string | null>(null);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setValue(e.target.value);
+    setValue(sanitizeSingleLineInput(e.target.value, { trim: false }));
     setError(null);
   }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const trimmed = value.trim();
+    const trimmed = sanitizeSingleLineInput(value);
     if (!trimmed) return;
 
     if (validate) {

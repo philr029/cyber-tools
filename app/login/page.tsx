@@ -3,6 +3,10 @@
 import { useState, type FormEvent, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  sanitizePasswordInput,
+  sanitizeSingleLineInput,
+} from "@/lib/input-sanitization";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 
@@ -18,12 +22,15 @@ function LoginForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    const safeEmail = sanitizeSingleLineInput(email);
+    const safePassword = sanitizePasswordInput(password);
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: safeEmail, password: safePassword }),
       });
       const data = await res.json();
       if (!res.ok) {
