@@ -7,7 +7,12 @@
 
 import { state, history }            from '../modules/state.js';
 import { toast }                     from '../modules/toast.js';
-import { runScan, TYPE_META, SCAN_STEPS } from '../tools/scanner.js';
+import { getActivityEntries, logActivity } from '../modules/activity-log.js';
+import { isValidActiveTarget } from '../modules/validation.js';
+import { runScan, TYPE_META, SCAN_STEPS, detectType } from '../tools/scanner.js';
+
+let _openGuardrail = null;
+let _consoleBootLogged = false;
 
 /* ── Date helpers ───────────────────────────────────────────────── */
 function relativeTime(iso) {
@@ -27,6 +32,11 @@ function escapeHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function _pushActivity(level, message) {
+  logActivity(level, message);
+  _renderActivityConsole();
 }
 
 /* ── Hero section ───────────────────────────────────────────────── */
@@ -197,82 +207,28 @@ function scanResultHtml(res) {
 }
 
 /* ── Tool catalogue ─────────────────────────────────────────────── */
+const STROKE_ICON = `
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 12h18"/>
+    <path d="M12 3v18"/>
+    <circle cx="12" cy="12" r="9"/>
+  </svg>
+`;
+
 const TOOLS = [
-  {
-    name: 'Domain Intelligence',
-    desc: 'WHOIS, DNS records, registrar info',
-    phase: 'Phase 2',
-    color: 'cyan',
-    icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-      <path d="M9 1a8 8 0 1 0 0 16A8 8 0 0 0 9 1zm0 1.5a6.5 6.5 0 0 1 5.94 3.875H3.06A6.5
-        6.5 0 0 1 9 2.5zm0 13a6.5 6.5 0 0 1-5.94-3.875h11.88A6.5 6.5 0 0 1 9 15.5zM3.6
-        9A5.46 5.46 0 0 1 3.51 7.5h10.98c.06.49.09.99.09 1.5s-.03 1.01-.09 1.5H3.51A5.46
-        5.46 0 0 1 3.6 9z"/>
-    </svg>`,
-  },
-  {
-    name: 'IP Analyzer',
-    desc: 'Geolocation, ASN, reputation checks',
-    phase: 'Phase 2',
-    color: 'purple',
-    icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-      <path d="M9 1a8 8 0 1 0 0 16A8 8 0 0 0 9 1zm-.5 13.94V11.5H5.56A6.517 6.517 0 0 1
-        2.56 9h11.88a6.517 6.517 0 0 1-3 2.5v3.44a6.508 6.508 0 0 1-3 0zm3.5-4.94H6v-2h6v2zm-3-8.44v3.94H5.56
-        a6.517 6.517 0 0 0-3 2.5h11.88a6.517 6.517 0 0 0-3-2.5V1.56z"/>
-    </svg>`,
-  },
-  {
-    name: 'Email Headers',
-    desc: 'SPF, DKIM, DMARC validation',
-    phase: 'Phase 2',
-    color: 'green',
-    icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-      <path d="M2 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v.217L9 10.383 2 4.217V4zm0 2.383V14a2 2
-        0 0 0 2 2h10a2 2 0 0 0 2-2V6.383l-7 5.25-7-5.25z"/>
-    </svg>`,
-  },
-  {
-    name: 'Phone Validator',
-    desc: 'Carrier lookup, country, risk score',
-    phase: 'Phase 2',
-    color: 'amber',
-    icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-      <path d="M3 2a1 1 0 0 1 1-1h2.172a1 1 0 0 1 .97.757l.537 2.149a1 1 0 0
-        1-.547 1.145l-1.116.558a10.003 10.003 0 0 0 4.375 4.375l.558-1.116a1 1 0 0
-        1 1.145-.547l2.149.537A1 1 0 0 1 15 9.828V12a1 1 0 0 1-1 1h-1C7.373 13 3
-        8.627 3 3V2z"/>
-    </svg>`,
-  },
-  {
-    name: 'Port Scanner',
-    desc: 'Safe simulated open-port analysis',
-    phase: 'Phase 2',
-    color: 'red',
-    icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-      <path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h12.5a.75.75 0 0 1 0
-        1.5H2.75A.75.75 0 0 1 2 4.75zm0 4A.75.75 0 0 1 2.75 8h12.5a.75.75 0 0 1 0
-        1.5H2.75A.75.75 0 0 1 2 8.75zm0 4A.75.75 0 0 1 2.75 12h7.5a.75.75 0 0 1 0
-        1.5h-7.5A.75.75 0 0 1 2 12.75z" clip-rule="evenodd"/>
-    </svg>`,
-  },
-  {
-    name: 'AI Risk Engine',
-    desc: 'Unified threat scoring + guidance',
-    phase: 'Phase 3',
-    color: 'purple',
-    icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-      <path d="M5 11.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0
-        1-.5-.5zM2.5 7.375C2.5 5.456 4.176 3.97 5.908 4.135a24.26 24.26 0 0 0 4.184
-        0C11.824 3.97 13.5 5.456 13.5 7.375v1a.808.808 0 0 1-.662.796c-.73.127-2.024.302-3.588.302s-2.858-.175-3.588-.302A.808.808
-        0 0 1 2.5 8.375v-1zm4.54-.91a.2.2 0 0 0-.174.057L5.638 7.55a22.165 22.165 0 0
-        1-1.572-.159.2.2 0 1 0-.053.397c.736.1 1.648.196 2.707.253a.2.2 0 0 0 .155-.059l.63-.614.71
-        1.434a.2.2 0 0 0 .332.05l.78-.812a22.98 22.98 0 0 0 1.617-.244.2.2 0 0
-        0-.053-.397c-.567.097-1.267.186-2.073.234a.2.2 0 0 0-.14.08L8.59 8.3l-.706-1.428A.2.2
-        0 0 0 7.04 6.465zM9 1C5.134 1 2 4.134 2 8a.5.5 0 0 0 1 0C3 4.686 5.686 2 9
-        2s6 2.686 6 6a.5.5 0 0 0 1 0C16 4.134 12.866 1 9 1z"/>
-    </svg>`,
-  },
-];
+  { name: 'Port Scanner', desc: 'Active host + open-port probing (authorized targets only).', category: 'IT & Infrastructure', phase: 'Active', active: true, span: 'wide' },
+  { name: 'Form Tester', desc: 'Active form endpoint testing with controlled payload checks.', category: 'IT & Infrastructure', phase: 'Active', active: true, span: 'wide' },
+  { name: 'SSL/TLS Auditor', desc: 'Check cert validity, issuer chain, and expiry windows.', category: 'IT & Infrastructure', phase: 'New' },
+  { name: 'DNS Record Lookup', desc: 'Query A, MX, and TXT records with resolver visibility.', category: 'IT & Infrastructure', phase: 'New' },
+  { name: 'Global Ping', desc: 'Measure target latency from distributed global probes.', category: 'IT & Infrastructure', phase: 'New' },
+  { name: 'OG Tag Previewer', desc: 'Preview Open Graph metadata for social share accuracy.', category: 'Marketing & SEO', phase: 'New', span: 'wide' },
+  { name: 'SERP Visualizer', desc: 'Simulate title/description snippets in Google search.', category: 'Marketing & SEO', phase: 'New' },
+  { name: 'UTM Architect', desc: 'Generate campaign-safe tracking links with validation.', category: 'Marketing & SEO', phase: 'New' },
+  { name: 'Cookie Tracker Audit', desc: 'Inspect first/third-party cookie footprint and flags.', category: 'Privacy/Admin', phase: 'New' },
+  { name: 'Whois Privacy Check', desc: 'Detect registrar privacy status and exposure risk.', category: 'Privacy/Admin', phase: 'New' },
+  { name: 'DMARC/SPF Email Validator', desc: 'Validate sender policy records and alignment posture.', category: 'Privacy/Admin', phase: 'New', span: 'wide' },
+].map((tool) => ({ ...tool, icon: STROKE_ICON }));
 
 /* ── History list HTML ──────────────────────────────────────────── */
 function historyHtml(entries) {
@@ -447,24 +403,71 @@ export function renderDashboard() {
       </div>
 
       <div class="section-header">
-        <h2 class="section-title">Intelligence Modules</h2>
-        <p class="section-sub">Cyber analysis tools &mdash; expanding with each phase</p>
+        <h2 class="section-title">Security Tool Matrix</h2>
+        <p class="section-sub">Clean bento layout with guarded active workflows</p>
       </div>
 
       <div class="tools-grid stagger-children">
         ${TOOLS.map(t => `
-          <div class="tool-card tool-card--${t.color}" tabindex="0"
-               role="button" aria-label="${escapeHtml(t.name)} \u2014 ${escapeHtml(t.phase)}">
-            <div class="tool-card__icon tool-card__icon--${t.color}" aria-hidden="true">
+          <div class="tool-card ${t.span ? `tool-card--${t.span}` : ''}" tabindex="0"
+               role="button"
+               data-tool-name="${escapeHtml(t.name)}"
+               data-tool-active="${t.active ? '1' : '0'}"
+               aria-label="${escapeHtml(t.name)} \u2014 ${escapeHtml(t.phase)}">
+            <div class="tool-card__icon" aria-hidden="true">
               ${t.icon}
             </div>
             <div class="tool-card__body">
+              <div class="tag" style="display:inline-flex;margin-bottom:6px;">
+                ${escapeHtml(t.category)}
+              </div>
               <div class="tool-card__name">${escapeHtml(t.name)}</div>
               <div class="tool-card__desc">${escapeHtml(t.desc)}</div>
             </div>
-            <span class="tag">${escapeHtml(t.phase)}</span>
+            <div class="tool-card__meta">
+              <span class="tag">${escapeHtml(t.phase)}</span>
+              ${t.active ? '<span class="tool-card__active-pill">Permission Required</span>' : ''}
+            </div>
           </div>
         `).join('')}
+      </div>
+
+      <section class="activity-console" aria-label="Activity console">
+        <div class="activity-console__header">
+          <span>Activity Console</span>
+          <span>Read-only</span>
+        </div>
+        <div id="activity-console-lines" class="activity-console__body" role="log" aria-live="polite"></div>
+      </section>
+
+      <div id="guardrail-modal" class="guardrail-modal" hidden>
+        <div class="guardrail-modal__panel" role="dialog" aria-modal="true" aria-labelledby="guardrail-modal-title">
+          <div class="guardrail-modal__header">
+            <h3 id="guardrail-modal-title" class="guardrail-modal__title">Permission Confirmation</h3>
+            <p id="guardrail-modal-sub" class="guardrail-modal__sub"></p>
+          </div>
+          <div class="guardrail-modal__body">
+            <div class="field-group" style="margin-bottom:0;">
+              <label class="field-label" for="guardrail-target-input">Target to verify</label>
+              <input id="guardrail-target-input" class="field-input" type="text" maxlength="256"
+                     placeholder="domain.com, 8.8.8.8, or https://target.com" autocomplete="off" />
+              <p class="guardrail-modal__hint">Step 1: verify a valid authorized target before running.</p>
+              <p class="guardrail-modal__status" id="guardrail-status"></p>
+              <p class="guardrail-modal__error" id="guardrail-error"></p>
+            </div>
+            <div class="guardrail-modal__actions">
+              <button id="guardrail-verify-btn" type="button" class="btn btn--secondary btn--sm">Verify Target</button>
+              <label class="guardrail-modal__ack">
+                <input id="guardrail-ack" type="checkbox" />
+                <span>Step 2: I acknowledge permission to test this target.</span>
+              </label>
+            </div>
+            <div class="guardrail-modal__actions">
+              <button id="guardrail-cancel-btn" type="button" class="btn btn--ghost btn--sm">Cancel</button>
+              <button id="guardrail-run-btn" type="button" class="btn btn--primary btn--sm" disabled>Run Tool</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       ${!isPro ? `
@@ -495,18 +498,36 @@ export function renderDashboard() {
 
 /* ── Event wiring ───────────────────────────────────────────────── */
 function _wireDashboard(view) {
+  _renderActivityConsole();
+  if (!_consoleBootLogged) {
+    _pushActivity('status', '[STATUS] Sanitizing URL inputs...');
+    _pushActivity('success', '[SUCCESS] Site Verified.');
+    _consoleBootLogged = true;
+  }
+
   // Example chips fill the input
   view.querySelectorAll('.hero-scan__ex-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       const input = document.getElementById('hero-scan-input');
       if (input) { input.value = btn.dataset.example ?? ''; input.focus(); }
+      _pushActivity('status', '[STATUS] Example target populated.');
     });
   });
 
-  // Tool cards show a coming-soon toast
+  _wireGuardrailModal(view);
+
+  // Tool cards
   view.querySelectorAll('.tool-card').forEach(card => {
-    const handler = () =>
-      toast.info(`${card.querySelector('.tool-card__name')?.textContent} arrives in the next phase \u2014 stay tuned!`);
+    const toolName = card.dataset.toolName ?? 'Tool';
+    const isActive = card.dataset.toolActive === '1';
+    const handler = () => {
+      if (isActive) {
+        _triggerGuardrailModal(toolName);
+        return;
+      }
+      toast.info(`${toolName} module is queued and ready for rollout.`);
+      _pushActivity('status', `[STATUS] ${toolName} selected.`);
+    };
     card.addEventListener('click',   handler);
     card.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); }
@@ -516,6 +537,7 @@ function _wireDashboard(view) {
   // Hero scan form submit
   document.getElementById('hero-scan-form')
     ?.addEventListener('submit', e => { e.preventDefault(); _doScan(view); });
+
 }
 
 /* ── Scan runner ────────────────────────────────────────────────── */
@@ -529,9 +551,17 @@ async function _doScan(view) {
   const query = input?.value?.trim() ?? '';
   if (!query) {
     toast.warning('Please enter something to scan.');
+    _pushActivity('warning', '[WARNING] Scan blocked: empty target.');
     input?.focus();
     return;
   }
+  if (detectType(query) === 'unknown') {
+    toast.warning('Target format not recognized. Enter a valid domain, IP, URL, email, or phone.');
+    _pushActivity('warning', '[WARNING] Scan blocked: malformed target.');
+    input?.focus();
+    return;
+  }
+  _pushActivity('status', `[STATUS] Scan queued for "${query}".`);
 
   // Enter scanning state
   if (input)    input.disabled  = true;
@@ -566,13 +596,14 @@ async function _doScan(view) {
                  _copyResult(e.currentTarget.dataset.copy ?? '', e.currentTarget));
 
           resEl.querySelector('.scan-result__new-btn')
-               ?.addEventListener('click', () => _resetScan(view));
+               ?.addEventListener('click', () => _resetScan());
         }
 
         const inp = document.getElementById('hero-scan-input');
         const b   = document.getElementById('hero-scan-btn');
         if (inp) inp.disabled = false;
         if (b)   b.disabled   = false;
+        _pushActivity('success', `[SUCCESS] Scan complete: ${res.query} (${res.riskClass}).`);
 
         _refreshHistory(view);
       }, 400);
@@ -580,7 +611,7 @@ async function _doScan(view) {
   });
 }
 
-function _resetScan(view) {
+function _resetScan() {
   const input    = document.getElementById('hero-scan-input');
   const progress = document.getElementById('hero-scan-progress');
   const result   = document.getElementById('hero-scan-result');
@@ -590,6 +621,7 @@ function _resetScan(view) {
   if (btn)      btn.disabled  = false;
   if (progress) progress.hidden = true;
   if (result)   { result.hidden = true; result.innerHTML = ''; }
+  _pushActivity('status', '[STATUS] Scan form reset.');
 }
 
 /* ── Copy helper ────────────────────────────────────────────────── */
@@ -609,6 +641,97 @@ function _copyResult(text, btn) {
 function _refreshHistory(view) {
   const list = view?.querySelector('#history-list');
   if (list) list.innerHTML = historyHtml(history.getAll());
+}
+
+function _renderActivityConsole() {
+  const root = document.getElementById('activity-console-lines');
+  if (!root) return;
+  const lines = getActivityEntries()
+    .map((entry) => `<div class="activity-console__line activity-console__line--${entry.level}">${escapeHtml(entry.message)}</div>`)
+    .join('');
+  root.innerHTML = lines;
+}
+
+function _wireGuardrailModal(view) {
+  const modal = view.querySelector('#guardrail-modal');
+  if (!modal) return;
+  const targetInput = modal.querySelector('#guardrail-target-input');
+  const ackInput = modal.querySelector('#guardrail-ack');
+  const verifyBtn = modal.querySelector('#guardrail-verify-btn');
+  const runBtn = modal.querySelector('#guardrail-run-btn');
+  const cancelBtn = modal.querySelector('#guardrail-cancel-btn');
+  const statusEl = modal.querySelector('#guardrail-status');
+  const errorEl = modal.querySelector('#guardrail-error');
+  const titleEl = modal.querySelector('#guardrail-modal-title');
+  const subEl = modal.querySelector('#guardrail-modal-sub');
+  let verified = false;
+  let selectedTool = '';
+
+  const syncRunState = () => {
+    runBtn.disabled = !(verified && ackInput.checked);
+  };
+
+  const resetModal = () => {
+    verified = false;
+    targetInput.value = '';
+    ackInput.checked = false;
+    statusEl.textContent = '';
+    errorEl.textContent = '';
+    syncRunState();
+  };
+
+  verifyBtn.addEventListener('click', () => {
+    const target = targetInput.value.trim();
+    if (!isValidActiveTarget(target)) {
+      verified = false;
+      statusEl.textContent = '';
+      errorEl.textContent = 'Target must be a valid domain, IPv4, or https URL.';
+      _pushActivity('warning', '[WARNING] Guardrail verify failed: invalid target format.');
+      syncRunState();
+      return;
+    }
+    verified = true;
+    statusEl.textContent = 'Target verified. Now acknowledge permission to proceed.';
+    errorEl.textContent = '';
+    _pushActivity('success', `[SUCCESS] Guardrail verification passed for ${target}.`);
+    syncRunState();
+  });
+
+  ackInput.addEventListener('change', syncRunState);
+
+  cancelBtn.addEventListener('click', () => {
+    modal.hidden = true;
+    resetModal();
+  });
+
+  runBtn.addEventListener('click', () => {
+    const target = targetInput.value.trim();
+    toast.success(`${selectedTool} started for ${target}.`);
+    _pushActivity('success', `[SUCCESS] ${selectedTool} executed against ${target}.`);
+    modal.hidden = true;
+    resetModal();
+  });
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.hidden = true;
+      resetModal();
+    }
+  });
+
+  _openGuardrail = (toolName) => {
+    selectedTool = toolName;
+    titleEl.textContent = `${toolName} Permission Confirmation`;
+    subEl.textContent = 'Verify the target and acknowledge permission before execution.';
+    resetModal();
+    modal.hidden = false;
+    targetInput.focus();
+    _pushActivity('status', `[STATUS] Guardrail opened for ${toolName}.`);
+  };
+}
+
+function _triggerGuardrailModal(toolName) {
+  _openGuardrail?.(toolName);
 }
 
 /* ── Stat counter animation ─────────────────────────────────────── */

@@ -16,10 +16,12 @@
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(2px);
   opacity: 0;
+  pointer-events: none;
   transition: opacity var(--t-normal);
 }
 .sidebar-overlay--visible {
   opacity: 1;
+  pointer-events: auto;
 }
 
 /* ── Sidebar ────────────────────────────────────────────────────── */
