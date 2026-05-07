@@ -3,10 +3,10 @@ import twilio from "twilio";
 
 export const runtime = "nodejs";
 
-const E164_REGEX = /^\+[1-9]\d{3,14}$/;
+const E164_REGEX = /^\+[1-9]\d{6,14}$/;
 const MAX_NUMBERS_PER_REQUEST = 25;
 const MAX_TEST_MESSAGE_LENGTH = 1_000;
-const CALL_DELAY_MS = 1_200;
+const INTER_CALL_DELAY_MS = 1_200;
 
 interface CallResult {
   phoneNumber: string;
@@ -102,8 +102,8 @@ export async function POST(request: NextRequest) {
   const twiml = voiceResponse.toString();
   const results: CallResult[] = [];
 
-  for (let i = 0; i < numbers.length; i++) {
-    const to = numbers[i];
+  for (let numberIndex = 0; numberIndex < numbers.length; numberIndex++) {
+    const to = numbers[numberIndex];
     try {
       const call = await client.calls.create({
         to,
@@ -128,8 +128,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (i < numbers.length - 1) {
-      await sleep(CALL_DELAY_MS);
+    if (numberIndex < numbers.length - 1) {
+      await sleep(INTER_CALL_DELAY_MS);
     }
   }
 
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
       total: results.length,
       queued,
       failed,
-      delayMsBetweenCalls: CALL_DELAY_MS,
+      delayMsBetweenCalls: INTER_CALL_DELAY_MS,
       results,
     },
   });
