@@ -21,6 +21,7 @@ Every tool works immediately — add API keys to get live results. Tools without
 | Blacklist Check | `/tools/blacklist` | MxToolbox |
 | WHOIS / Registrar | `/tools/whois` | IANA RDAP (public, no key) |
 | URL Analysis | `/tools/url-analysis` | VirusTotal |
+| Phone Test (API) | `/api/tools/phone-test` | Twilio Voice |
 | Settings | `/settings` | — |
 
 ---
@@ -123,6 +124,9 @@ Copy-Item .env.example .env.local
 | `MX_TOOLBOX_API_KEY` | [MxToolbox](https://mxtoolbox.com/Public/ToolsApi.aspx) — API key required | Blacklist Check |
 | `SECURITYTRAILS_API_KEY` | [SecurityTrails](https://securitytrails.com/corp/api) — free: 50/month | DNS Lookup |
 | `SHODAN_API_KEY` | [Shodan](https://account.shodan.io/register) — membership required | Open Ports (dashboard) |
+| `TWILIO_ACCOUNT_SID` | [Twilio Console](https://console.twilio.com/) | Phone Test API (`/api/tools/phone-test`) |
+| `TWILIO_AUTH_TOKEN` | [Twilio Console](https://console.twilio.com/) | Phone Test API (`/api/tools/phone-test`) |
+| `TWILIO_FROM_NUMBER` | Twilio purchased/verified number in E.164 (e.g. `+15551234567`) | Phone Test API (`/api/tools/phone-test`) |
 
 > **No key needed for:** WHOIS (IANA RDAP), Security Headers (live HEAD request), SSL (SSL Labs public API).
 
@@ -215,6 +219,9 @@ vercel
 | `MX_TOOLBOX_API_KEY` | Optional | https://mxtoolbox.com/Public/ToolsApi.aspx |
 | `SECURITYTRAILS_API_KEY` | Optional | https://securitytrails.com/corp/api |
 | `SHODAN_API_KEY` | Optional | https://account.shodan.io/register |
+| `TWILIO_ACCOUNT_SID` | For phone test API | https://console.twilio.com/ |
+| `TWILIO_AUTH_TOKEN` | For phone test API | https://console.twilio.com/ |
+| `TWILIO_FROM_NUMBER` | For phone test API | Twilio Voice number in E.164 format |
 
 All threat intelligence keys are optional — tools without a key show a **Not configured** badge instead of an error.
 
