@@ -113,7 +113,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family:
-    "Inter",
+    var(--font-inter),
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
@@ -403,4 +403,39 @@ body {
 .animate-result-in {
   animation: result-in 0.35s ease forwards;
   overflow: hidden;
+}
+
+code,
+pre,
+.font-mono {
+  font-family:
+    var(--font-jetbrains-mono),
+    "JetBrains Mono",
+    "SFMono-Regular",
+    ui-monospace,
+    monospace;
+}
+
+.security-suite-shell {
+  background:
+    radial-gradient(circle at top, rgba(34, 211, 238, 0.1), transparent 24%),
+    #050505;
+}
+
+.security-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .security-bento-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .security-bento-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -12,7 +13,7 @@ export default function SearchBar({ onSearch, loading = false }: SearchBarProps)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const trimmed = value.trim();
+    const trimmed = sanitizeSingleLineInput(value);
     if (trimmed) onSearch(trimmed);
   }
 
@@ -32,7 +33,7 @@ export default function SearchBar({ onSearch, loading = false }: SearchBarProps)
         <input
           type="text"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => setValue(sanitizeSingleLineInput(e.target.value, { trim: false }))}
           placeholder="Enter IP, domain, or URL..."
           className="w-full pl-12 pr-36 py-4 bg-[#0f1629] border border-[#1e2d4a] rounded-2xl text-sm text-slate-100 placeholder-slate-500 shadow-[0_0_0_1px_rgba(6,182,212,0.1),0_4px_24px_rgba(0,0,0,0.3)] focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_1px_rgba(6,182,212,0.3),0_0_20px_rgba(6,182,212,0.1),0_4px_24px_rgba(0,0,0,0.3)] transition-all duration-200"
           disabled={loading}

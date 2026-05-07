@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
+
 interface ReviewTargetModalProps {
   open: boolean;
   target: string;
@@ -21,6 +24,16 @@ export default function ReviewTargetModal({
   onConfirm,
   loading = false,
 }: ReviewTargetModalProps) {
+  const [confirmationInput, setConfirmationInput] = useState("");
+  const safeTarget = useMemo(() => sanitizeSingleLineInput(target, { maxLength: 4096 }), [target]);
+  const targetVerified = safeTarget.length > 0 && confirmationInput === safeTarget;
+
+  useEffect(() => {
+    if (!open) {
+      setConfirmationInput("");
+    }
+  }, [open]);
+
   if (!open) return null;
 
   return (
@@ -28,7 +41,7 @@ export default function ReviewTargetModal({
       <button
         type="button"
         aria-label="Close review target modal"
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
         onClick={onCancel}
       />
 
@@ -36,41 +49,64 @@ export default function ReviewTargetModal({
         role="dialog"
         aria-modal="true"
         aria-label="Review target"
-        className="relative w-full max-w-md rounded-2xl border border-[#1e2d4a] bg-[#0d1321] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+        className="relative w-full max-w-xl rounded-[30px] border border-white/10 bg-[#050505] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.7)]"
       >
-        <h2 className="text-base font-semibold text-slate-100">Review Target</h2>
-        <p className="mt-1 text-sm text-slate-400">Please confirm the destination before running this active tool.</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">Two-Step Confirmation</p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">Review Target & Confirm Authorization</h2>
+        <p className="mt-2 text-sm leading-6 text-white/60">
+          Verify the destination exactly as shown below, then acknowledge that you have permission to test it.
+        </p>
 
-        <div className="mt-4 rounded-xl border border-[#1e2d4a] bg-[#0b0f1a] p-3">
-          <p className="text-[11px] uppercase tracking-wide text-slate-500">{targetLabel}</p>
-          <p className="mt-1 break-all text-sm font-mono text-cyan-300">{target || "—"}</p>
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.03)] p-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">Step 1 · Verify Target</p>
+            <p className="mt-2 break-all font-mono text-sm text-cyan-200">{safeTarget || "—"}</p>
+            <label className="mt-4 block">
+              <span className="text-xs text-white/55">Type the target exactly to continue</span>
+              <input
+                type="text"
+                value={confirmationInput}
+                onChange={(event) => setConfirmationInput(sanitizeSingleLineInput(event.target.value, { trim: false, maxLength: 4096 }))}
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-cyan-400/25"
+                placeholder={safeTarget}
+              />
+            </label>
+            <p className={`mt-2 text-xs ${targetVerified ? "text-emerald-300" : "text-white/40"}`}>
+              {targetVerified ? "Target verified." : "Awaiting exact target match."}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.03)] p-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">Step 2 · Permission to Test</p>
+            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-cyan-500/20 bg-cyan-500/8 p-4">
+              <input
+                type="checkbox"
+                checked={permissionChecked}
+                onChange={(e) => onPermissionChange(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-white/15 bg-black/30 text-cyan-400 focus:ring-cyan-400"
+              />
+              <span className="text-sm leading-6 text-cyan-50">
+                I confirm that I am authorized to test this target and understand this action generates live network traffic.
+              </span>
+            </label>
+          </div>
         </div>
 
-        <label className="mt-4 flex items-start gap-2 rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={permissionChecked}
-            onChange={(e) => onPermissionChange(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-[#1e2d4a] bg-[#0b0f1a] text-cyan-500 focus:ring-cyan-500"
-          />
-          <span className="text-xs text-cyan-200">I have permission to scan this target.</span>
-        </label>
-
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onCancel}
-            className="px-3.5 py-2 text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-300 hover:text-slate-100 hover:border-slate-500 transition-colors"
+            className="rounded-2xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 transition hover:border-white/20 hover:text-white"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            disabled={!permissionChecked || loading}
-            className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-500 text-white hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            disabled={!targetVerified || !permissionChecked || loading}
+            className="rounded-2xl border border-cyan-400/25 bg-gradient-to-r from-cyan-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-cyan-400 hover:to-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {loading ? "Starting…" : "Confirm & Run"}
+            {loading ? "Starting…" : `Confirm ${targetLabel}`}
           </button>
         </div>
       </div>

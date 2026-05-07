@@ -3,12 +3,16 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import MockDataBanner from "@/app/components/ui/MockDataBanner";
+import LiveActivityConsole from "@/app/components/tools/LiveActivityConsole";
+import SecuritySignals from "@/app/components/tools/SecuritySignals";
+import type { ActivityEntry } from "@/lib/use-activity-console";
 
 interface ToolPageLayoutProps {
   title: string;
   description: string;
   isMock?: boolean | null;
   children: ReactNode;
+  activityEntries?: ActivityEntry[];
 }
 
 const BackIcon = (
@@ -26,37 +30,45 @@ export default function ToolPageLayout({
   description,
   isMock,
   children,
+  activityEntries,
 }: ToolPageLayoutProps) {
   return (
-    <main className="flex-1">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-6">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-cyan-400 transition-colors"
-          >
-            {BackIcon}
-            Dashboard
-          </Link>
-          <span className="text-slate-600">/</span>
-          <span className="text-sm font-medium text-slate-300">{title}</span>
-        </div>
-
-        {/* Page header */}
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-xl font-bold text-slate-100">{title}</h1>
-            <p className="text-sm text-slate-500 mt-1 max-w-lg">{description}</p>
+    <main className="flex-1 bg-[#050505]">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.08),transparent_42%),#050505] p-6 sm:p-8">
+          <div className="mb-6 flex items-center gap-2 text-sm text-white/45">
+            <Link
+              href="/tools"
+              className="inline-flex items-center gap-1.5 text-sm text-white/45 transition-colors hover:text-cyan-200"
+            >
+              {BackIcon}
+              Suite
+            </Link>
+            <span>/</span>
+            <span className="font-medium text-white/70">{title}</span>
           </div>
-          {isMock !== null && isMock !== undefined && (
-            <div className="flex-shrink-0 mt-1">
-              <MockDataBanner isMock={isMock} />
-            </div>
-          )}
-        </div>
 
-        {children}
+          <div className="mb-8 rounded-[28px] border border-white/10 bg-[rgba(255,255,255,0.03)] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">Security-First Module</p>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h1>
+                <p className="mt-3 text-sm leading-7 text-white/62">{description}</p>
+              </div>
+              <div className="flex flex-col items-start gap-3">
+                <SecuritySignals />
+                {isMock !== null && isMock !== undefined && (
+                  <div className="flex-shrink-0">
+                    <MockDataBanner isMock={isMock} />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {children}
+          {activityEntries ? <LiveActivityConsole entries={activityEntries} /> : null}
+        </div>
       </div>
     </main>
   );
