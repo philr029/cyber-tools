@@ -1,7 +1,7 @@
 const CONTROL_CHARS_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 const LINE_BREAK_RE = /\r\n?/g;
 
-type SanitiseOptions = {
+type SanitizeOptions = {
   trim?: boolean;
   maxLength?: number;
   collapseSpaces?: boolean;
@@ -13,7 +13,7 @@ function applyMaxLength(value: string, maxLength?: number): string {
 
 export function sanitizeSingleLineInput(
   value: string,
-  options: SanitiseOptions = {},
+  options: SanitizeOptions = {},
 ): string {
   const {
     trim = true,
@@ -39,7 +39,7 @@ export function sanitizeSingleLineInput(
 
 export function sanitizeMultilineInput(
   value: string,
-  options: SanitiseOptions = {},
+  options: SanitizeOptions = {},
 ): string {
   const {
     trim = true,
