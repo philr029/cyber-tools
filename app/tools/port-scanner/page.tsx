@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { OpenPortsResult } from "@/lib/types";
 import { isValidIP, isValidDomain } from "@/lib/validators";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
@@ -11,6 +11,10 @@ import ToolEmptyState from "@/app/components/ui/ToolEmptyState";
 import RiskScorePanel from "@/app/components/ui/RiskScorePanel";
 import { scoreOpenPorts } from "@/lib/risk-engine";
 import type { ValidationResult } from "@/lib/validators";
+import { useAuth } from "@/lib/auth-context";
+import { FREE_DAILY_LIMIT, useDailyScans } from "@/lib/use-daily-scans";
+import ReviewTargetModal from "@/app/components/tools/ReviewTargetModal";
+import { ACTIVE_TOOL_COOLDOWN_SECONDS } from "@/lib/tool-limits";
 
 const Icon = (
   <svg className="w-10 h-10 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
@@ -27,10 +31,22 @@ function validateTarget(value: string): ValidationResult {
 }
 
 export default function PortScannerPage() {
+  const { user } = useAuth();
+  const { scansToday, increment: incrementScan } = useDailyScans(user?.plan ?? null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<OpenPortsResult | null>(null);
   const [isMock, setIsMock] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [pendingTarget, setPendingTarget] = useState("");
+  const [permissionChecked, setPermissionChecked] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = setTimeout(() => setCooldownSeconds((prev) => Math.max(0, prev - 1)), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldownSeconds]);
 
   async function handleSubmit(target: string) {
     setLoading(true);
@@ -41,11 +57,25 @@ export default function PortScannerPage() {
       const { data, mock } = await lookupPortScan(target);
       setData(data);
       setIsMock(mock);
+      incrementScan();
+      setCooldownSeconds(ACTIVE_TOOL_COOLDOWN_SECONDS);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function requestReview(target: string) {
+    setPendingTarget(target);
+    setPermissionChecked(false);
+    setReviewOpen(true);
+  }
+
+  function confirmReview() {
+    if (!permissionChecked || !pendingTarget) return;
+    setReviewOpen(false);
+    void handleSubmit(pendingTarget);
   }
 
   return (
@@ -61,13 +91,38 @@ export default function PortScannerPage() {
         Safe Scan (non-intrusive) — TCP connect only, 15 common ports, no packet crafting
       </div>
 
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${cooldownSeconds > 0 ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${cooldownSeconds > 0 ? "bg-amber-400" : "bg-emerald-400"}`} />
+          {cooldownSeconds > 0 ? `Cooldown ${cooldownSeconds}s` : "Ready"}
+        </span>
+        {user?.plan === "free" && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-2.5 py-1 text-xs text-cyan-300">
+            Credits {Math.max(FREE_DAILY_LIMIT - scansToday, 0)} left
+          </span>
+        )}
+      </div>
+
       <ToolInput
         placeholder="Enter IP address or domain (e.g. 8.8.8.8 or example.com)"
         buttonLabel="Scan Ports"
         validate={validateTarget}
-        onSubmit={handleSubmit}
+        onSubmit={requestReview}
         loading={loading}
+        externalDisabled={cooldownSeconds > 0}
+        showTlsIndicator
         examples={["8.8.8.8", "example.com", "1.1.1.1"]}
+      />
+
+      <ReviewTargetModal
+        open={reviewOpen}
+        target={pendingTarget}
+        targetLabel="IP / Domain"
+        permissionChecked={permissionChecked}
+        onPermissionChange={setPermissionChecked}
+        onCancel={() => setReviewOpen(false)}
+        onConfirm={confirmReview}
+        loading={loading}
       />
 
       {loading && (

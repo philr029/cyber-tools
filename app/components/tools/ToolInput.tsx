@@ -10,8 +10,10 @@ interface ToolInputProps {
   validate?: (value: string) => ValidationResult;
   onSubmit: (value: string) => void;
   loading?: boolean;
+  externalDisabled?: boolean;
   hint?: string;
   examples?: string[];
+  showTlsIndicator?: boolean;
 }
 
 export default function ToolInput({
@@ -20,8 +22,10 @@ export default function ToolInput({
   validate,
   onSubmit,
   loading = false,
+  externalDisabled = false,
   hint,
   examples = [],
+  showTlsIndicator = false,
 }: ToolInputProps) {
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -68,13 +72,13 @@ export default function ToolInput({
               onChange={handleChange}
               placeholder={placeholder}
               className={`w-full pl-11 pr-4 py-3.5 bg-[#0b0f1a] border rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 transition ${error ? "border-red-500/50" : "border-[#1e2d4a]"}`}
-              disabled={loading}
+              disabled={loading || externalDisabled}
               aria-describedby={error ? "input-error" : hint ? "input-hint" : undefined}
             />
           </div>
           <button
             type="submit"
-            disabled={loading || !value.trim()}
+            disabled={loading || externalDisabled || !value.trim()}
             className="px-5 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-xl shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:from-cyan-400 hover:to-blue-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0f1629] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap"
           >
             {loading ? (
@@ -94,6 +98,14 @@ export default function ToolInput({
         )}
         {!error && hint && (
           <p id="input-hint" className="mt-2 text-xs text-slate-500 pl-1">{hint}</p>
+        )}
+        {showTlsIndicator && (
+          <p className="mt-2 text-xs text-emerald-400 pl-1 inline-flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 1.5A4.5 4.5 0 005.5 6v1.25H5A2 2 0 003 9.25v6.5a2 2 0 002 2h10a2 2 0 002-2v-6.5a2 2 0 00-2-2h-.5V6A4.5 4.5 0 0010 1.5zM7 6a3 3 0 116 0v1.25H7V6z" clipRule="evenodd" />
+            </svg>
+            Data sent over HTTPS/TLS
+          </p>
         )}
         {!error && examples.length > 0 && (
           <p className="mt-2 text-xs text-slate-500 pl-1">
