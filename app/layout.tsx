@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/app/components/Header";
 import ChatWidget from "@/components/ai/ChatWidget";
@@ -7,6 +8,18 @@ import { ToastProvider } from "@/lib/toast-context";
 import { WorkspaceProvider } from "@/lib/workspace-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import { ThemeProvider } from "@/lib/theme-context";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jetbrains-mono",
+});
 
 export const metadata: Metadata = {
   title: "SecureScope – Enterprise Security Platform",
@@ -20,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full flex flex-col bg-[#0b0f1a] antialiased">
+    <html lang="en" className={`h-full ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-full flex flex-col bg-[#050505] antialiased">
         <AuthProvider>
           <ToastProvider>
             <WorkspaceProvider>
