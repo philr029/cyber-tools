@@ -3,7 +3,7 @@ import twilio from "twilio";
 
 export const runtime = "nodejs";
 
-const E164_REGEX = /^\+[1-9]\d{0,14}$/;
+const E164_REGEX = /^\+[1-9]\d{3,14}$/;
 const MAX_NUMBERS_PER_REQUEST = 25;
 const MAX_TEST_MESSAGE_LENGTH = 1_000;
 const CALL_DELAY_MS = 1_200;
@@ -18,15 +18,6 @@ interface CallResult {
 
 function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms));
-}
-
-function escapeXml(input: string): string {
-  return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
 }
 
 export async function POST(request: NextRequest) {
@@ -98,10 +89,17 @@ export async function POST(request: NextRequest) {
       { status: 503 },
     );
   }
+  if (!E164_REGEX.test(fromNumber)) {
+    return Response.json(
+      { error: "TWILIO_FROM_NUMBER must be in E.164 format." },
+      { status: 503 },
+    );
+  }
 
   const client = twilio(accountSid, authToken);
-  const escapedMessage = escapeXml(message);
-  const twiml = `<Response><Say>${escapedMessage}</Say></Response>`;
+  const voiceResponse = new twilio.twiml.VoiceResponse();
+  voiceResponse.say(message);
+  const twiml = voiceResponse.toString();
   const results: CallResult[] = [];
 
   for (let i = 0; i < numbers.length; i++) {
@@ -115,7 +113,7 @@ export async function POST(request: NextRequest) {
       results.push({
         phoneNumber: to,
         ok: true,
-        callSid: call.sid ?? null,
+        callSid: call.sid,
         status: "queued",
         error: null,
       });
