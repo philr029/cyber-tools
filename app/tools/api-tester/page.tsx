@@ -240,9 +240,10 @@ export default function APITesterPage() {
       }
     }
 
-    const safeBody = hasBody && body.trim()
+    const sanitizedBody = hasBody
       ? sanitizeMultilineInput(body, { trim: false, maxLength: 20000 })
-      : undefined;
+      : "";
+    const safeBody = sanitizedBody.trim() ? sanitizedBody : undefined;
 
     try {
       const res = await fetch("/api/tools/api-test", {
