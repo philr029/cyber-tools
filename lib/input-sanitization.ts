@@ -1,3 +1,4 @@
+// Tabs and line breaks are preserved here and normalized per input type below.
 const CONTROL_CHARS_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 const LINE_BREAK_RE = /\r\n?/g;
 
@@ -67,6 +68,7 @@ export function sanitizePasswordInput(value: string): string {
 }
 
 export function sanitizeHeaderName(value: string): string {
+  // RFC 7230 section 3.2 token characters allowed in HTTP header field names.
   return sanitizeSingleLineInput(value, {
     maxLength: 256,
   }).replace(/[^!#$%&'*+.^_`|~0-9A-Za-z-]/g, "");
