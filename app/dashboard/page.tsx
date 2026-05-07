@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { loadHistory, loadSavedScans } from "@/lib/mockData";
@@ -33,6 +33,102 @@ function StatCard({
       {sub && <p className="text-xs text-slate-600 mt-1">{sub}</p>}
     </div>
   );
+}
+
+type ToolKind = "deepfake" | "shadow-governance";
+
+type ToolResult = {
+  tool: ToolKind;
+  score: number;
+  confidence: number;
+  summary: string;
+  recommendations: string[];
+};
+
+type ThreatEvent = {
+  id: string;
+  source: [number, number];
+  target: [number, number];
+  severity: "medium" | "high";
+  label: string;
+};
+
+type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+};
+
+const GEO_POINTS: Array<{ label: string; coord: [number, number] }> = [
+  { label: "NYC", coord: [60, 50] },
+  { label: "LON", coord: [122, 42] },
+  { label: "BER", coord: [134, 38] },
+  { label: "SAO", coord: [88, 89] },
+  { label: "SIN", coord: [205, 78] },
+  { label: "TOK", coord: [230, 52] },
+  { label: "SYD", coord: [230, 110] },
+  { label: "SFO", coord: [36, 54] },
+];
+
+function scoreTone(score: number) {
+  if (score >= 75) return { label: "Critical", color: "text-orange-400" };
+  if (score >= 50) return { label: "Elevated", color: "text-amber-400" };
+  if (score >= 25) return { label: "Guarded", color: "text-cyan-300" };
+  return { label: "Low", color: "text-emerald-400" };
+}
+
+function ThreatMap({ events }: { events: ThreatEvent[] }) {
+  return (
+    <div className="rounded-2xl bg-[#060b14] border border-cyan-500/20 p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-sm font-semibold text-cyan-300">Global Threat Map</p>
+        <span className="text-[10px] text-slate-500">Simulated live telemetry</span>
+      </div>
+      <svg viewBox="0 0 260 130" className="w-full h-auto rounded-lg bg-[#03060c] border border-[#132038]">
+        <path d="M20 53l10-10 10-2 13 4 10-8 20 4 10-8 24 7 15-7 17 9 14-6 13 4 15 15-4 11-12 6-18-4-9 5-11-3-11 6-15-4-12 10-13-6-11 7-15-2-8-7-8 2-7-8 2-9z" fill="#0d1728" stroke="#1f3554" strokeWidth="1.2" />
+        {events.map((event) => (
+          <g key={event.id}>
+            <line
+              x1={event.source[0]}
+              y1={event.source[1]}
+              x2={event.target[0]}
+              y2={event.target[1]}
+              stroke={event.severity === "high" ? "#ff8b2c" : "#22d3ee"}
+              strokeOpacity="0.8"
+              strokeWidth="1.3"
+            />
+            <circle cx={event.target[0]} cy={event.target[1]} r="2.6" fill={event.severity === "high" ? "#ff8b2c" : "#22d3ee"} />
+          </g>
+        ))}
+      </svg>
+      <div className="mt-3 space-y-1.5">
+        {events.slice(0, 3).map((event) => (
+          <p key={`feed-${event.id}`} className="text-[11px] text-slate-400">
+            <span className={event.severity === "high" ? "text-orange-400" : "text-cyan-300"}>
+              {event.severity.toUpperCase()}
+            </span>{" "}
+            — {event.label}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function buildConsultantReply(question: string, risk: number, toolResults: ToolResult[]) {
+  const latest = toolResults[0];
+  if (!latest) {
+    return "Run Deepfake Content Analyzer or Shadow AI Governance first, then ask me for a remediation playbook.";
+  }
+
+  const urgency = risk >= 75 ? "Priority 1" : risk >= 50 ? "Priority 2" : "Priority 3";
+  if (question.toLowerCase().includes("policy")) {
+    return `${urgency}: tighten model access policy, require human approval for high-impact AI outputs, and audit privileged prompts weekly.`;
+  }
+  if (question.toLowerCase().includes("deepfake")) {
+    return `${urgency}: quarantine flagged media, require multi-signal verification, and enforce signed media provenance before external distribution.`;
+  }
+  return `${urgency}: based on ${latest.tool === "deepfake" ? "Deepfake Content Analyzer" : "Shadow AI Governance"} (score ${latest.score}), start with: ${latest.recommendations[0].toLowerCase()}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -109,11 +205,119 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const [history] = useState<HistoryEntry[]>(() => loadHistory());
   const [saved] = useState<SavedScan[]>(() => loadSavedScans());
+  const [toolResults, setToolResults] = useState<ToolResult[]>([]);
+  const [toolLoading, setToolLoading] = useState<ToolKind | null>(null);
+  const [threatEvents, setThreatEvents] = useState<ThreatEvent[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: "assistant-init",
+      role: "assistant",
+      text: "AI Security Consultant online. I only use in-browser context and keep your No-Data-Stored posture intact.",
+    },
+  ]);
+  const workerRef = useRef<Worker | null>(null);
 
   const safe = history.filter((h) => h.overallStatus === "safe").length;
   const warning = history.filter((h) => h.overallStatus === "warning").length;
   const risk = history.filter((h) => h.overallStatus === "risk").length;
   const recent = history.slice(0, 5);
+  const latestByTool = useMemo(
+    () =>
+      toolResults.reduce<Record<ToolKind, ToolResult | undefined>>(
+        (acc, result) => {
+          if (!acc[result.tool]) acc[result.tool] = result;
+          return acc;
+        },
+        { deepfake: undefined, "shadow-governance": undefined },
+      ),
+    [toolResults],
+  );
+  const riskScore = useMemo(() => {
+    const baseTotal = safe + warning + risk || 1;
+    const base = Math.min(100, Math.round(((warning * 45 + risk * 85) / baseTotal) * 0.7));
+    const toolAvg =
+      toolResults.length > 0
+        ? Math.round(toolResults.reduce((sum, item) => sum + item.score, 0) / toolResults.length)
+        : 0;
+    const mapImpact = Math.min(18, threatEvents.length * 2);
+    return Math.min(100, Math.round(base + toolAvg * 0.2 + mapImpact));
+  }, [safe, warning, risk, toolResults, threatEvents.length]);
+  const riskMood = scoreTone(riskScore);
+
+  useEffect(() => {
+    const worker = new Worker("/workers/advanced-tools-worker.js");
+    workerRef.current = worker;
+
+    worker.onmessage = (event: MessageEvent<ToolResult>) => {
+      const payload = event.data;
+      setToolResults((current) => [payload, ...current.filter((entry) => entry.tool !== payload.tool)]);
+      setToolLoading(null);
+      setChatMessages((current) => [
+        ...current,
+        {
+          id: `assistant-${payload.tool}-${Date.now()}`,
+          role: "assistant",
+          text: `${payload.tool === "deepfake" ? "Deepfake Content Analyzer" : "Shadow AI Governance"} complete. Score ${payload.score}/100. ${payload.summary}`,
+        },
+      ]);
+    };
+
+    return () => {
+      worker.terminate();
+      workerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const source = GEO_POINTS[Math.floor(Math.random() * GEO_POINTS.length)];
+      const target = GEO_POINTS[Math.floor(Math.random() * GEO_POINTS.length)];
+      const severity: ThreatEvent["severity"] = Math.random() > 0.62 ? "high" : "medium";
+      const next: ThreatEvent = {
+        id: `evt-${crypto.randomUUID()}`,
+        source: source.coord,
+        target: target.coord,
+        severity,
+        label: `${source.label} → ${target.label}`,
+      };
+      setThreatEvents((current) => [next, ...current].slice(0, 8));
+    }, 2800);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  function runAdvancedTool(tool: ToolKind) {
+    if (!workerRef.current) return;
+    setToolLoading(tool);
+    workerRef.current.postMessage({
+      tool,
+      payload: {
+        historySignals: {
+          safe,
+          warning,
+          risk,
+        },
+      },
+    });
+  }
+
+  function handleConsultantAsk() {
+    const text = chatInput.trim();
+    if (!text) return;
+    const messageId = `user-${Date.now()}`;
+    setChatMessages((current) => [...current, { id: messageId, role: "user", text }]);
+    setChatInput("");
+    const reply = buildConsultantReply(text, riskScore, toolResults);
+    setChatMessages((current) => [
+      ...current,
+      {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        text: reply,
+      },
+    ]);
+  }
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -136,6 +340,25 @@ export default function DashboardPage() {
           </svg>
           New Scan
         </Link>
+      </div>
+
+      <div className="mb-6 rounded-2xl bg-[#05090f] border border-cyan-500/30 p-5 shadow-[0_0_20px_rgba(34,211,238,0.12)]">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <p className="text-xs uppercase tracking-[0.16em] text-cyan-400">Risk Scorecard</p>
+            <p className="text-3xl font-extrabold text-slate-100 mt-1">{riskScore}</p>
+            <p className={`text-sm mt-0.5 ${riskMood.color}`}>{riskMood.label} posture</p>
+          </div>
+          <div className="text-xs text-slate-400 max-w-xs">
+            Dynamic score blends baseline scan history, advanced AI tool findings, and global threat-map activity.
+          </div>
+        </div>
+        <div className="mt-4 h-2 rounded-full bg-[#0f1b2c] overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-cyan-400 via-cyan-300 to-orange-400 transition-all duration-500"
+            style={{ width: `${riskScore}%` }}
+          />
+        </div>
       </div>
 
       {/* Stats */}
@@ -219,6 +442,117 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-6 grid xl:grid-cols-3 gap-4 items-start">
+        <div className="xl:col-span-2 space-y-4">
+          <div className="rounded-2xl bg-[#05090f] border border-[#16314d] p-5">
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-slate-100">Advanced AI &amp; Forensics</h2>
+              <p className="text-xs text-slate-400 mt-1">
+                High-contrast Cyber-Noir tools running fully client-side via Web Workers.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="rounded-xl bg-[#07111d] border border-cyan-500/20 p-4">
+                <p className="text-sm font-semibold text-cyan-300">Deepfake Content Analyzer</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Simulates frame-level anomaly checks for forged media indicators.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => runAdvancedTool("deepfake")}
+                  disabled={toolLoading !== null}
+                  className="mt-3 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 disabled:opacity-50 text-cyan-300 text-xs font-medium border border-cyan-400/30 transition-colors"
+                >
+                  {toolLoading === "deepfake" ? "Analyzing…" : "Run analysis"}
+                </button>
+                {latestByTool.deepfake && (
+                  <div className="mt-3 text-xs text-slate-300 space-y-1">
+                    <p>
+                      Score: <span className="text-orange-300">{latestByTool.deepfake.score}</span> · Confidence{" "}
+                      <span className="text-cyan-300">{latestByTool.deepfake.confidence}%</span>
+                    </p>
+                    <p className="text-slate-400">{latestByTool.deepfake.summary}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-xl bg-[#07111d] border border-orange-400/25 p-4">
+                <p className="text-sm font-semibold text-orange-300">Shadow AI Governance</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Flags unsanctioned model usage, prompt leaks, and policy-drift risk.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => runAdvancedTool("shadow-governance")}
+                  disabled={toolLoading !== null}
+                  className="mt-3 px-3 py-1.5 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 disabled:opacity-50 text-orange-300 text-xs font-medium border border-orange-400/30 transition-colors"
+                >
+                  {toolLoading === "shadow-governance" ? "Scanning…" : "Run governance scan"}
+                </button>
+                {latestByTool["shadow-governance"] && (
+                  <div className="mt-3 text-xs text-slate-300 space-y-1">
+                    <p>
+                      Score:{" "}
+                      <span className="text-orange-300">{latestByTool["shadow-governance"]?.score}</span> · Confidence{" "}
+                      <span className="text-cyan-300">{latestByTool["shadow-governance"]?.confidence}%</span>
+                    </p>
+                    <p className="text-slate-400">{latestByTool["shadow-governance"]?.summary}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <ThreatMap events={threatEvents} />
+        </div>
+
+        <aside className="rounded-2xl bg-[#05090f] border border-[#16314d] p-4">
+          <div className="mb-3">
+            <h3 className="text-sm font-semibold text-cyan-300">AI Security Consultant</h3>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Ask for remediation guidance based on your latest advanced tool results.
+            </p>
+          </div>
+          <div className="rounded-xl bg-[#03060c] border border-[#102033] p-3 h-64 overflow-auto space-y-2">
+            {chatMessages.map((message) => (
+              <div
+                key={message.id}
+                className={`text-xs px-2.5 py-2 rounded-lg ${
+                  message.role === "assistant"
+                    ? "bg-cyan-500/10 border border-cyan-500/20 text-slate-200"
+                    : "bg-orange-500/10 border border-orange-500/20 text-slate-200"
+                }`}
+              >
+                {message.text}
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 flex gap-2">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(event) => setChatInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleConsultantAsk();
+                }
+              }}
+              placeholder="e.g. What should I remediate first?"
+              className="flex-1 px-3 py-2 rounded-lg bg-[#03060c] border border-[#102033] text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+            />
+            <button
+              type="button"
+              onClick={handleConsultantAsk}
+              className="px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium transition-colors"
+            >
+              Ask
+            </button>
+          </div>
+          <p className="mt-2 text-[10px] text-slate-500">No data is stored. Session context stays in your browser.</p>
+        </aside>
       </div>
 
       {/* Plan notice */}
