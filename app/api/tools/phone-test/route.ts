@@ -3,8 +3,9 @@ import twilio from "twilio";
 
 export const runtime = "nodejs";
 
-const E164_REGEX = /^\+[1-9]\d{1,14}$/;
+const E164_REGEX = /^\+[1-9]\d{0,14}$/;
 const MAX_NUMBERS_PER_REQUEST = 25;
+const MAX_TEST_MESSAGE_LENGTH = 1_000;
 const CALL_DELAY_MS = 1_200;
 
 interface CallResult {
@@ -64,6 +65,12 @@ export async function POST(request: NextRequest) {
   const message = typeof test_message === "string" ? test_message.trim() : "";
   if (!message) {
     return Response.json({ error: "test_message is required." }, { status: 400 });
+  }
+  if (message.length > MAX_TEST_MESSAGE_LENGTH) {
+    return Response.json(
+      { error: `test_message exceeds ${MAX_TEST_MESSAGE_LENGTH} characters.` },
+      { status: 400 },
+    );
   }
 
   const numbers = phone_numbers.map((n) => String(n).trim());
