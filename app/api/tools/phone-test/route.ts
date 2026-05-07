@@ -113,13 +113,13 @@ export async function POST(request: NextRequest) {
         error: null,
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to queue call.";
+      const errorMessage = err instanceof Error ? err.message : "Failed to queue call.";
       results.push({
         phoneNumber: to,
         ok: false,
         callSid: null,
         status: "failed",
-        error: message,
+        error: errorMessage,
       });
     }
 
