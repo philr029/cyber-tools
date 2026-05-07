@@ -20,6 +20,10 @@ interface MxToolboxBlacklistResponse {
   Information?: MxToolboxInformationResult[];
 }
 
+const MXTOOLBOX_TIMEOUT_MS = 10_000;
+const BLACKLIST_WARNING_THRESHOLD = 1;
+const BLACKLIST_RISK_THRESHOLD = 3;
+
 export async function GET(request: NextRequest) {
   const target =
     request.nextUrl.searchParams.get("target") ??
@@ -28,7 +32,7 @@ export async function GET(request: NextRequest) {
     "";
 
   if (!target.trim()) {
-    return Response.json({ error: "Missing required query parameter: provide `target`, `domain`, or `ip`." }, { status: 400 });
+    return Response.json({ error: "Missing required query parameter: provide target, domain, or ip." }, { status: 400 });
   }
 
   const validation = validateIPOrDomain(target);
@@ -65,7 +69,7 @@ export async function GET(request: NextRequest) {
       `https://api.mxtoolbox.com/api/v1/lookup/blacklist/${encodeURIComponent(normalised)}`,
       {
         headers: { Authorization: apiKey },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(MXTOOLBOX_TIMEOUT_MS),
         cache: "no-store",
       },
     );
@@ -109,7 +113,12 @@ export async function GET(request: NextRequest) {
 
     const listedCount = failedEntries.length;
     const totalChecked = entries.length;
-    const status = listedCount >= 3 ? "risk" : listedCount >= 1 ? "warning" : "safe";
+    const status =
+      listedCount >= BLACKLIST_RISK_THRESHOLD
+        ? "risk"
+        : listedCount >= BLACKLIST_WARNING_THRESHOLD
+          ? "warning"
+          : "safe";
 
     return Response.json({
       data: {
