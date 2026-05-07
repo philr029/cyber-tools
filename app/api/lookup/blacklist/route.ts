@@ -105,10 +105,7 @@ export async function GET(request: NextRequest) {
       detail: entry.detail,
     }));
 
-    const entries =
-      failedEntries.length + passedEntries.length > 0
-        ? [...failedEntries, ...passedEntries]
-        : failedEntries;
+    const entries = [...failedEntries, ...passedEntries];
 
     const listedCount = failedEntries.length;
     const totalChecked = entries.length;
@@ -122,7 +119,7 @@ export async function GET(request: NextRequest) {
         totalChecked,
         status,
         failedBlacklists,
-        failedCount: listedCount,
+        failedCount: failedBlacklists.length,
       },
       mock: false,
     });
