@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
+import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -189,7 +190,7 @@ export default function LeadIntelligencePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = input.trim();
+    const trimmed = sanitizeSingleLineInput(input);
     if (!trimmed) {
       setError("Please enter an email address, domain, or phone number.");
       return;
@@ -246,7 +247,7 @@ export default function LeadIntelligencePage() {
               id="lead-input"
               type="text"
               value={input}
-              onChange={(e) => { setInput(e.target.value); setResult(null); setError(null); }}
+              onChange={(e) => { setInput(sanitizeSingleLineInput(e.target.value, { trim: false })); setResult(null); setError(null); }}
               placeholder="user@example.com · example.com · +1 202 555 0199"
               disabled={loading}
               className="flex-1 px-4 py-3 rounded-xl border border-[#1e2d4a] bg-[#0b0f1a] text-slate-200 text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition disabled:opacity-50"

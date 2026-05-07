@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import ChatMessageBubble from "./ChatMessage";
+import { sanitizeMultilineInput } from "@/lib/input-sanitization";
 import type { ChatMessage } from "@/types/chat";
 import type { ChatRequest, ChatResponse, ChatErrorResponse } from "@/types/chat";
 import { loadLastScan, buildScanContext } from "@/lib/core/stateManager";
@@ -81,7 +82,7 @@ export default function ChatWidget() {
   }, [isOpen]);
 
   const sendMessage = useCallback(async (textOverride?: string) => {
-    const text = (textOverride ?? input).trim();
+    const text = sanitizeMultilineInput(textOverride ?? input, { maxLength: 4000 });
     if (!text || isLoading) return;
 
     const userMsg: ChatMessage = {

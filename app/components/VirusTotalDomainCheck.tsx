@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { VTDomainResult } from "@/lib/types";
+import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
 import Card from "@/app/components/ui/Card";
 import StatusBadge from "@/app/components/ui/StatusBadge";
 import { maliciousColor, AnalysisBar, StatItem, VTErrorMessage } from "@/app/components/ui/VTShared";
@@ -24,13 +25,14 @@ export default function VirusTotalDomainCheck() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim()) return;
+    const safeDomain = sanitizeSingleLineInput(input);
+    if (!safeDomain) return;
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      const res = await fetch(`/api/virustotal/domain?domain=${encodeURIComponent(input.trim())}`);
+      const res = await fetch(`/api/virustotal/domain?domain=${encodeURIComponent(safeDomain)}`);
       const json = await res.json();
       if (!res.ok) {
         setError(json.error ?? "Request failed.");
@@ -50,7 +52,7 @@ export default function VirusTotalDomainCheck() {
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => setInput(sanitizeSingleLineInput(e.target.value, { trim: false }))}
           placeholder="e.g. example.com"
           className="flex-1 px-4 py-2.5 rounded-xl border border-[#1e2d4a] bg-[#0f1629] text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition"
           disabled={loading}

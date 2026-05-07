@@ -3,6 +3,10 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  sanitizePasswordInput,
+  sanitizeSingleLineInput,
+} from "@/lib/input-sanitization";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 
@@ -18,12 +22,16 @@ export default function SignupPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    const safeName = sanitizeSingleLineInput(name, { maxLength: 120 });
+    const safeEmail = sanitizeSingleLineInput(email);
+    const safePassword = sanitizePasswordInput(password);
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name: safeName, email: safeEmail, password: safePassword }),
       });
       const data = await res.json();
       if (!res.ok) {

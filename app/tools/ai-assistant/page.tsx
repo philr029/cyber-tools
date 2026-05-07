@@ -11,6 +11,7 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
+import { sanitizeMultilineInput } from "@/lib/input-sanitization";
 
 // ---------------------------------------------------------------------------
 // Types — mirror the shape returned by /api/ai
@@ -159,7 +160,7 @@ function AIAssistantContent() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = message.trim();
+    const trimmed = sanitizeMultilineInput(message, { maxLength: 4000 });
     if (!trimmed) return;
 
     setLoading(true);

@@ -28,6 +28,10 @@ import type {
   SubdomainResult,
   PhoneResult,
 } from "@/lib/types";
+import {
+  sanitizeMultilineInput,
+  sanitizeSingleLineInput,
+} from "@/lib/input-sanitization";
 import { isValidIP } from "@/lib/validators";
 
 // ---------------------------------------------------------------------------
@@ -161,7 +165,8 @@ async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
 // route returns a flat response object (not the standard { data, mock } envelope)
 // and requires score-based status computation on the client side.
 export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; mock: boolean }> {
-  const url = `/api/lookup/ip?ip=${encodeURIComponent(ip)}`;
+  const safeIP = sanitizeSingleLineInput(ip);
+  const url = `/api/lookup/ip?ip=${encodeURIComponent(safeIP)}`;
   const res = await fetch(url);
   const json = await res.json();
   if (!res.ok) {
@@ -170,7 +175,7 @@ export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; 
   const isMock: boolean = json.mock === true;
   const score: number = json.abuseConfidenceScore ?? 0;
   const data: IPReputationResult = {
-    ipAddress: json.ip ?? ip,
+    ipAddress: json.ip ?? safeIP,
     abuseConfidenceScore: score,
     isp: json.isp ?? "Unknown",
     usageType: json.usageType ?? "Unknown",
@@ -184,54 +189,66 @@ export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; 
 }
 
 export function lookupDomain(domain: string): Promise<{ data: DomainReputationResult; mock: boolean }> {
-  return apiLookup<DomainReputationResult>(`/api/lookup/domain?domain=${encodeURIComponent(domain)}`);
+  const safeDomain = sanitizeSingleLineInput(domain);
+  return apiLookup<DomainReputationResult>(`/api/lookup/domain?domain=${encodeURIComponent(safeDomain)}`);
 }
 
 export function lookupBlacklist(target: string): Promise<{ data: BlacklistResult; mock: boolean }> {
-  return apiLookup<BlacklistResult>(`/api/lookup/blacklist?target=${encodeURIComponent(target)}`);
+  const safeTarget = sanitizeSingleLineInput(target);
+  return apiLookup<BlacklistResult>(`/api/lookup/blacklist?target=${encodeURIComponent(safeTarget)}`);
 }
 
 export function lookupSSL(domain: string): Promise<{ data: SSLCertificateResult; mock: boolean }> {
-  return apiLookup<SSLCertificateResult>(`/api/lookup/ssl?domain=${encodeURIComponent(domain)}`);
+  const safeDomain = sanitizeSingleLineInput(domain);
+  return apiLookup<SSLCertificateResult>(`/api/lookup/ssl?domain=${encodeURIComponent(safeDomain)}`);
 }
 
 export function lookupHeaders(domain: string): Promise<{ data: SecurityHeadersResult; mock: boolean }> {
-  return apiLookup<SecurityHeadersResult>(`/api/lookup/headers?domain=${encodeURIComponent(domain)}`);
+  const safeDomain = sanitizeSingleLineInput(domain);
+  return apiLookup<SecurityHeadersResult>(`/api/lookup/headers?domain=${encodeURIComponent(safeDomain)}`);
 }
 
 export function lookupDNS(domain: string): Promise<{ data: DNSResult; mock: boolean }> {
-  return apiLookup<DNSResult>(`/api/lookup/dns?domain=${encodeURIComponent(domain)}`);
+  const safeDomain = sanitizeSingleLineInput(domain);
+  return apiLookup<DNSResult>(`/api/lookup/dns?domain=${encodeURIComponent(safeDomain)}`);
 }
 
 export function lookupWHOIS(domain: string): Promise<{ data: WHOISResult; mock: boolean }> {
-  return apiLookup<WHOISResult>(`/api/lookup/whois?domain=${encodeURIComponent(domain)}`);
+  const safeDomain = sanitizeSingleLineInput(domain);
+  return apiLookup<WHOISResult>(`/api/lookup/whois?domain=${encodeURIComponent(safeDomain)}`);
 }
 
 export function lookupURL(url: string): Promise<{ data: URLAnalysisResult; mock: boolean }> {
-  return apiLookup<URLAnalysisResult>(`/api/lookup/url?url=${encodeURIComponent(url)}`);
+  const safeUrl = sanitizeSingleLineInput(url);
+  return apiLookup<URLAnalysisResult>(`/api/lookup/url?url=${encodeURIComponent(safeUrl)}`);
 }
 
 export function lookupPorts(target: string): Promise<{ data: OpenPortsResult; mock: boolean }> {
-  return apiLookup<OpenPortsResult>(`/api/lookup/ports?target=${encodeURIComponent(target)}`);
+  const safeTarget = sanitizeSingleLineInput(target);
+  return apiLookup<OpenPortsResult>(`/api/lookup/ports?target=${encodeURIComponent(safeTarget)}`);
 }
 
 export function lookupPortScan(target: string): Promise<{ data: OpenPortsResult; mock: boolean }> {
-  return apiLookup<OpenPortsResult>(`/api/tools/port-scan?target=${encodeURIComponent(target)}`);
+  const safeTarget = sanitizeSingleLineInput(target);
+  return apiLookup<OpenPortsResult>(`/api/tools/port-scan?target=${encodeURIComponent(safeTarget)}`);
 }
 
 export function lookupGeo(ip: string): Promise<{ data: GeoResult; mock: boolean }> {
-  return apiLookup<GeoResult>(`/api/lookup/geo?ip=${encodeURIComponent(ip)}`);
+  const safeIP = sanitizeSingleLineInput(ip);
+  return apiLookup<GeoResult>(`/api/lookup/geo?ip=${encodeURIComponent(safeIP)}`);
 }
 
 export function lookupThreatScore(target: string): Promise<{ data: DomainThreatScoreResult; mock: boolean }> {
-  return apiLookup<DomainThreatScoreResult>(`/api/tools/threat-score?target=${encodeURIComponent(target)}`);
+  const safeTarget = sanitizeSingleLineInput(target);
+  return apiLookup<DomainThreatScoreResult>(`/api/tools/threat-score?target=${encodeURIComponent(safeTarget)}`);
 }
 
 export async function analyseEmailHeaders(headers: string): Promise<{ data: EmailHeaderResult; mock: boolean }> {
+  const safeHeaders = sanitizeMultilineInput(headers, { maxLength: 20000 });
   const res = await fetch("/api/tools/email-headers", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ headers }),
+    body: JSON.stringify({ headers: safeHeaders }),
   });
   const json = await res.json();
   if (!res.ok) {
@@ -241,15 +258,18 @@ export async function analyseEmailHeaders(headers: string): Promise<{ data: Emai
 }
 
 export function lookupRedirectTrace(url: string): Promise<{ data: RedirectTraceResult; mock: boolean }> {
-  return apiLookup<RedirectTraceResult>(`/api/tools/redirect-trace?url=${encodeURIComponent(url)}`);
+  const safeUrl = sanitizeSingleLineInput(url);
+  return apiLookup<RedirectTraceResult>(`/api/tools/redirect-trace?url=${encodeURIComponent(safeUrl)}`);
 }
 
 export function lookupSubdomains(domain: string): Promise<{ data: SubdomainResult; mock: boolean }> {
-  return apiLookup<SubdomainResult>(`/api/lookup/subdomains?domain=${encodeURIComponent(domain)}`);
+  const safeDomain = sanitizeSingleLineInput(domain);
+  return apiLookup<SubdomainResult>(`/api/lookup/subdomains?domain=${encodeURIComponent(safeDomain)}`);
 }
 
 export function lookupPhone(phone: string): Promise<{ data: PhoneResult; mock: boolean }> {
-  return apiLookup<PhoneResult>(`/api/tools/phone?phone=${encodeURIComponent(phone)}`);
+  const safePhone = sanitizeSingleLineInput(phone);
+  return apiLookup<PhoneResult>(`/api/tools/phone?phone=${encodeURIComponent(safePhone)}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -266,7 +286,7 @@ function settled<T>(
 export async function lookupAll(
   query: string,
 ): Promise<{ result: LookupResult; isMock: boolean }> {
-  const target = query.trim();
+  const target = sanitizeSingleLineInput(query);
   const ipQuery = isValidIP(target);
 
   // Run relevant lookups in parallel; return defaults for inapplicable ones.

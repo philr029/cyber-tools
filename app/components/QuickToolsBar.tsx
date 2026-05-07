@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -145,10 +146,11 @@ function MiniTool({ tool }: { tool: typeof TOOLS[0] }) {
   const [result, setResult]   = useState<ToolResult | null>(null);
 
   async function handleRun() {
-    if (!query.trim() || loading) return;
+    const safeQuery = sanitizeSingleLineInput(query);
+    if (!safeQuery || loading) return;
     setLoading(true);
     setResult(null);
-    const res = await tool.run(query.trim());
+    const res = await tool.run(safeQuery);
     setResult(res);
     setLoading(false);
   }
@@ -166,7 +168,7 @@ function MiniTool({ tool }: { tool: typeof TOOLS[0] }) {
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => setQuery(sanitizeSingleLineInput(e.target.value, { trim: false }))}
           onKeyDown={(e) => e.key === "Enter" && handleRun()}
           placeholder={tool.placeholder}
           className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-[#131929] border border-[#1e2d4a] text-slate-200 placeholder-slate-600 text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition-colors"

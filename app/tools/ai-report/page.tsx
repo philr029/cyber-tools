@@ -3,6 +3,10 @@
 import { useState } from "react";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
+import {
+  sanitizeMultilineInput,
+  sanitizeSingleLineInput,
+} from "@/lib/input-sanitization";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -284,7 +288,8 @@ export default function AIReportPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmedContext = context.trim();
+    const trimmedContext = sanitizeMultilineInput(context, { maxLength: 8000 });
+    const safeTitle = sanitizeSingleLineInput(title, { maxLength: 160 });
     if (!trimmedContext) {
       setError("Please provide scan findings or context to generate a report.");
       return;
@@ -297,7 +302,7 @@ export default function AIReportPage() {
       const res = await fetch("/api/tools/ai-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ context: trimmedContext, title: title.trim() }),
+        body: JSON.stringify({ context: trimmedContext, title: safeTitle }),
       });
       const json = await res.json() as { data?: AIReportResult; error?: string };
       if (!res.ok || json.error) {
