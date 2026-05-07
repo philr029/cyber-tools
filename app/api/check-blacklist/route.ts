@@ -7,13 +7,215 @@ interface MxToolboxBlacklistResponse {
   // Additional fields omitted — only Failed/Passed are needed.
 }
 
-interface InstantlyCampaignResponse {
-  status?: string;
-  [key: string]: unknown;
+interface MonitoredTarget {
+  domain: string;
+  campaignId?: string;
+  emailAccountId?: string;
+}
+
+interface TargetResult {
+  domain: string;
+  ip?: string;
+  passed: number;
+  failed: number;
+  total: number;
+  criticalHits: string[];
+  warningHits: string[];
+  health: "Excellent" | "Warning" | "Critical" | "Error";
+  summary: string;
+  action?: {
+    pausedCampaign?: boolean;
+    pauseDetails?: string;
+    disabledEmailAccount?: boolean;
+    disableDetails?: string;
+  };
+  error?: string;
+}
+
+const INSTANTLY_API_BASE = "https://api.instantly.ai/api/v2";
+const CRITICAL_RBL_PATTERNS = [/spamhaus/i, /barracuda/i, /spamcop/i];
+
+function parseJson<T>(value: string | undefined): T | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return null;
+  }
+}
+
+function parseMonitoredTargets(): MonitoredTarget[] {
+  const explicitTargets = parseJson<MonitoredTarget[]>(process.env.MONITORED_TARGETS);
+  if (Array.isArray(explicitTargets) && explicitTargets.length > 0) {
+    return explicitTargets.filter((t) => t?.domain?.trim());
+  }
+
+  const domainCsv = process.env.MONITORED_DOMAINS || process.env.MONITORED_DOMAIN || "";
+  const domains = domainCsv
+    .split(",")
+    .map((domain) => domain.trim())
+    .filter(Boolean);
+
+  const sharedCampaignId = process.env.CAMPAIGN_ID;
+  const emailAccountMap = parseJson<Record<string, string>>(process.env.INSTANTLY_EMAIL_ACCOUNT_MAP) || {};
+
+  return domains.map((domain) => ({
+    domain,
+    campaignId: sharedCampaignId,
+    emailAccountId: emailAccountMap[domain],
+  }));
+}
+
+function classifyBlacklistHits(failed: { Name: string; Info: string }[]) {
+  const criticalHits: string[] = [];
+  const warningHits: string[] = [];
+
+  for (const hit of failed) {
+    const haystack = `${hit.Name} ${hit.Info}`;
+    if (CRITICAL_RBL_PATTERNS.some((pattern) => pattern.test(haystack))) {
+      criticalHits.push(hit.Name);
+    } else {
+      warningHits.push(hit.Name);
+    }
+  }
+
+  return { criticalHits, warningHits };
+}
+
+async function sendSlackAlert(text: string) {
+  const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return;
+  }
+
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+  } catch (err) {
+    console.error("Failed to send Slack alert:", err);
+  }
+}
+
+async function sendEmailAlert(subject: string, body: string) {
+  const alertWebhookUrl = process.env.ALERT_EMAIL_WEBHOOK_URL;
+  if (alertWebhookUrl) {
+    try {
+      await fetch(alertWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body }),
+      });
+    } catch (err) {
+      console.error("Failed to send alert email via webhook:", err);
+    }
+    return;
+  }
+
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const alertFrom = process.env.ALERT_EMAIL_FROM;
+  const alertTo = process.env.ALERT_EMAIL_TO;
+  if (!resendApiKey || !alertFrom || !alertTo) {
+    return;
+  }
+
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: alertFrom,
+        to: [alertTo],
+        subject,
+        text: body,
+      }),
+    });
+  } catch (err) {
+    console.error("Failed to send alert email via Resend:", err);
+  }
+}
+
+async function sendOpsAlert({
+  severity,
+  domain,
+  ip,
+  failed,
+}: {
+  severity: "CRITICAL" | "WARNING";
+  domain: string;
+  ip: string;
+  failed: string[];
+}) {
+  const title = severity === "CRITICAL" ? "URGENT: Deliverability Circuit Breaker Triggered" : "Monitor & Warm Up Advisory";
+  const message =
+    severity === "CRITICAL"
+      ? `Critical blacklist hit detected for ${domain} (${ip}): ${failed.join(", ")}. Campaign paused and sender disabled.`
+      : `Warning blacklist hit detected for ${domain} (${ip}): ${failed.join(", ")}. Monitor and warm up recommended.`;
+
+  await Promise.allSettled([sendSlackAlert(`*${title}*\n${message}`), sendEmailAlert(title, message)]);
+}
+
+async function pauseCampaign(campaignId: string, instantlyApiKey: string) {
+  const response = await fetch(`${INSTANTLY_API_BASE}/campaigns/${encodeURIComponent(campaignId)}/pause`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${instantlyApiKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (response.status === 409) {
+    return { ok: true, details: "already_paused" };
+  }
+
+  if (!response.ok) {
+    const details = await response.text();
+    return { ok: false, details: `pause_failed_${response.status}: ${details}` };
+  }
+
+  return { ok: true, details: "paused" };
+}
+
+async function disableEmailAccount(campaignId: string, emailAccountId: string, instantlyApiKey: string) {
+  const candidateEndpoints = [
+    `${INSTANTLY_API_BASE}/campaigns/${encodeURIComponent(campaignId)}/accounts/${encodeURIComponent(emailAccountId)}/disable`,
+    `${INSTANTLY_API_BASE}/campaigns/${encodeURIComponent(campaignId)}/email-accounts/${encodeURIComponent(emailAccountId)}/disable`,
+    `${INSTANTLY_API_BASE}/email-accounts/${encodeURIComponent(emailAccountId)}/disable`,
+  ];
+
+  for (const endpoint of candidateEndpoints) {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${instantlyApiKey}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok || response.status === 409) {
+        return {
+          ok: true,
+          details: response.status === 409 ? "already_disabled" : `disabled_via_${endpoint}`,
+        };
+      }
+    } catch (err) {
+      console.error(`Failed to call Instantly disable endpoint "${endpoint}":`, err);
+    }
+  }
+
+  return { ok: false, details: "disable_failed_all_v2_endpoints" };
 }
 
 export async function GET(request: NextRequest) {
-  // Verify the request is from Vercel's cron scheduler.
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -21,157 +223,210 @@ export async function GET(request: NextRequest) {
 
   const mxToolboxApiKey = process.env.MX_TOOLBOX_API_KEY;
   const instantlyApiKey = process.env.INSTANTLY_API_KEY;
-  const campaignId = process.env.CAMPAIGN_ID;
-  const domain = process.env.MONITORED_DOMAIN;
+  const targets = parseMonitoredTargets();
 
-  if (!mxToolboxApiKey || !instantlyApiKey || !campaignId || !domain) {
+  if (!mxToolboxApiKey || !instantlyApiKey || targets.length === 0) {
     return NextResponse.json(
-      { error: "Missing required environment variables." },
-      { status: 500 },
-    );
-  }
-
-  // --- Step 1: Resolve the sending domain's A record to its IPv4 address ---
-  // MxToolbox returns only ~5 lists when queried by domain name. Querying by IP
-  // address unlocks the full 202-list coverage.
-  let sendingIp: string;
-  try {
-    const addresses = await resolve4(domain);
-    sendingIp = addresses[0];
-    console.log(`Resolved "${domain}" → ${sendingIp}`);
-  } catch (err) {
-    console.error(`DNS A-record lookup failed for "${domain}":`, err);
-    return NextResponse.json(
-      { error: `DNS A-record lookup failed for "${domain}".` },
-      { status: 500 },
-    );
-  }
-
-  // --- Step 2: Query MX Toolbox blacklist endpoint using the resolved IP ---
-  let blacklistData: MxToolboxBlacklistResponse;
-  try {
-    const mxRes = await fetch(
-      `https://api.mxtoolbox.com/api/v1/lookup/blacklist/${encodeURIComponent(sendingIp)}`,
       {
-        headers: { Authorization: mxToolboxApiKey },
+        error:
+          "Missing required environment variables. Required: MX_TOOLBOX_API_KEY, INSTANTLY_API_KEY, and MONITORED_TARGETS or MONITORED_DOMAINS.",
       },
+      { status: 500 },
     );
+  }
 
-    if (!mxRes.ok) {
-      const errorText = await mxRes.text();
-      console.error(`MX Toolbox API error (${mxRes.status}): ${errorText}`);
-      return NextResponse.json(
-        { error: "MX Toolbox API request failed.", details: errorText },
-        { status: 502 },
-      );
+  const results: TargetResult[] = [];
+
+  for (const target of targets) {
+    const domain = target.domain;
+
+    let sendingIp: string | undefined;
+    try {
+      const addresses = await resolve4(domain);
+      sendingIp = addresses[0];
+      console.log(`Resolved "${domain}" → ${sendingIp}`);
+    } catch (err) {
+      console.error(`DNS A-record lookup failed for "${domain}":`, err);
+      results.push({
+        domain,
+        passed: 0,
+        failed: 0,
+        total: 0,
+        criticalHits: [],
+        warningHits: [],
+        health: "Error",
+        summary: `Target: ${domain} | Status: DNS Lookup Failed | Health: Error.`,
+        error: `DNS A-record lookup failed for "${domain}".`,
+      });
+      continue;
     }
 
-    blacklistData = (await mxRes.json()) as MxToolboxBlacklistResponse;
-  } catch (err) {
-    console.error("Failed to reach MX Toolbox API:", err);
-    return NextResponse.json(
-      { error: "Failed to reach MX Toolbox API." },
-      { status: 502 },
-    );
-  }
+    if (!sendingIp) {
+      results.push({
+        domain,
+        passed: 0,
+        failed: 0,
+        total: 0,
+        criticalHits: [],
+        warningHits: [],
+        health: "Error",
+        summary: `Target: ${domain} | Status: DNS Lookup Failed | Health: Error.`,
+        error: `No IPv4 address resolved for "${domain}".`,
+      });
+      continue;
+    }
 
-  const failedCount = blacklistData.Failed?.length ?? 0;
-  const passedCount = blacklistData.Passed?.length ?? 0;
-  const totalCount = passedCount + failedCount;
+    let blacklistData: MxToolboxBlacklistResponse;
+    try {
+      const mxRes = await fetch(`https://api.mxtoolbox.com/api/v1/lookup/blacklist/${encodeURIComponent(sendingIp)}`, {
+        headers: { Authorization: mxToolboxApiKey },
+      });
 
-  console.log(`Status: ${passedCount}/${totalCount} Passed (IP: ${sendingIp})`);
+      if (!mxRes.ok) {
+        const errorText = await mxRes.text();
+        console.error(`MX Toolbox API error for "${domain}" (${mxRes.status}): ${errorText}`);
+        results.push({
+          domain,
+          ip: sendingIp,
+          passed: 0,
+          failed: 0,
+          total: 0,
+          criticalHits: [],
+          warningHits: [],
+          health: "Error",
+          summary: `Target: ${domain} | Status: MX Lookup Failed | Health: Error.`,
+          error: `MX Toolbox API request failed (${mxRes.status}).`,
+        });
+        continue;
+      }
 
-  if (failedCount === 0) {
-    console.log(`IP "${sendingIp}" (${domain}) is clean. No action required.`);
-    return NextResponse.json({
-      status: "clean",
-      message: `IP "${sendingIp}" for domain "${domain}" passed all ${totalCount} checks.`,
-      domain,
-      ip: sendingIp,
-      passed: passedCount,
-      failed: failedCount,
-    });
-  }
+      blacklistData = (await mxRes.json()) as MxToolboxBlacklistResponse;
+    } catch (err) {
+      console.error(`Failed to reach MX Toolbox API for "${domain}":`, err);
+      results.push({
+        domain,
+        ip: sendingIp,
+        passed: 0,
+        failed: 0,
+        total: 0,
+        criticalHits: [],
+        warningHits: [],
+        health: "Error",
+        summary: `Target: ${domain} | Status: MX Lookup Failed | Health: Error.`,
+        error: "Failed to reach MX Toolbox API.",
+      });
+      continue;
+    }
 
-  // --- Step 3: IP is blacklisted — pause the Instantly campaign ---
-  const flaggedLists = blacklistData.Failed.map((f) => f.Name);
-  console.warn(
-    `IP "${sendingIp}" (${domain}) is listed on ${failedCount} blacklist(s): ${flaggedLists.join(", ")}`,
-  );
+    const failedCount = blacklistData.Failed?.length ?? 0;
+    const passedCount = blacklistData.Passed?.length ?? 0;
+    const totalCount = passedCount + failedCount;
+    const { criticalHits, warningHits } = classifyBlacklistHits(blacklistData.Failed ?? []);
 
-  let campaignResponse: InstantlyCampaignResponse;
-  try {
-    const instantlyRes = await fetch(
-      `https://api.instantly.ai/api/v2/campaigns/${encodeURIComponent(campaignId)}/pause`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${instantlyApiKey}`,
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    if (criticalHits.length > 0) {
+      console.warn(
+        `Critical blacklist hit for "${domain}" (${sendingIp}): ${criticalHits.join(", ")}`,
+      );
 
-    if (instantlyRes.status === 409) {
-      // 409 Conflict: the campaign is already in a paused state — idempotent skip.
-      console.log(`Campaign "${campaignId}" is already paused. Skipping.`);
-      return NextResponse.json({
-        status: "already_paused",
-        message: "Campaign was already paused.",
+      const action: TargetResult["action"] = {};
+      const campaignId = target.campaignId;
+
+      if (!campaignId) {
+        action.pausedCampaign = false;
+        action.pauseDetails = "missing_campaign_id";
+      } else {
+        const pauseResult = await pauseCampaign(campaignId, instantlyApiKey);
+        action.pausedCampaign = pauseResult.ok;
+        action.pauseDetails = pauseResult.details;
+      }
+
+      if (!target.emailAccountId || !campaignId) {
+        action.disabledEmailAccount = false;
+        action.disableDetails = !target.emailAccountId ? "missing_email_account_id" : "missing_campaign_id";
+      } else {
+        const disableResult = await disableEmailAccount(campaignId, target.emailAccountId, instantlyApiKey);
+        action.disabledEmailAccount = disableResult.ok;
+        action.disableDetails = disableResult.details;
+      }
+
+      await sendOpsAlert({
+        severity: "CRITICAL",
+        domain,
+        ip: sendingIp,
+        failed: criticalHits,
+      });
+
+      results.push({
         domain,
         ip: sendingIp,
         passed: passedCount,
         failed: failedCount,
-        flaggedLists,
+        total: totalCount,
+        criticalHits,
+        warningHits,
+        health: "Critical",
+        summary: `Target: ${domain} | Status: ${passedCount}/${totalCount} Clean | Health: Critical (${criticalHits.length} critical hit(s)).`,
+        action,
       });
+      continue;
     }
 
-    if (!instantlyRes.ok) {
-      const errorText = await instantlyRes.text();
-      console.error(
-        `Instantly API error (${instantlyRes.status}): ${errorText}`,
+    if (warningHits.length > 0) {
+      console.warn(
+        `Warning blacklist hit for "${domain}" (${sendingIp}): ${warningHits.join(", ")}`,
       );
-      return NextResponse.json(
-        { error: "Instantly API request failed.", details: errorText },
-        { status: 502 },
-      );
+      await sendOpsAlert({
+        severity: "WARNING",
+        domain,
+        ip: sendingIp,
+        failed: warningHits,
+      });
+
+      results.push({
+        domain,
+        ip: sendingIp,
+        passed: passedCount,
+        failed: failedCount,
+        total: totalCount,
+        criticalHits,
+        warningHits,
+        health: "Warning",
+        summary: `Target: ${domain} | Status: ${passedCount}/${totalCount} Clean | Health: Warning (${warningHits.length} warning hit(s)).`,
+      });
+      continue;
     }
 
-    campaignResponse = (await instantlyRes.json()) as InstantlyCampaignResponse;
-  } catch (err) {
-    console.error("Failed to reach Instantly API:", err);
-    return NextResponse.json(
-      { error: "Failed to reach Instantly API." },
-      { status: 502 },
-    );
-  }
-
-  // Defensive fallback: some Instantly API versions return 200 with a "paused"
-  // status body instead of 409 when the campaign is already paused.
-  if (
-    campaignResponse.status === "paused" ||
-    campaignResponse.status === "already_paused"
-  ) {
-    console.log(`Campaign "${campaignId}" is already paused. Skipping.`);
-    return NextResponse.json({
-      status: "already_paused",
-      message: "Campaign was already paused.",
+    results.push({
       domain,
       ip: sendingIp,
       passed: passedCount,
       failed: failedCount,
-      flaggedLists,
+      total: totalCount,
+      criticalHits,
+      warningHits,
+      health: "Excellent",
+      summary: `Target: ${domain} | Status: ${passedCount}/${totalCount} Clean | Health: Excellent.`,
     });
   }
 
-  console.log(`Campaign "${campaignId}" paused successfully.`);
+  console.log("=== Daily Blacklist Summary ===");
+  for (const result of results) {
+    console.log(result.summary);
+  }
+  console.log("=== End Daily Blacklist Summary ===");
+
+  const criticalTargets = results.filter((r) => r.health === "Critical").length;
+  const warningTargets = results.filter((r) => r.health === "Warning").length;
+  const errorTargets = results.filter((r) => r.health === "Error").length;
+
   return NextResponse.json({
-    status: "paused",
-    message: `Campaign paused. IP "${sendingIp}" for domain "${domain}" is listed on ${failedCount} blacklist(s).`,
-    domain,
-    ip: sendingIp,
-    passed: passedCount,
-    failed: failedCount,
-    flaggedLists,
+    status: criticalTargets > 0 ? "critical" : warningTargets > 0 ? "warning" : "clean",
+    totals: {
+      targets: results.length,
+      critical: criticalTargets,
+      warning: warningTargets,
+      errors: errorTargets,
+    },
+    results,
   });
 }
