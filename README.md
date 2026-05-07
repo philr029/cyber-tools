@@ -18,7 +18,7 @@ Every tool works immediately — add API keys to get live results. Tools without
 | DNS Lookup | `/tools/dns-lookup` | SecurityTrails |
 | SSL Certificate | `/tools/ssl-checker` | SSL Labs (public API, no key) |
 | Security Headers | `/tools/security-headers` | Live HEAD request (no key) |
-| Blacklist Check | `/tools/blacklist` | HetrixTools |
+| Blacklist Check | `/tools/blacklist` | MxToolbox |
 | WHOIS / Registrar | `/tools/whois` | IANA RDAP (public, no key) |
 | URL Analysis | `/tools/url-analysis` | VirusTotal |
 | Settings | `/settings` | — |
@@ -120,7 +120,7 @@ Copy-Item .env.example .env.local
 | `NEXT_PUBLIC_STRIPE_PRO_LINK` | [Stripe Payment Links](https://dashboard.stripe.com/payment-links) | Pricing page "Upgrade to Pro" button |
 | `ABUSEIPDB_API_KEY` | [AbuseIPDB](https://www.abuseipdb.com/register) — free: 1,000/day | IP Reputation |
 | `VIRUSTOTAL_API_KEY` | [VirusTotal](https://www.virustotal.com/gui/join-us) — free: 500/day | Domain + URL Analysis |
-| `HETRIXTOOLS_API_KEY` | [HetrixTools](https://hetrixtools.com/dashboard/api-token/) — free tier | Blacklist Check |
+| `MX_TOOLBOX_API_KEY` | [MxToolbox](https://mxtoolbox.com/Public/ToolsApi.aspx) — API key required | Blacklist Check |
 | `SECURITYTRAILS_API_KEY` | [SecurityTrails](https://securitytrails.com/corp/api) — free: 50/month | DNS Lookup |
 | `SHODAN_API_KEY` | [Shodan](https://account.shodan.io/register) — membership required | Open Ports (dashboard) |
 
@@ -212,7 +212,7 @@ vercel
 | `NEXT_PUBLIC_STRIPE_PRO_LINK` | For payments | [dashboard.stripe.com/payment-links](https://dashboard.stripe.com/payment-links) |
 | `ABUSEIPDB_API_KEY` | Optional | https://www.abuseipdb.com/register |
 | `VIRUSTOTAL_API_KEY` | Optional | https://www.virustotal.com/gui/join-us |
-| `HETRIXTOOLS_API_KEY` | Optional | https://hetrixtools.com/dashboard/api-token/ |
+| `MX_TOOLBOX_API_KEY` | Optional | https://mxtoolbox.com/Public/ToolsApi.aspx |
 | `SECURITYTRAILS_API_KEY` | Optional | https://securitytrails.com/corp/api |
 | `SHODAN_API_KEY` | Optional | https://account.shodan.io/register |
 
