@@ -94,8 +94,10 @@ export async function GET(request: NextRequest) {
         detail: entry.Info ?? "Listed",
       }));
 
-    const failedBlacklists =
-      failedFromFailedArray.length > 0 ? failedFromFailedArray : failedFromInformation;
+    const failedBlacklists = [...failedFromFailedArray, ...failedFromInformation].filter(
+      (entry, index, arr) =>
+        arr.findIndex((candidate) => candidate.source === entry.source && candidate.detail === entry.detail) === index,
+    );
 
     const passedEntries = (payload.Passed ?? []).map((entry) => ({
       source: entry.Name ?? "Unknown blacklist",

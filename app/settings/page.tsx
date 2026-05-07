@@ -30,7 +30,7 @@ const ENV_CARDS: EnvCard[] = [
     envKey: "MX_TOOLBOX_API_KEY",
     description: "Powers the Blacklist Checker. Checks target reputation across major DNS and spam blacklists.",
     docsUrl: "https://mxtoolbox.com/Public/ToolsApi.aspx",
-    freeTier: "Plan required for API access",
+    freeTier: "API key required (plan-dependent access)",
   },
   {
     service: "SecurityTrails",
