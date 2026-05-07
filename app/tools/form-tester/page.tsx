@@ -400,7 +400,7 @@ export default function FormTesterPage() {
           {cooldownSeconds > 0 ? `Cooldown ${cooldownSeconds}s` : "Ready"}
         </span>
         {user?.plan === "free" && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/25 bg-pink-500/10 px-2.5 py-1 text-xs text-pink-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-2.5 py-1 text-xs text-cyan-300">
             Credits {Math.max(FREE_DAILY_LIMIT - scansToday, 0)} left
           </span>
         )}
@@ -464,6 +464,7 @@ export default function FormTesterPage() {
                   <svg className="w-3 h-3 text-emerald-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fillRule="evenodd" d="M10 1.5A4.5 4.5 0 005.5 6v1.25H5A2 2 0 003 9.25v6.5a2 2 0 002 2h10a2 2 0 002-2v-6.5a2 2 0 00-2-2h-.5V6A4.5 4.5 0 0010 1.5zM7 6a3 3 0 116 0v1.25H7V6z" clipRule="evenodd" />
                   </svg>
+                  <span className="sr-only">(Data sent over HTTPS/TLS)</span>
                 </span>
                 <button
                   type="button"
