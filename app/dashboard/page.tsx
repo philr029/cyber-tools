@@ -43,7 +43,10 @@ type ToolResult = {
   confidence: number;
   summary: string;
   recommendations: string[];
+  receivedAt: number;
 };
+
+type WorkerToolResponse = Omit<ToolResult, "receivedAt">;
 
 type ThreatEvent = {
   id: string;
@@ -78,6 +81,7 @@ const RISK_MODEL = {
   maxMapImpact: 18,
   mapEventWeight: 2,
 } as const;
+const MIN_BASE_TOTAL = 1;
 
 function scoreTone(score: number) {
   if (score >= 75) return { label: "Critical", color: "text-orange-400" };
@@ -125,7 +129,10 @@ function ThreatMap({ events }: { events: ThreatEvent[] }) {
 }
 
 function buildConsultantReply(question: string, risk: number, toolResults: ToolResult[]) {
-  const latest = toolResults[0];
+  const latest = toolResults.reduce<ToolResult | null>((current, candidate) => {
+    if (!current) return candidate;
+    return candidate.receivedAt > current.receivedAt ? candidate : current;
+  }, null);
   if (!latest) {
     return "Run Deepfake Content Analyzer or Shadow AI Governance first, then ask me for a remediation playbook.";
   }
@@ -226,6 +233,7 @@ export default function DashboardPage() {
     },
   ]);
   const workerRef = useRef<Worker | null>(null);
+  const threatEventCounterRef = useRef(0);
 
   const safe = history.filter((h) => h.overallStatus === "safe").length;
   const warning = history.filter((h) => h.overallStatus === "warning").length;
@@ -243,7 +251,7 @@ export default function DashboardPage() {
     [toolResults],
   );
   const riskScore = useMemo(() => {
-    const baseTotal = safe + warning + risk || 1;
+    const baseTotal = safe + warning + risk || MIN_BASE_TOTAL;
     const base = Math.min(
       100,
       Math.round(
@@ -264,16 +272,23 @@ export default function DashboardPage() {
     const worker = new Worker("/workers/advanced-tools-worker.js");
     workerRef.current = worker;
 
-    worker.onmessage = (event: MessageEvent<ToolResult>) => {
+    worker.onmessage = (event: MessageEvent<WorkerToolResponse>) => {
       const payload = event.data;
-      setToolResults((current) => [payload, ...current.filter((entry) => entry.tool !== payload.tool)]);
+      const receivedResult = {
+        ...payload,
+        receivedAt: Date.now(),
+      };
+      setToolResults((current) => [
+        receivedResult,
+        ...current.filter((entry) => entry.tool !== receivedResult.tool),
+      ]);
       setToolLoading(null);
       setChatMessages((current) => [
         ...current,
         {
-          id: `assistant-${payload.tool}-${Date.now()}`,
+          id: `assistant-${receivedResult.tool}-${receivedResult.receivedAt}`,
           role: "assistant",
-          text: `${payload.tool === "deepfake" ? "Deepfake Content Analyzer" : "Shadow AI Governance"} complete. Score ${payload.score}/100. ${payload.summary}`,
+          text: `${receivedResult.tool === "deepfake" ? "Deepfake Content Analyzer" : "Shadow AI Governance"} complete. Score ${receivedResult.score}/100. ${receivedResult.summary}`,
         },
       ]);
     };
@@ -293,7 +308,7 @@ export default function DashboardPage() {
       const eventId =
         typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
           ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+          : `${Date.now()}-${threatEventCounterRef.current++}`;
       const next: ThreatEvent = {
         id: `evt-${eventId}`,
         source: source.coord,
