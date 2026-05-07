@@ -14,6 +14,7 @@ import type { ValidationResult } from "@/lib/validators";
 import { useAuth } from "@/lib/auth-context";
 import { FREE_DAILY_LIMIT, useDailyScans } from "@/lib/use-daily-scans";
 import ReviewTargetModal from "@/app/components/tools/ReviewTargetModal";
+import { ACTIVE_TOOL_COOLDOWN_SECONDS } from "@/lib/tool-limits";
 
 const Icon = (
   <svg className="w-10 h-10 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
@@ -30,7 +31,6 @@ function validateTarget(value: string): ValidationResult {
 }
 
 export default function PortScannerPage() {
-  const COOLDOWN_SECONDS = 10;
   const { user } = useAuth();
   const { scansToday, increment: incrementScan } = useDailyScans(user?.plan ?? null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ export default function PortScannerPage() {
       setData(data);
       setIsMock(mock);
       incrementScan();
-      setCooldownSeconds(COOLDOWN_SECONDS);
+      setCooldownSeconds(ACTIVE_TOOL_COOLDOWN_SECONDS);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
@@ -98,7 +98,7 @@ export default function PortScannerPage() {
         </span>
         {user?.plan === "free" && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-2.5 py-1 text-xs text-cyan-300">
-            Credits {Math.min(scansToday, FREE_DAILY_LIMIT)}/{FREE_DAILY_LIMIT}
+            Credits {Math.max(FREE_DAILY_LIMIT - scansToday, 0)} left
           </span>
         )}
       </div>

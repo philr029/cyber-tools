@@ -1,0 +1,1 @@
+export const ACTIVE_TOOL_COOLDOWN_SECONDS = 10;

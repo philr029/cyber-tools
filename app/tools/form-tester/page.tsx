@@ -10,6 +10,7 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { FREE_DAILY_LIMIT, useDailyScans } from "@/lib/use-daily-scans";
 import ReviewTargetModal from "@/app/components/tools/ReviewTargetModal";
+import { ACTIVE_TOOL_COOLDOWN_SECONDS } from "@/lib/tool-limits";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -271,7 +272,6 @@ function ResponseViewer({ result }: { result: FormTestResult }) {
 // ---------------------------------------------------------------------------
 
 export default function FormTesterPage() {
-  const COOLDOWN_SECONDS = 10;
   const { user } = useAuth();
   const { scansToday, increment: incrementScan } = useDailyScans(user?.plan ?? null);
   const [method, setMethod] = useState<"GET" | "POST">("POST");
@@ -348,7 +348,7 @@ export default function FormTesterPage() {
       } else {
         setResult(data);
         incrementScan();
-        setCooldownSeconds(COOLDOWN_SECONDS);
+        setCooldownSeconds(ACTIVE_TOOL_COOLDOWN_SECONDS);
       }
     } catch {
       setError("Network error. Please try again.");
@@ -401,7 +401,7 @@ export default function FormTesterPage() {
         </span>
         {user?.plan === "free" && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/25 bg-pink-500/10 px-2.5 py-1 text-xs text-pink-300">
-            Credits {Math.min(scansToday, FREE_DAILY_LIMIT)}/{FREE_DAILY_LIMIT}
+            Credits {Math.max(FREE_DAILY_LIMIT - scansToday, 0)} left
           </span>
         )}
       </div>
