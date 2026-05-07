@@ -91,21 +91,29 @@ async function sendSlackAlert(text: string) {
     return;
   }
 
-  await fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+  } catch (err) {
+    console.error("Failed to send Slack alert:", err);
+  }
 }
 
 async function sendEmailAlert(subject: string, body: string) {
   const alertWebhookUrl = process.env.ALERT_EMAIL_WEBHOOK_URL;
   if (alertWebhookUrl) {
-    await fetch(alertWebhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, body }),
-    });
+    try {
+      await fetch(alertWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body }),
+      });
+    } catch (err) {
+      console.error("Failed to send alert email via webhook:", err);
+    }
     return;
   }
 
@@ -116,19 +124,23 @@ async function sendEmailAlert(subject: string, body: string) {
     return;
   }
 
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: alertFrom,
-      to: [alertTo],
-      subject,
-      text: body,
-    }),
-  });
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: alertFrom,
+        to: [alertTo],
+        subject,
+        text: body,
+      }),
+    });
+  } catch (err) {
+    console.error("Failed to send alert email via Resend:", err);
+  }
 }
 
 async function sendOpsAlert({
@@ -180,19 +192,23 @@ async function disableEmailAccount(campaignId: string, emailAccountId: string, i
   ];
 
   for (const endpoint of candidateEndpoints) {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${instantlyApiKey}`,
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${instantlyApiKey}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (response.ok || response.status === 409) {
-      return {
-        ok: true,
-        details: response.status === 409 ? "already_disabled" : `disabled_via_${endpoint}`,
-      };
+      if (response.ok || response.status === 409) {
+        return {
+          ok: true,
+          details: response.status === 409 ? "already_disabled" : `disabled_via_${endpoint}`,
+        };
+      }
+    } catch (err) {
+      console.error(`Failed to call Instantly disable endpoint "${endpoint}":`, err);
     }
   }
 
@@ -224,11 +240,11 @@ export async function GET(request: NextRequest) {
   for (const target of targets) {
     const domain = target.domain;
 
-    let sendingIp: string;
-  try {
-    const addresses = await resolve4(domain);
-    sendingIp = addresses[0];
-    console.log(`Resolved "${domain}" → ${sendingIp}`);
+    let sendingIp: string | undefined;
+    try {
+      const addresses = await resolve4(domain);
+      sendingIp = addresses[0];
+      console.log(`Resolved "${domain}" → ${sendingIp}`);
   } catch (err) {
     console.error(`DNS A-record lookup failed for "${domain}":`, err);
     results.push({
@@ -244,6 +260,21 @@ export async function GET(request: NextRequest) {
     });
     continue;
   }
+
+    if (!sendingIp) {
+      results.push({
+        domain,
+        passed: 0,
+        failed: 0,
+        total: 0,
+        criticalHits: [],
+        warningHits: [],
+        health: "Error",
+        summary: `Target: ${domain} | Status: DNS Lookup Failed | Health: Error.`,
+        error: `No IPv4 address resolved for "${domain}".`,
+      });
+      continue;
+    }
 
     let blacklistData: MxToolboxBlacklistResponse;
     try {
