@@ -7,6 +7,7 @@ interface SecuritySuiteCardProps {
   description: string;
   category: string;
   badge: string;
+  cornerTag?: string;
   size?: "square" | "wide";
   emphasis?: "cyan" | "violet" | "emerald" | "amber" | "rose";
   active?: boolean;
@@ -22,12 +23,21 @@ const EMPHASIS_STYLES: Record<NonNullable<SecuritySuiteCardProps["emphasis"]>, s
   rose: "from-rose-500/18 via-rose-400/8 to-transparent text-rose-200",
 };
 
+const CORNER_TAG_STYLES: Record<NonNullable<SecuritySuiteCardProps["emphasis"]>, string> = {
+  cyan: "border-cyan-300/30 bg-cyan-500/15 text-cyan-100",
+  violet: "border-violet-300/30 bg-violet-500/15 text-violet-100",
+  emerald: "border-emerald-300/30 bg-emerald-500/15 text-emerald-100",
+  amber: "border-amber-300/30 bg-amber-500/15 text-amber-100",
+  rose: "border-rose-300/30 bg-rose-500/15 text-rose-100",
+};
+
 export default function SecuritySuiteCard({
   href,
   title,
   description,
   category,
   badge,
+  cornerTag,
   size = "square",
   emphasis = "cyan",
   active = false,
@@ -41,6 +51,11 @@ export default function SecuritySuiteCard({
     >
       <div className={`absolute inset-0 bg-gradient-to-br opacity-80 ${EMPHASIS_STYLES[emphasis]}`} aria-hidden="true" />
       <div className="absolute inset-x-0 top-0 h-px bg-white/8" aria-hidden="true" />
+      {cornerTag && (
+        <span className={`absolute right-4 top-4 z-10 max-w-[12rem] rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.15em] ${CORNER_TAG_STYLES[emphasis]}`}>
+          {cornerTag}
+        </span>
+      )}
       <div className="relative flex h-full flex-col gap-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/25 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
