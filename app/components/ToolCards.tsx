@@ -81,7 +81,7 @@ export const TOOLS: Tool[] = [
     href: "/tools/blacklist",
     title: "Blacklist Check",
     description: "Spamhaus, SURBL, Barracuda, SpamCop, and more.",
-    badge: "HetrixTools",
+    badge: "MxToolbox",
     iconColor: "text-red-400",
     bgColor: "bg-red-500/10",
     icon: (

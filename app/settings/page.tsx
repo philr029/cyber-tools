@@ -26,11 +26,11 @@ const ENV_CARDS: EnvCard[] = [
     freeTier: "Free tier: 500 lookups/day",
   },
   {
-    service: "HetrixTools",
-    envKey: "HETRIXTOOLS_API_KEY",
-    description: "Powers the Blacklist Checker. Checks against 450+ spam and abuse blacklists.",
-    docsUrl: "https://hetrixtools.com/dashboard/api-token/",
-    freeTier: "Free tier available",
+    service: "MxToolbox",
+    envKey: "MX_TOOLBOX_API_KEY",
+    description: "Powers the Blacklist Checker. Checks target reputation across major DNS and spam blacklists.",
+    docsUrl: "https://mxtoolbox.com/Public/ToolsApi.aspx",
+    freeTier: "Plan required for API access",
   },
   {
     service: "SecurityTrails",
@@ -121,7 +121,7 @@ export default function SettingsPage() {
             <pre className="text-sm font-mono text-emerald-400 whitespace-pre leading-relaxed">
 {`ABUSEIPDB_API_KEY=your_key_here
 VIRUSTOTAL_API_KEY=your_key_here
-HETRIXTOOLS_API_KEY=your_key_here
+MX_TOOLBOX_API_KEY=your_key_here
 SECURITYTRAILS_API_KEY=your_key_here
 SHODAN_API_KEY=your_key_here`}
             </pre>
