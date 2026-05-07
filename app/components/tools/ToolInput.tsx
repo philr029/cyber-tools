@@ -10,7 +10,7 @@ interface ToolInputProps {
   validate?: (value: string) => ValidationResult;
   onSubmit: (value: string) => void;
   loading?: boolean;
-  disabled?: boolean;
+  externalDisabled?: boolean;
   hint?: string;
   examples?: string[];
   showTlsIndicator?: boolean;
@@ -22,7 +22,7 @@ export default function ToolInput({
   validate,
   onSubmit,
   loading = false,
-  disabled = false,
+  externalDisabled = false,
   hint,
   examples = [],
   showTlsIndicator = false,
@@ -72,13 +72,13 @@ export default function ToolInput({
               onChange={handleChange}
               placeholder={placeholder}
               className={`w-full pl-11 pr-4 py-3.5 bg-[#0b0f1a] border rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 transition ${error ? "border-red-500/50" : "border-[#1e2d4a]"}`}
-              disabled={loading || disabled}
+              disabled={loading || externalDisabled}
               aria-describedby={error ? "input-error" : hint ? "input-hint" : undefined}
             />
           </div>
           <button
             type="submit"
-            disabled={loading || disabled || !value.trim()}
+            disabled={loading || externalDisabled || !value.trim()}
             className="px-5 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-xl shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:from-cyan-400 hover:to-blue-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0f1629] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap"
           >
             {loading ? (

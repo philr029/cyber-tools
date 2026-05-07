@@ -73,7 +73,7 @@ export default function PortScannerPage() {
   }
 
   function confirmReview() {
-    if (!permissionChecked || !pendingTarget || cooldownSeconds > 0) return;
+    if (!permissionChecked || !pendingTarget) return;
     setReviewOpen(false);
     void handleSubmit(pendingTarget);
   }
@@ -109,7 +109,7 @@ export default function PortScannerPage() {
         validate={validateTarget}
         onSubmit={requestReview}
         loading={loading}
-        disabled={cooldownSeconds > 0}
+        externalDisabled={cooldownSeconds > 0}
         showTlsIndicator
         examples={["8.8.8.8", "example.com", "1.1.1.1"]}
       />

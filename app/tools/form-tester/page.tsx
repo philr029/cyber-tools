@@ -370,7 +370,7 @@ export default function FormTesterPage() {
   }
 
   function confirmReview() {
-    if (!permissionChecked || cooldownSeconds > 0) return;
+    if (!permissionChecked) return;
     setReviewOpen(false);
     void runFormTest();
   }
