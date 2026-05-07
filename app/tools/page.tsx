@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
+import { BracketsCurly, ClockCounterClockwise, FileMagnifyingGlass, GlobeHemisphereWest, UserCircle } from "@phosphor-icons/react";
 import type {
   DomainReputationResult,
   WHOISResult,
@@ -28,7 +29,6 @@ import PhoneCard from "@/app/components/results/PhoneCard";
 import LiveActivityConsole from "@/app/components/tools/LiveActivityConsole";
 import SecuritySignals from "@/app/components/tools/SecuritySignals";
 import SecuritySuiteCard from "@/app/components/tools/SecuritySuiteCard";
-import { BracketsCurly, ClockCounterClockwise, FileMagnifyingGlass, GlobeHemisphereWest, UserCircle } from "@phosphor-icons/react";
 
 interface SuiteCard {
   href: string;
