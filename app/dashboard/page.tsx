@@ -70,6 +70,15 @@ const GEO_POINTS: Array<{ label: string; coord: [number, number] }> = [
   { label: "SFO", coord: [36, 54] },
 ];
 
+const RISK_MODEL = {
+  warningWeight: 45,
+  highRiskWeight: 85,
+  baselineInfluence: 0.7,
+  toolInfluence: 0.2,
+  maxMapImpact: 18,
+  mapEventWeight: 2,
+} as const;
+
 function scoreTone(score: number) {
   if (score >= 75) return { label: "Critical", color: "text-orange-400" };
   if (score >= 50) return { label: "Elevated", color: "text-amber-400" };
@@ -235,13 +244,19 @@ export default function DashboardPage() {
   );
   const riskScore = useMemo(() => {
     const baseTotal = safe + warning + risk || 1;
-    const base = Math.min(100, Math.round(((warning * 45 + risk * 85) / baseTotal) * 0.7));
+    const base = Math.min(
+      100,
+      Math.round(
+        ((warning * RISK_MODEL.warningWeight + risk * RISK_MODEL.highRiskWeight) / baseTotal) *
+          RISK_MODEL.baselineInfluence,
+      ),
+    );
     const toolAvg =
       toolResults.length > 0
         ? Math.round(toolResults.reduce((sum, item) => sum + item.score, 0) / toolResults.length)
         : 0;
-    const mapImpact = Math.min(18, threatEvents.length * 2);
-    return Math.min(100, Math.round(base + toolAvg * 0.2 + mapImpact));
+    const mapImpact = Math.min(RISK_MODEL.maxMapImpact, threatEvents.length * RISK_MODEL.mapEventWeight);
+    return Math.min(100, Math.round(base + toolAvg * RISK_MODEL.toolInfluence + mapImpact));
   }, [safe, warning, risk, toolResults, threatEvents.length]);
   const riskMood = scoreTone(riskScore);
 
@@ -275,8 +290,12 @@ export default function DashboardPage() {
       const possibleTargets = GEO_POINTS.filter((point) => point.label !== source.label);
       const target = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
       const severity: ThreatEvent["severity"] = Math.random() > 0.62 ? "high" : "medium";
+      const eventId =
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const next: ThreatEvent = {
-        id: `evt-${crypto.randomUUID()}`,
+        id: `evt-${eventId}`,
         source: source.coord,
         target: target.coord,
         severity,

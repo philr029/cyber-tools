@@ -2,6 +2,18 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+const DEEPFAKE_BASELINE = {
+  riskWeight: 14,
+  warningWeight: 6,
+  offset: 28,
+};
+
+const SHADOW_GOVERNANCE_BASELINE = {
+  riskWeight: 13,
+  warningWeight: 8,
+  offset: 25,
+};
+
 function heavyComputation(iterations, baseline) {
   let acc = baseline;
   for (let i = 0; i < iterations; i += 1) {
@@ -11,7 +23,10 @@ function heavyComputation(iterations, baseline) {
 }
 
 function runDeepfakeAnalysis(payload) {
-  const baseline = payload.historySignals.risk * 14 + payload.historySignals.warning * 6 + 28;
+  const baseline =
+    payload.historySignals.risk * DEEPFAKE_BASELINE.riskWeight +
+    payload.historySignals.warning * DEEPFAKE_BASELINE.warningWeight +
+    DEEPFAKE_BASELINE.offset;
   const score = clamp(Math.round(heavyComputation(260000, baseline)), 12, 98);
   const confidence = clamp(62 + Math.round((100 - score) * 0.2), 60, 95);
   return {
@@ -31,7 +46,10 @@ function runDeepfakeAnalysis(payload) {
 }
 
 function runShadowGovernance(payload) {
-  const baseline = payload.historySignals.risk * 13 + payload.historySignals.warning * 8 + 25;
+  const baseline =
+    payload.historySignals.risk * SHADOW_GOVERNANCE_BASELINE.riskWeight +
+    payload.historySignals.warning * SHADOW_GOVERNANCE_BASELINE.warningWeight +
+    SHADOW_GOVERNANCE_BASELINE.offset;
   const score = clamp(Math.round(heavyComputation(230000, baseline)), 8, 97);
   const confidence = clamp(66 + Math.round(score * 0.14), 64, 96);
   return {
