@@ -90,6 +90,67 @@ function PageFooter() {
   );
 }
 
+const FEATURED_PROJECTS = [
+  {
+    title: "SecureScope Intelligence Platform",
+    description:
+      "Unified cyber lookup dashboard with SSRF-safe API routes, tool orchestration, and actionable risk outputs.",
+    href: "/",
+    tags: ["Next.js 16", "Threat Intel", "TypeScript"],
+  },
+  {
+    title: "Tool Suite Workspace",
+    description:
+      "Multi-tool operations workspace for security diagnostics, validation, and compliance-friendly reporting.",
+    href: "/tools",
+    tags: ["App Security", "OSINT", "Automation"],
+  },
+  {
+    title: "SOC-Style Monitoring Dashboard",
+    description:
+      "Incident and monitoring experience with timeline patterns and analyst-ready visibility modules.",
+    href: "/dashboard/monitoring",
+    tags: ["Monitoring", "Workflow Design", "Analyst UX"],
+  },
+];
+
+const IT_CYBERSECURITY_TOOLS = [
+  "IP reputation and abuse confidence lookup",
+  "Domain, DNS, WHOIS, SSL, and subdomain intelligence",
+  "HTTP security header analysis and redirect tracing",
+  "Port scan, blacklist checks, and threat scoring",
+  "AI-assisted report generation for security findings",
+];
+
+const MICROSOFT_365_ADMIN_SKILLS = [
+  "Exchange Online policy hardening and mail-flow diagnostics",
+  "Entra ID user lifecycle, MFA, conditional access, and RBAC",
+  "SharePoint/OneDrive governance and data protection workflows",
+  "Microsoft Defender posture awareness and incident response process",
+];
+
+const AUTOMATION_PROJECTS = [
+  {
+    title: "Automated Security Recon Pipeline",
+    description: "Parallelized domain/IP enrichment with standardized outputs for fast triage and reporting.",
+  },
+  {
+    title: "Workflow-Driven Form/API Testing",
+    description: "Secure relay-based automation for endpoint reliability, validation, and regression checks.",
+  },
+  {
+    title: "Daily Scan Tracking & Usage Controls",
+    description: "Plan-aware quotas and usage telemetry patterns for SaaS-style platform operations.",
+  },
+];
+
+const CERTIFICATIONS_ROADMAP = [
+  { label: "CompTIA Security+ / equivalent baseline", status: "In progress" },
+  { label: "Microsoft 365 Administrator (MD-102 / MS-102 track)", status: "Roadmap" },
+  { label: "SC-200 / SOC analyst-oriented certification path", status: "Roadmap" },
+  { label: "Advanced cloud security and automation specialization", status: "Planned" },
+];
+
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
@@ -123,7 +184,6 @@ export default function HomePage() {
     setError(null);
     try {
       const { result: data, isMock: mock } = await lookupAll(query);
-      console.log("[dashboard] lookup result:", data, "isMock:", mock);
       setResult(data);
       setIsMock(mock);
       saveToHistory(data);
@@ -274,6 +334,158 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+        <div className="rounded-2xl bg-[#0f1629] border border-[#1e2d4a] p-6 sm:p-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-100">
+            Professional IT, Cybersecurity & Automation Portfolio
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-slate-400 max-w-3xl">
+            Interview-ready project showcasing full-stack engineering, modern UX design, cyber intelligence tooling, and secure operational workflows.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2.5">
+            {["Security Engineering", "Microsoft 365 Admin", "Automation", "Frontend UX", "API Security"].map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-cyan-500/20 text-cyan-300 bg-cyan-500/10"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <section id="featured-projects" aria-labelledby="featured-projects-heading">
+          <h2 id="featured-projects-heading" className="text-xl font-bold text-slate-100 mb-4">
+            Featured Projects
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {FEATURED_PROJECTS.map((project) => (
+              <article
+                key={project.title}
+                className="card-lift rounded-2xl bg-[#0f1629] border border-[#1e2d4a] p-5 h-full flex flex-col"
+              >
+                <h3 className="text-sm font-semibold text-slate-100">{project.title}</h3>
+                <p className="text-sm text-slate-400 mt-2 flex-1">{project.description}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="text-[11px] px-2 py-1 rounded-md bg-white/5 text-slate-400 border border-[#1e2d4a]">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <Link
+                  href={project.href}
+                  className="mt-4 inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+                >
+                  View project
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <div className="grid lg:grid-cols-2 gap-4">
+          <section id="it-cybersecurity-tools" className="rounded-2xl bg-[#0f1629] border border-[#1e2d4a] p-6" aria-labelledby="it-cybersecurity-tools-heading">
+            <h2 id="it-cybersecurity-tools-heading" className="text-lg font-bold text-slate-100 mb-3">
+              IT &amp; Cybersecurity Tools
+            </h2>
+            <ul className="space-y-2.5">
+              {IT_CYBERSECURITY_TOOLS.map((skill) => (
+                <li key={skill} className="text-sm text-slate-400 flex items-start gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-cyan-400" aria-hidden="true" />
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section id="microsoft-365-admin-skills" className="rounded-2xl bg-[#0f1629] border border-[#1e2d4a] p-6" aria-labelledby="microsoft-365-admin-skills-heading">
+            <h2 id="microsoft-365-admin-skills-heading" className="text-lg font-bold text-slate-100 mb-3">
+              Microsoft 365 Admin Skills
+            </h2>
+            <ul className="space-y-2.5">
+              {MICROSOFT_365_ADMIN_SKILLS.map((skill) => (
+                <li key={skill} className="text-sm text-slate-400 flex items-start gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-400" aria-hidden="true" />
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        <section id="automation-projects" className="rounded-2xl bg-[#0f1629] border border-[#1e2d4a] p-6" aria-labelledby="automation-projects-heading">
+          <h2 id="automation-projects-heading" className="text-lg font-bold text-slate-100 mb-4">
+            Automation Projects
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {AUTOMATION_PROJECTS.map((project) => (
+              <article key={project.title} className="rounded-xl border border-[#1e2d4a] bg-[#0d1321] p-4">
+                <h3 className="text-sm font-semibold text-slate-200">{project.title}</h3>
+                <p className="mt-2 text-sm text-slate-400">{project.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <div className="grid lg:grid-cols-2 gap-4">
+          <section id="certifications-learning-roadmap" className="rounded-2xl bg-[#0f1629] border border-[#1e2d4a] p-6" aria-labelledby="certifications-learning-roadmap-heading">
+            <h2 id="certifications-learning-roadmap-heading" className="text-lg font-bold text-slate-100 mb-4">
+              Certifications / Learning Roadmap
+            </h2>
+            <ul className="space-y-2.5">
+              {CERTIFICATIONS_ROADMAP.map((item) => (
+                <li key={item.label} className="flex items-center justify-between gap-4 rounded-lg border border-[#1e2d4a] bg-[#0d1321] px-3 py-2">
+                  <span className="text-sm text-slate-300">{item.label}</span>
+                  <span className="text-xs px-2 py-1 rounded-md bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 shrink-0">
+                    {item.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section id="contact-links" className="rounded-2xl bg-[#0f1629] border border-[#1e2d4a] p-6" aria-labelledby="contact-links-heading">
+            <h2 id="contact-links-heading" className="text-lg font-bold text-slate-100 mb-3">
+              Contact / GitHub / LinkedIn
+            </h2>
+            <p className="text-sm text-slate-400 mb-4">
+              Available for IT support, cybersecurity, Microsoft 365 administration, and automation projects.
+            </p>
+            <div className="space-y-2">
+              <a
+                href="https://github.com/philr029"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-lg border border-[#1e2d4a] bg-[#0d1321] px-3 py-2 text-sm text-slate-300 hover:text-slate-100 hover:border-cyan-500/35 transition-colors"
+              >
+                GitHub
+                <span aria-hidden="true">↗</span>
+              </a>
+              <a
+                href="https://linkedin.com/in/philipruttley"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-lg border border-[#1e2d4a] bg-[#0d1321] px-3 py-2 text-sm text-slate-300 hover:text-slate-100 hover:border-cyan-500/35 transition-colors"
+              >
+                LinkedIn
+                <span aria-hidden="true">↗</span>
+              </a>
+              <a
+                href="https://github.com/philr029/cyber-tools/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-lg border border-[#1e2d4a] bg-[#0d1321] px-3 py-2 text-sm text-slate-300 hover:text-slate-100 hover:border-cyan-500/35 transition-colors"
+              >
+                Contact (GitHub Issues)
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </section>
         </div>
       </section>
 

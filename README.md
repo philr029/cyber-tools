@@ -227,6 +227,18 @@ All threat intelligence keys are optional — tools without a key show a **Not c
 
 ---
 
+### GitHub Pages (portfolio/static demo)
+
+This repository includes a static portfolio/demo app in `spa/` for GitHub Pages hosting.
+
+- Workflow: `.github/workflows/pages.yml`
+- Deploy source: `spa/`
+- Trigger: push to `main` (or manual run from Actions tab)
+
+This path is ideal for portfolio presentation and static UI demos. Dynamic Next.js API routes in `app/api/` require server-side hosting (e.g. Vercel) and are not executed on GitHub Pages.
+
+---
+
 ### Enabling Stripe payments
 
 1. Create a **Payment Link** in the [Stripe dashboard](https://dashboard.stripe.com/payment-links) for your Pro plan ($19/month)

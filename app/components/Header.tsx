@@ -138,6 +138,28 @@ export default function Header() {
     router.push("/");
   }
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileOpen]);
+
   return (
     <header className="sticky top-0 z-50 bg-[#0b0f1a]/80 backdrop-blur-xl border-b border-[#1e2d4a] shadow-[0_1px_0_rgba(6,182,212,0.08)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -167,7 +189,25 @@ export default function Header() {
               }`}
               aria-current={pathname === "/" ? "page" : undefined}
             >
-              Scanner
+              Home
+            </Link>
+            <Link
+              href="/#featured-projects"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            >
+              Projects
+            </Link>
+            <Link
+              href="/#it-cybersecurity-tools"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            >
+              Skills
+            </Link>
+            <Link
+              href="/#contact-links"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            >
+              Contact
             </Link>
             <Link
               href="/tools"
@@ -302,6 +342,7 @@ export default function Header() {
               className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors"
               aria-label="Toggle menu"
               aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
             >
               {mobileOpen ? (
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -323,7 +364,10 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-4 pt-2">
+        <div
+          id="mobile-navigation"
+          className="lg:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-4 pt-2"
+        >
           <Link
             href="/"
             onClick={() => setMobileOpen(false)}
@@ -332,7 +376,35 @@ export default function Header() {
             }`}
             aria-current={pathname === "/" ? "page" : undefined}
           >
-            Scanner
+            Home
+          </Link>
+          <Link
+            href="/#featured-projects"
+            onClick={() => setMobileOpen(false)}
+            className="block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 text-slate-400 hover:text-slate-200 hover:bg-white/5"
+          >
+            Featured Projects
+          </Link>
+          <Link
+            href="/#it-cybersecurity-tools"
+            onClick={() => setMobileOpen(false)}
+            className="block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 text-slate-400 hover:text-slate-200 hover:bg-white/5"
+          >
+            IT &amp; Cybersecurity Skills
+          </Link>
+          <Link
+            href="/#automation-projects"
+            onClick={() => setMobileOpen(false)}
+            className="block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 text-slate-400 hover:text-slate-200 hover:bg-white/5"
+          >
+            Automation Projects
+          </Link>
+          <Link
+            href="/#contact-links"
+            onClick={() => setMobileOpen(false)}
+            className="block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 text-slate-400 hover:text-slate-200 hover:bg-white/5"
+          >
+            Contact
           </Link>
           <Link
             href="/tools"
@@ -420,4 +492,3 @@ export default function Header() {
     </header>
   );
 }
-
