@@ -139,10 +139,6 @@ export default function Header() {
   }
 
   useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!mobileOpen) {
       document.body.style.overflow = "";
       return;
