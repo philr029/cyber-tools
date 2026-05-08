@@ -166,8 +166,51 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
   },
   {
     title: "IT Admin",
-    description: "Operational diagnostics for certificates, naming infrastructure, and distributed endpoint performance.",
+    description: "Operational diagnostics for certificates, naming infrastructure, Microsoft 365 administration, and distributed endpoint performance.",
     tools: [
+      {
+        href: "/tools/m365-toolkit",
+        title: "M365 Admin Toolkit",
+        description: "Interactive checklists for New Starter, Leaver, MFA, Shared Mailbox, Teams Phone, Intune, and Defender setup.",
+        badge: "Live",
+        category: "Microsoft 365",
+        size: "wide",
+        emphasis: "cyan",
+        active: true,
+        icon: (
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+          </svg>
+        ),
+      },
+      {
+        href: "/tools/website-health",
+        title: "Website Health Checker",
+        description: "Check HTTP status, response time, page title, SEO metadata, and security headers for any public URL.",
+        badge: "Live",
+        category: "Web",
+        emphasis: "emerald",
+        active: true,
+        icon: (
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+          </svg>
+        ),
+      },
+      {
+        href: "/tools/email-deliverability",
+        title: "Email Deliverability",
+        description: "Audit SPF, DKIM guidance, DMARC policy, MX records, and blacklist status for any sending domain.",
+        badge: "Live",
+        category: "Email",
+        emphasis: "violet",
+        active: true,
+        icon: (
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          </svg>
+        ),
+      },
       {
         href: "/tools/ssl-checker",
         title: "SSL/TLS Inspector",
