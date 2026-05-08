@@ -69,17 +69,22 @@ function scoreDMARC(value: string | null): CheckStatus {
 }
 
 function detectM365MX(mxRecords: string[]): boolean {
-  return mxRecords.some((mx) =>
-    mx.toLowerCase().includes("mail.protection.outlook.com") ||
-    mx.toLowerCase().includes("microsoft.com"),
-  );
+  return mxRecords.some((mx) => {
+    // Extract hostname from MX record (may include priority like "10 mail.protection.outlook.com")
+    const host = mx.trim().toLowerCase().split(/\s+/).pop() ?? "";
+    // Match exactly .mail.protection.outlook.com or .microsoft.com domains
+    return host === "mail.protection.outlook.com" ||
+      host.endsWith(".mail.protection.outlook.com") ||
+      host.endsWith(".microsoft.com");
+  });
 }
 
 function detectGoogleMX(mxRecords: string[]): boolean {
-  return mxRecords.some((mx) =>
-    mx.toLowerCase().includes("google.com") ||
-    mx.toLowerCase().includes("googlemail.com"),
-  );
+  return mxRecords.some((mx) => {
+    const host = mx.trim().toLowerCase().split(/\s+/).pop() ?? "";
+    return host.endsWith(".google.com") ||
+      host.endsWith(".googlemail.com");
+  });
 }
 
 // ---------------------------------------------------------------------------

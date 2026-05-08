@@ -26,11 +26,24 @@ const SECURITY_HEADERS = [
   "permissions-policy",
 ] as const;
 
-/** Extract content between <title>…</title> (case-insensitive, no HTML parser needed for this) */
+/** Strip HTML tags and decode common HTML entities from extracted text to prevent XSS via JSON output */
+function sanitizeExtractedText(raw: string): string {
+  return raw
+    .replace(/<[^>]+>/g, "")          // strip all HTML tags
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Extract content between <title>…</title> (case-insensitive) */
 function extractTitle(html: string): string | null {
   const m = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   if (!m) return null;
-  return m[1].replace(/\s+/g, " ").trim().slice(0, 300) || null;
+  return sanitizeExtractedText(m[1]).slice(0, 300) || null;
 }
 
 /** Extract a specific <meta name="…" content="…"> value */
