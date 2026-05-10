@@ -141,13 +141,18 @@ export default function MonitoringPage() {
 
   // Simulate "live" refreshes every 8 seconds
   useEffect(() => {
-    setHistory(loadHistory());
+    const initialRefreshId = window.setTimeout(() => {
+      setHistory(loadHistory());
+    }, 0);
     const id = setInterval(() => {
       setNow(Date.now());
       setTick((v) => v + 1);
       setHistory(loadHistory());
     }, 8000);
-    return () => clearInterval(id);
+    return () => {
+      window.clearTimeout(initialRefreshId);
+      clearInterval(id);
+    };
   }, []);
 
   const monitors = loadMonitors();
