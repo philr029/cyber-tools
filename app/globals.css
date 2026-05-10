@@ -60,6 +60,7 @@ html[data-theme="light"] .border-\[\#162038\] {
   border-color: #e2e8f0 !important;
 }
 
+html[data-theme="light"] .text-slate-50,
 html[data-theme="light"] .text-slate-100,
 html[data-theme="light"] .text-slate-200 {
   color: #0f172a !important;
@@ -84,6 +85,19 @@ html[data-theme="light"] .text-slate-600 {
 html[data-theme="light"] header {
   background-color: rgba(240, 244, 248, 0.9) !important;
   border-bottom-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .hover\:text-slate-100:hover,
+html[data-theme="light"] .hover\:text-slate-200:hover,
+html[data-theme="light"] .hover\:text-slate-300:hover {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .bg-white\/5,
+html[data-theme="light"] .bg-white\/10,
+html[data-theme="light"] .hover\:bg-white\/5:hover,
+html[data-theme="light"] .hover\:bg-white\/10:hover {
+  background-color: rgba(15, 23, 42, 0.04) !important;
 }
 
 html[data-theme="light"] .hero-gradient {
