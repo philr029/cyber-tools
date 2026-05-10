@@ -4,7 +4,9 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  // Next.js injects small inline bootstrap scripts for hydration.
+  // Keep 'unsafe-inline' unless migrating to nonce-based CSP in proxy.ts.
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' blob: data:",
   "font-src 'self' data:",
