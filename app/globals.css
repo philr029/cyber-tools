@@ -60,6 +60,7 @@ html[data-theme="light"] .border-\[\#162038\] {
   border-color: #e2e8f0 !important;
 }
 
+html[data-theme="light"] .text-slate-50,
 html[data-theme="light"] .text-slate-100,
 html[data-theme="light"] .text-slate-200 {
   color: #0f172a !important;
@@ -86,6 +87,19 @@ html[data-theme="light"] header {
   border-bottom-color: #cbd5e1 !important;
 }
 
+html[data-theme="light"] .hover\:text-slate-100:hover,
+html[data-theme="light"] .hover\:text-slate-200:hover,
+html[data-theme="light"] .hover\:text-slate-300:hover {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .bg-white\/5,
+html[data-theme="light"] .bg-white\/10,
+html[data-theme="light"] .hover\:bg-white\/5:hover,
+html[data-theme="light"] .hover\:bg-white\/10:hover {
+  background-color: rgba(15, 23, 42, 0.04) !important;
+}
+
 html[data-theme="light"] .hero-gradient {
   background: linear-gradient(135deg, #e0f2fe 0%, #e8f4fd 25%, #f0f9ff 50%, #e0f2fe 75%, #dbeafe 100%) !important;
 }
@@ -102,6 +116,39 @@ html[data-theme="light"] .text-glow {
 
 html[data-theme="light"] .skeleton {
   background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%) !important;
+}
+
+html[data-theme="light"] .security-suite-shell {
+  background: #f0f4f8 !important;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .security-suite-shell section,
+html[data-theme="light"] .security-suite-shell [class*="bg-[radial-gradient"],
+html[data-theme="light"] .security-suite-shell [class*="bg-[rgba(255,255,255,0.03)]"] {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .security-suite-shell .bg-\[\#050505\],
+html[data-theme="light"] .security-suite-shell .bg-black\/20,
+html[data-theme="light"] .security-suite-shell .bg-black\/30 {
+  background-color: #f8fafc !important;
+}
+
+html[data-theme="light"] .security-suite-shell [class*="border-white/"] {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .security-suite-shell .text-white {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .security-suite-shell [class*="text-white/"] {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .security-suite-shell .placeholder\:text-white\/25::placeholder {
+  color: #94a3b8 !important;
 }
 
 @theme inline {

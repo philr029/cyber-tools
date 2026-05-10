@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
 
 interface ReviewTargetModalProps {
@@ -28,11 +28,15 @@ export default function ReviewTargetModal({
   const safeTarget = useMemo(() => sanitizeSingleLineInput(target, { maxLength: 4096 }), [target]);
   const targetVerified = safeTarget.length > 0 && confirmationInput === safeTarget;
 
-  useEffect(() => {
-    if (!open) {
-      setConfirmationInput("");
-    }
-  }, [open]);
+  function handleCancel() {
+    setConfirmationInput("");
+    onCancel();
+  }
+
+  function handleConfirm() {
+    setConfirmationInput("");
+    onConfirm();
+  }
 
   if (!open) return null;
 
@@ -42,7 +46,7 @@ export default function ReviewTargetModal({
         type="button"
         aria-label="Close review target modal"
         className="absolute inset-0 bg-black/80 backdrop-blur-md"
-        onClick={onCancel}
+        onClick={handleCancel}
       />
 
       <div
@@ -95,14 +99,14 @@ export default function ReviewTargetModal({
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={handleCancel}
             className="rounded-2xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 transition hover:border-white/20 hover:text-white"
           >
             Cancel
           </button>
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={handleConfirm}
             disabled={!targetVerified || !permissionChecked || loading}
             className="rounded-2xl border border-cyan-400/25 bg-gradient-to-r from-cyan-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-cyan-400 hover:to-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
