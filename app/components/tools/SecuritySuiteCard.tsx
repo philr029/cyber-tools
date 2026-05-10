@@ -92,7 +92,7 @@ export default function SecuritySuiteCard({
 
   if (preview) {
     return (
-      <article className={className} aria-disabled="true">
+      <article className={className}>
         {cardContent}
       </article>
     );
