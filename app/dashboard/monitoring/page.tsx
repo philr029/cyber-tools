@@ -115,6 +115,20 @@ function LivePulse() {
   );
 }
 
+function fallbackBarValue(label: string, max: number, min = 0) {
+  const seed = label.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return (seed % max) + min;
+}
+
+function timeAgo(iso: string, now: number) {
+  if (!now) return "just now";
+  const diff = Math.floor((now - new Date(iso).getTime()) / 1000);
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -122,12 +136,15 @@ function LivePulse() {
 export default function MonitoringPage() {
   const { activeWorkspace } = useWorkspace();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [now, setNow] = useState(0);
   const [tick, setTick] = useState(0);
 
   // Simulate "live" refreshes every 8 seconds
   useEffect(() => {
+    setNow(Date.now());
     setHistory(loadHistory());
     const id = setInterval(() => {
+      setNow(Date.now());
       setTick((v) => v + 1);
       setHistory(loadHistory());
     }, 8000);
@@ -165,6 +182,14 @@ export default function MonitoringPage() {
     color: i === 6 ? "bg-red-500" : "bg-red-500/60",
   }));
 
+  const scansChartData = scansByDay.map((d) => ({
+    ...d,
+    value: d.value || fallbackBarValue(d.label, 8, 1),
+  }));
+  const riskChartData = riskByDay.map((d) => ({
+    ...d,
+    value: d.value || fallbackBarValue(d.label, 4),
+  }));
   const recentActivity = activity.slice(0, 8);
 
   return (
@@ -191,7 +216,7 @@ export default function MonitoringPage() {
           { label: "Open Cases", value: openCases, color: "text-orange-400", bg: "bg-orange-500/10" },
           { label: "Alerts Triggered", value: totalAlerts, color: "text-red-400", bg: "bg-red-500/10" },
           { label: "Active Playbooks", value: activePbs, color: "text-purple-400", bg: "bg-purple-500/10" },
-        ].map(({ label, value, color, bg }) => (
+        ].map(({ label, value, color }) => (
           <div key={label} className="rounded-2xl bg-[#0d1321] border border-[#1e2d4a] p-4">
             <p className={`text-3xl font-bold ${color}`}>{value}</p>
             <p className="text-xs text-slate-500 mt-1">{label}</p>
@@ -210,13 +235,13 @@ export default function MonitoringPage() {
         {/* Scans per day bar */}
         <div className="rounded-2xl bg-[#0d1321] border border-[#1e2d4a] p-5">
           <p className="text-sm font-medium text-slate-300 mb-4">Scans — Last 7 Days</p>
-          <BarChart data={scansByDay.map((d) => ({ ...d, value: d.value || Math.floor(Math.random() * 8) + 1 }))} />
+          <BarChart data={scansChartData} />
         </div>
 
         {/* Threats per day bar */}
         <div className="rounded-2xl bg-[#0d1321] border border-[#1e2d4a] p-5">
           <p className="text-sm font-medium text-slate-300 mb-4">Threats — Last 7 Days</p>
-          <BarChart data={riskByDay.map((d) => ({ ...d, value: d.value || Math.floor(Math.random() * 4) }))} />
+          <BarChart data={riskChartData} />
         </div>
       </div>
 
@@ -233,8 +258,7 @@ export default function MonitoringPage() {
           ) : (
             <div className="space-y-0">
               {recentActivity.map((entry, i) => {
-                const diff = Math.floor((Date.now() - new Date(entry.timestamp).getTime()) / 1000);
-                const when = diff < 60 ? "just now" : diff < 3600 ? `${Math.floor(diff / 60)}m ago` : diff < 86400 ? `${Math.floor(diff / 3600)}h ago` : `${Math.floor(diff / 86400)}d ago`;
+                const when = timeAgo(entry.timestamp, now);
                 return (
                   <div key={entry.id} className={`flex items-start gap-3 py-2.5 ${i < recentActivity.length - 1 ? "border-b border-[#1e2d4a]" : ""}`}>
                     <span className="text-base shrink-0 mt-0.5">{

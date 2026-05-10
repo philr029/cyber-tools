@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { connection } from "next/server";
 import "./globals.css";
 import Header from "@/app/components/Header";
 import ChatWidget from "@/components/ai/ChatWidget";
@@ -27,11 +28,13 @@ export const metadata: Metadata = {
     "Enterprise-grade cyber intelligence platform. Monitor assets, manage cases, automate workflows, and respond to threats.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await connection();
+
   return (
     <html lang="en" className={`h-full ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-full flex flex-col bg-[#050505] antialiased">

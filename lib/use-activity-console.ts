@@ -25,10 +25,10 @@ function normalizeEntry(id: string, level: ActivityLevel, message: string): Acti
 export function useActivityConsole(
   initialEntries: Array<{ level: ActivityLevel; message: string }> = [],
 ) {
-  const counterRef = useRef(0);
+  const counterRef = useRef(initialEntries.length);
   const [entries, setEntries] = useState<ActivityEntry[]>(() => {
     return initialEntries
-      .map((entry) => normalizeEntry(`activity-${counterRef.current++}`, entry.level, entry.message))
+      .map((entry, index) => normalizeEntry(`activity-${index}`, entry.level, entry.message))
       .reverse();
   });
 
