@@ -58,6 +58,7 @@ const securityHeaders = [
 // API routes in app/api/ run as Vercel serverless functions.
 // Environment variables (API keys) are set in the Vercel project dashboard.
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["*.agent.cvm.dev"],
   experimental: {
     sri: {
       algorithm: "sha256",
