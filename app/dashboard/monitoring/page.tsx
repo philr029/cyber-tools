@@ -136,12 +136,11 @@ function timeAgo(iso: string, now: number) {
 export default function MonitoringPage() {
   const { activeWorkspace } = useWorkspace();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [now, setNow] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
   const [tick, setTick] = useState(0);
 
   // Simulate "live" refreshes every 8 seconds
   useEffect(() => {
-    setNow(Date.now());
     setHistory(loadHistory());
     const id = setInterval(() => {
       setNow(Date.now());
