@@ -2,9 +2,16 @@ import type { NextConfig } from "next";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+// Next.js's App Router emits inline <script> tags during SSR to stream
+// hydration data (e.g. `self.__next_f.push(...)`), so `script-src` must allow
+// inline scripts (via `'unsafe-inline'` or a per-request nonce). Without this
+// the browser blocks hydration and the entire UI becomes non-interactive —
+// links, dropdown menus, theme toggle, etc. silently stop working.
+// Reference: node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md
+// section "Without Nonces".
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' blob: data:",
   "font-src 'self' data:",
