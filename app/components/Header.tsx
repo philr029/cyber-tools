@@ -11,45 +11,87 @@ import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
 
 const NAV_GROUPS = [
   {
-    label: "Lookup",
+    label: "Web Tools",
+    index: "/web-tools",
     links: [
+      { href: "/web-tools", label: "All web tools" },
+      { href: "/tools/website-status", label: "Website Status" },
+      { href: "/tools/redirect-trace", label: "URL Redirect Tracer" },
+      { href: "/tools/broken-links", label: "Broken Link Checker" },
+      { href: "/tools/meta-preview", label: "Meta Title/Description" },
+      { href: "/tools/page-speed-checklist", label: "Page Speed Checklist" },
+      { href: "/tools/mobile-responsiveness", label: "Mobile Responsiveness" },
+      { href: "/tools/form-testing-checklist", label: "Form Testing Checklist" },
+    ],
+  },
+  {
+    label: "Cyber Tools",
+    index: "/cyber-tools",
+    links: [
+      { href: "/cyber-tools", label: "All cyber tools" },
       { href: "/tools/ip-lookup", label: "IP Reputation" },
-      { href: "/tools/geo-lookup", label: "Geolocation & ASN" },
       { href: "/tools/domain-lookup", label: "Domain Reputation" },
-      { href: "/tools/dns-lookup", label: "DNS Lookup" },
-      { href: "/tools/whois", label: "WHOIS" },
-      { href: "/tools/url-analysis", label: "URL Analysis" },
-    ],
-  },
-  {
-    label: "Analysis",
-    links: [
+      { href: "/tools/email-security-checklist", label: "Email Security Checklist" },
+      { href: "/tools/phishing-url-checklist", label: "Phishing URL Heuristics" },
+      { href: "/tools/security-headers", label: "Security Headers" },
       { href: "/tools/ssl-checker", label: "SSL Certificate" },
-      { href: "/tools/security-headers", label: "HTTP Headers" },
-      { href: "/tools/blacklist", label: "Blacklist Check" },
-      { href: "/tools/threat-score", label: "Threat Score" },
-      { href: "/tools/redirect-trace", label: "Redirect Tracer" },
+      { href: "/tools/dns-lookup", label: "DNS Lookup" },
+      { href: "/tools/port-scanner", label: "Port Scan (info)" },
     ],
   },
   {
-    label: "Advanced",
+    label: "Microsoft 365",
+    index: "/m365-tools",
     links: [
-      { href: "/tools/agent-scan", label: "🤖 Agent Scan" },
-      { href: "/tools/port-scanner", label: "Port Scanner" },
+      { href: "/m365-tools", label: "All M365 tools" },
+      { href: "/tools/m365/new-starter", label: "New Starter Checklist" },
+      { href: "/tools/m365/leaver", label: "Leaver Checklist" },
+      { href: "/tools/m365/mfa-readiness", label: "MFA Readiness" },
+      { href: "/tools/m365/conditional-access", label: "Conditional Access" },
+      { href: "/tools/m365/teams-phone", label: "Teams Phone Setup" },
+      { href: "/tools/m365/intune-onboarding", label: "Intune Onboarding" },
+      { href: "/tools/m365/defender-baseline", label: "Defender Baseline" },
+    ],
+  },
+  {
+    label: "Domain/IP",
+    index: "/domain-ip-tools",
+    links: [
+      { href: "/domain-ip-tools", label: "All domain & IP tools" },
+      { href: "/tools/whois", label: "WHOIS / RDAP" },
+      { href: "/tools/dns-lookup", label: "DNS Lookup" },
       { href: "/tools/subdomains", label: "Subdomain Finder" },
-      { href: "/tools/email-headers", label: "Email Headers" },
-      { href: "/tools/phone-lookup", label: "Phone Validator" },
+      { href: "/tools/geo-lookup", label: "IP Geolocation" },
+      { href: "/tools/blacklist", label: "Blacklist Check" },
+      { href: "/tools/redirect-trace", label: "Redirect Tracer" },
+      { href: "/tools/domain-protection", label: "Domain Protection" },
+    ],
+  },
+  {
+    label: "Automation",
+    index: "/automation-tools",
+    links: [
+      { href: "/automation-tools", label: "All automation tools" },
+      { href: "/tools/automation/daily-test-planner", label: "Daily Test Planner" },
+      { href: "/tools/automation/lead-form-qa", label: "Lead Form QA" },
+      { href: "/tools/automation/github-actions", label: "GitHub Actions Schedule" },
+      { href: "/tools/automation/api-key-safety", label: "API Key Safety" },
+      { href: "/tools/automation/vercel-env-guide", label: "Vercel Env Vars" },
+      { href: "/tools/automation/power-automate", label: "Power Automate Planner" },
       { href: "/tools/api-tester", label: "API Tester" },
-      { href: "/tools/form-tester", label: "Form Tester" },
       { href: "/tools/keyforge", label: "KeyForge" },
     ],
   },
   {
-    label: "Intelligence",
+    label: "Phone/Lead",
+    index: "/lead-tools",
     links: [
+      { href: "/lead-tools", label: "All phone & lead tools" },
+      { href: "/tools/phone-lookup", label: "Phone Validator" },
       { href: "/tools/lead-intelligence", label: "Lead Intelligence" },
-      { href: "/tools/domain-protection", label: "Domain Protection" },
-      { href: "/tools/ai-report", label: "✨ AI Report" },
+      { href: "/tools/automation/lead-form-qa", label: "Lead Form QA Checklist" },
+      { href: "/tools/form-tester", label: "Form Tester" },
+      { href: "/tools/email-headers", label: "Email Headers" },
     ],
   },
 ];
@@ -57,7 +99,9 @@ const NAV_GROUPS = [
 function NavDropdown({ group, pathname }: { group: (typeof NAV_GROUPS)[0]; pathname: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const isGroupActive = group.links.some((l) => pathname === l.href);
+  const isGroupActive =
+    pathname === group.index ||
+    group.links.some((l) => pathname === l.href);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -157,32 +201,43 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav — grouped dropdowns */}
-          <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
+          <nav className="hidden xl:flex items-center gap-0.5" aria-label="Main navigation">
             <Link
               href="/"
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                 pathname === "/"
                   ? "text-cyan-400 bg-cyan-400/10"
                   : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
               }`}
               aria-current={pathname === "/" ? "page" : undefined}
             >
-              Scanner
+              Home
             </Link>
             <Link
               href="/tools"
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                 pathname === "/tools"
                   ? "text-cyan-400 bg-cyan-400/10"
                   : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
               }`}
               aria-current={pathname === "/tools" ? "page" : undefined}
             >
-              Tools
+              All Tools
             </Link>
             {NAV_GROUPS.map((group) => (
               <NavDropdown key={group.label} group={group} pathname={pathname} />
             ))}
+            <Link
+              href="/about"
+              className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                pathname === "/about"
+                  ? "text-cyan-400 bg-cyan-400/10"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              }`}
+              aria-current={pathname === "/about" ? "page" : undefined}
+            >
+              About
+            </Link>
           </nav>
 
           {/* Right actions */}
@@ -299,7 +354,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-cyan-500/25 bg-cyan-500/10 text-cyan-300 shadow-[0_0_14px_rgba(6,182,212,0.16)] hover:bg-cyan-500/15 hover:text-cyan-100 transition-colors"
+              className="xl:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-cyan-500/25 bg-cyan-500/10 text-cyan-300 shadow-[0_0_14px_rgba(6,182,212,0.16)] hover:bg-cyan-500/15 hover:text-cyan-100 transition-colors"
               aria-label="Toggle menu"
               aria-expanded={mobileOpen}
             >
@@ -323,7 +378,7 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-4 pt-2">
+        <div className="xl:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-4 pt-2 max-h-[80vh] overflow-y-auto">
           <Link
             href="/"
             onClick={() => setMobileOpen(false)}
@@ -332,7 +387,7 @@ export default function Header() {
             }`}
             aria-current={pathname === "/" ? "page" : undefined}
           >
-            Scanner
+            Home
           </Link>
           <Link
             href="/tools"
@@ -342,7 +397,17 @@ export default function Header() {
             }`}
             aria-current={pathname === "/tools" ? "page" : undefined}
           >
-            Tools
+            All Tools
+          </Link>
+          <Link
+            href="/about"
+            onClick={() => setMobileOpen(false)}
+            className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 ${
+              pathname === "/about" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            }`}
+            aria-current={pathname === "/about" ? "page" : undefined}
+          >
+            About
           </Link>
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="mt-3">

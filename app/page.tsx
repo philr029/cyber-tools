@@ -22,6 +22,7 @@ import ThreatIPCheck from "@/app/components/ThreatIPCheck";
 import ScanTimeline from "@/app/components/ScanTimeline";
 import QuickToolsBar from "@/app/components/QuickToolsBar";
 import ToolPresets from "@/app/components/ToolPresets";
+import HomeDashboard from "@/app/components/HomeDashboard";
 
 // ---------------------------------------------------------------------------
 // Error state
@@ -279,6 +280,9 @@ export default function HomePage() {
 
       {/* ── Main content ─────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Dashboard overview: stats, categories, featured, why */}
+        <HomeDashboard />
+
         {/* Quick Tools Bar */}
         <section className="mb-8">
           <QuickToolsBar />
