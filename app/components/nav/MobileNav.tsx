@@ -97,14 +97,17 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
         onClick={onClose}
       />
 
-      {/* Drawer — anchored under the sticky header (h-14 = 3.5rem). */}
+      {/* Drawer — anchored under the sticky header (h-14 = 3.5rem).
+          We cap the height to ~82vh so there's always a visible overlay
+          strip at the bottom for tap-to-close. The drawer itself scrolls
+          internally if its content overflows. */}
       <div
         ref={panelRef}
         id={panelId}
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
-        className={`xl:hidden fixed inset-x-0 top-14 z-50 max-h-[calc(100vh-3.5rem)] overflow-y-auto border-t border-[#1e2d4a] bg-[#0b0f1a]/98 backdrop-blur-xl transition-transform duration-200 ease-out ${
+        className={`xl:hidden fixed inset-x-0 top-14 z-50 max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-2xl border-x border-b border-[#1e2d4a] bg-[#0b0f1a]/98 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] transition-transform duration-200 ease-out ${
           open ? "translate-y-0" : "-translate-y-2 pointer-events-none opacity-0"
         }`}
       >
