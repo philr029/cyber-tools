@@ -1,258 +1,27 @@
 "use client";
 
+// =============================================================================
+// Header
+// -----------------------------------------------------------------------------
+// Sticky top navigation. Composes:
+//   - Logo + simple top-level routes (Home, All Tools, Pricing, Enterprise, About)
+//   - `MegaMenu` — single "Tools" panel grouping all 10 tool categories.
+//   - `MobileNav` — full-height drawer with accordion sections.
+//   - Right-rail utilities: usage meter, theme toggle, notifications, auth.
+//
+// The mega menu and mobile drawer share nav-data so links stay in sync.
+// =============================================================================
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { useTheme } from "@/lib/theme-context";
 import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
-
-const NAV_GROUPS = [
-  {
-    label: "Coding",
-    index: "/coding-tools",
-    links: [
-      { href: "/coding-tools", label: "All coding tools" },
-      { href: "/tools/coding/snippet", label: "Code Snippet Generator" },
-      { href: "/tools/coding/regex", label: "Regex Builder" },
-      { href: "/tools/coding/json-formatter", label: "JSON Formatter" },
-      { href: "/tools/coding/api-builder", label: "API Request Builder" },
-      { href: "/tools/coding/actions-generator", label: "GitHub Actions Generator" },
-      { href: "/tools/coding/readme-generator", label: "README Generator" },
-      { href: "/tools/coding/commit-message", label: "Commit Message Generator" },
-      { href: "/tools/coding/bug-report", label: "Bug Report Generator" },
-      { href: "/tools/coding/changelog", label: "Changelog Generator" },
-      { href: "/tools/coding/code-review-checklist", label: "Code Review Checklist" },
-    ],
-  },
-  {
-    label: "IT Admin",
-    index: "/it-admin-tools",
-    links: [
-      { href: "/it-admin-tools", label: "All IT admin tools" },
-      { href: "/tools/m365/new-starter", label: "New Starter Builder" },
-      { href: "/tools/m365/leaver", label: "Leaver Builder" },
-      { href: "/tools/it-admin/shared-mailbox", label: "Shared Mailbox Request" },
-      { href: "/tools/it-admin/licence-planner", label: "M365 Licence Planner" },
-      { href: "/tools/it-admin/access-review", label: "User Access Review" },
-      { href: "/tools/it-admin/ticket-triage", label: "Ticket Triage" },
-      { href: "/tools/it-admin/device-build", label: "Device Build Checklist" },
-      { href: "/tools/it-admin/software-install", label: "Software Install Checklist" },
-    ],
-  },
-  {
-    label: "Web Tools",
-    index: "/web-tools",
-    links: [
-      { href: "/web-tools", label: "All web tools" },
-      { href: "/tools/launch-checklist", label: "Launch Checklist" },
-      { href: "/tools/website-status", label: "Website Status" },
-      { href: "/tools/redirect-trace", label: "URL Redirect Tracer" },
-      { href: "/tools/broken-links", label: "Broken Link Checker" },
-      { href: "/tools/meta-preview", label: "Meta Title/Description" },
-      { href: "/tools/qa/seo-meta", label: "SEO Meta Tag Checker" },
-      { href: "/tools/qa/accessibility", label: "Accessibility Checklist" },
-      { href: "/tools/page-speed-checklist", label: "Page Speed Checklist" },
-      { href: "/tools/mobile-responsiveness", label: "Mobile Responsiveness" },
-      { href: "/tools/form-testing-checklist", label: "Form Testing Checklist" },
-      { href: "/tools/form-test-plan", label: "Form Test Plan" },
-    ],
-  },
-  {
-    label: "Cyber Tools",
-    index: "/cyber-tools",
-    links: [
-      { href: "/cyber-tools", label: "All cyber tools" },
-      { href: "/tools/security/password-advisor", label: "Password Strength Advisor" },
-      { href: "/tools/security/phishing-link", label: "Phishing Link Analyser" },
-      { href: "/tools/security/firewall-rules", label: "Firewall Rule Generator" },
-      { href: "/tools/security/incident-report", label: "Security Incident Report" },
-      { href: "/tools/security/domain-reputation", label: "Domain Reputation (API)" },
-      { href: "/tools/ip-lookup", label: "IP Reputation" },
-      { href: "/tools/domain-lookup", label: "Domain Reputation" },
-      { href: "/tools/phishing-email-analyser", label: "Phishing Email Analyser" },
-      { href: "/tools/password-strength", label: "Password Strength" },
-      { href: "/tools/email-security-checklist", label: "Email Security Checklist" },
-      { href: "/tools/phishing-url-checklist", label: "Phishing URL Heuristics" },
-      { href: "/tools/suspicious-url", label: "Suspicious URL Checker" },
-      { href: "/tools/security-headers", label: "Security Headers" },
-      { href: "/tools/ssl-checker", label: "SSL Certificate" },
-      { href: "/tools/ssl-checklist", label: "SSL Renewal Checklist" },
-      { href: "/tools/dns-lookup", label: "DNS Lookup" },
-      { href: "/tools/dns-security-checklist", label: "DNS Security Checklist" },
-      { href: "/tools/incident-response", label: "Incident Response" },
-      { href: "/tools/port-scanner", label: "Port Scan (info)" },
-    ],
-  },
-  {
-    label: "Microsoft 365",
-    index: "/m365-tools",
-    links: [
-      { href: "/m365-tools", label: "All M365 tools" },
-      { href: "/tools/m365/licence-checker", label: "Licence Checker" },
-      { href: "/tools/m365/new-starter", label: "New Starter Checklist" },
-      { href: "/tools/m365/leaver", label: "Leaver Checklist" },
-      { href: "/tools/m365/mfa-readiness", label: "MFA Readiness" },
-      { href: "/tools/m365/mfa-status", label: "MFA Status Checker" },
-      { href: "/tools/m365/conditional-access", label: "CA Baseline" },
-      { href: "/tools/m365/ca-policy-builder", label: "CA Policy Builder" },
-      { href: "/tools/m365/safe-links", label: "Safe Links Explainer" },
-      { href: "/tools/m365/forwarding-audit", label: "Email Forwarding Audit" },
-      { href: "/tools/m365/admin-role-review", label: "Admin Role Review" },
-      { href: "/tools/m365/intune-compliance", label: "Intune Compliance" },
-      { href: "/tools/m365/incident-response", label: "Incident Response Report" },
-      { href: "/tools/m365/teams-phone", label: "Teams Phone Setup" },
-      { href: "/tools/m365/intune-onboarding", label: "Intune Onboarding" },
-      { href: "/tools/m365/device-readiness", label: "Device Readiness" },
-      { href: "/tools/m365/defender-baseline", label: "Defender Baseline" },
-    ],
-  },
-  {
-    label: "Domain/IP",
-    index: "/domain-ip-tools",
-    links: [
-      { href: "/domain-ip-tools", label: "All domain & IP tools" },
-      { href: "/tools/whois", label: "WHOIS / RDAP" },
-      { href: "/tools/dns-lookup", label: "DNS Lookup" },
-      { href: "/tools/subdomains", label: "Subdomain Finder" },
-      { href: "/tools/geo-lookup", label: "IP Geolocation" },
-      { href: "/tools/blacklist", label: "Blacklist Check" },
-      { href: "/tools/blacklist-monitor", label: "Blacklist Monitor Plan" },
-      { href: "/tools/email-deliverability", label: "Email Deliverability" },
-      { href: "/tools/redirect-trace", label: "Redirect Tracer" },
-      { href: "/tools/domain-protection", label: "Domain Protection" },
-    ],
-  },
-  {
-    label: "Automation",
-    index: "/automation-tools",
-    links: [
-      { href: "/automation-tools", label: "All automation tools" },
-      { href: "/tools/automation/daily-test-planner", label: "Daily Test Planner" },
-      { href: "/tools/automation/lead-form-qa", label: "Lead Form QA" },
-      { href: "/tools/automation/github-actions", label: "GitHub Actions Schedule" },
-      { href: "/tools/automation/api-key-safety", label: "API Key Safety" },
-      { href: "/tools/automation/vercel-env-guide", label: "Vercel Env Vars" },
-      { href: "/tools/automation/power-automate", label: "Power Automate Planner" },
-      { href: "/tools/automation/api-integration-planner", label: "API Integration Planner" },
-      { href: "/tools/api-tester", label: "API Tester" },
-      { href: "/tools/keyforge", label: "KeyForge" },
-    ],
-  },
-  {
-    label: "Business",
-    index: "/business-tools",
-    links: [
-      { href: "/business-tools", label: "All business tools" },
-      { href: "/tools/business/email", label: "Email Generator" },
-      { href: "/tools/business/meeting-notes", label: "Meeting Notes Generator" },
-      { href: "/tools/business/project-update", label: "Project Update Generator" },
-      { href: "/tools/business/sop", label: "SOP Generator" },
-      { href: "/tools/business/risk-register", label: "Risk Register Builder" },
-      { href: "/tools/business/ticket-priority", label: "Ticket Priority" },
-      { href: "/tools/business/root-cause", label: "Root Cause Analysis" },
-      { href: "/tools/business/change-request", label: "Change Request" },
-      { href: "/tools/business/asset-handover", label: "Asset Handover" },
-      { href: "/tools/business/vendor-comparison", label: "Vendor Comparison" },
-    ],
-  },
-  {
-    label: "Reporting",
-    index: "/reporting-tools",
-    links: [
-      { href: "/reporting-tools", label: "All reporting tools" },
-      { href: "/tools/reporting/security-report", label: "Security Report" },
-      { href: "/tools/reporting/monthly-it-summary", label: "Monthly IT Summary" },
-      { href: "/tools/reporting/qa-report", label: "QA Report" },
-      { href: "/tools/reporting/automation-roi", label: "Automation ROI" },
-    ],
-  },
-  {
-    label: "Phone/Lead",
-    index: "/lead-tools",
-    links: [
-      { href: "/lead-tools", label: "All phone & lead tools" },
-      { href: "/tools/phone-lookup", label: "Phone Validator" },
-      { href: "/tools/lead-intelligence", label: "Lead Intelligence" },
-      { href: "/tools/automation/lead-form-qa", label: "Lead Form QA Checklist" },
-      { href: "/tools/form-tester", label: "Form Tester" },
-      { href: "/tools/email-headers", label: "Email Headers" },
-    ],
-  },
-];
-
-function NavDropdown({ group, pathname }: { group: (typeof NAV_GROUPS)[0]; pathname: string }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const isGroupActive =
-    pathname === group.index ||
-    group.links.some((l) => pathname === l.href);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-          isGroupActive
-            ? "text-cyan-400 bg-cyan-400/10"
-            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-        }`}
-        aria-expanded={open}
-        aria-haspopup="menu"
-      >
-        {group.label}
-        <svg
-          className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`}
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z" clipRule="evenodd" />
-        </svg>
-      </button>
-
-      {open && (
-        <div
-          role="menu"
-          className="absolute top-full left-0 mt-1.5 w-48 rounded-xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] py-1 z-50"
-        >
-          {group.links.map(({ href, label }) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                role="menuitem"
-                onClick={() => setOpen(false)}
-                className={`block px-4 py-2 text-xs font-medium transition-colors ${
-                  active
-                    ? "text-cyan-400 bg-cyan-400/10"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                }`}
-                aria-current={active ? "page" : undefined}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
+import MegaMenu from "@/app/components/nav/MegaMenu";
+import MobileNav from "@/app/components/nav/MobileNav";
 
 export default function Header() {
   const pathname = usePathname();
@@ -263,10 +32,30 @@ export default function Header() {
   const { theme, toggle: toggleTheme } = useTheme();
   const { scansToday } = useDailyScans(user?.plan ?? null);
 
+  // Close the mobile drawer if the viewport grows past the desktop breakpoint
+  // (e.g. rotating an iPad). Without this, the drawer state can desync from
+  // what's actually visible to the user.
+  useEffect(() => {
+    function onResize() {
+      if (window.innerWidth >= 1280 && mobileOpen) setMobileOpen(false);
+    }
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [mobileOpen]);
+
   async function handleLogout() {
     await logout();
     toast("Signed out.", "info");
     router.push("/");
+  }
+
+  // Reusable top-link styling helper.
+  function topLinkClass(href: string) {
+    return `px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+      pathname === href
+        ? "text-cyan-400 bg-cyan-400/10"
+        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+    }`;
   }
 
   return (
@@ -287,40 +76,41 @@ export default function Header() {
             <span className="text-base font-bold text-slate-100 tracking-tight">SecureScope</span>
           </Link>
 
-          {/* Desktop nav — grouped dropdowns */}
+          {/* Desktop nav — simple top-level links + single mega menu */}
           <nav className="hidden xl:flex items-center gap-0.5" aria-label="Main navigation">
             <Link
               href="/"
-              className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                pathname === "/"
-                  ? "text-cyan-400 bg-cyan-400/10"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-              }`}
+              className={topLinkClass("/")}
               aria-current={pathname === "/" ? "page" : undefined}
             >
               Home
             </Link>
             <Link
               href="/tools"
-              className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                pathname === "/tools"
-                  ? "text-cyan-400 bg-cyan-400/10"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-              }`}
+              className={topLinkClass("/tools")}
               aria-current={pathname === "/tools" ? "page" : undefined}
             >
               All Tools
             </Link>
-            {NAV_GROUPS.map((group) => (
-              <NavDropdown key={group.label} group={group} pathname={pathname} />
-            ))}
+            {/* Unified mega menu for the 10 tool categories */}
+            <MegaMenu label="Tools" />
+            <Link
+              href="/pricing"
+              className={topLinkClass("/pricing")}
+              aria-current={pathname === "/pricing" ? "page" : undefined}
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/enterprise"
+              className={topLinkClass("/enterprise")}
+              aria-current={pathname === "/enterprise" ? "page" : undefined}
+            >
+              Enterprise
+            </Link>
             <Link
               href="/about"
-              className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                pathname === "/about"
-                  ? "text-cyan-400 bg-cyan-400/10"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-              }`}
+              className={topLinkClass("/about")}
               aria-current={pathname === "/about" ? "page" : undefined}
             >
               About
@@ -347,7 +137,7 @@ export default function Header() {
               Settings
             </Link>
 
-            {/* Daily scan usage meter — shown for free-plan users when logged in */}
+            {/* Daily scan usage meter — free-plan users only */}
             {!loading && user && user.plan === "free" && (
               <Link
                 href="/pricing"
@@ -360,7 +150,6 @@ export default function Header() {
                 <span className="text-xs font-medium text-amber-300">
                   {scansToday}/{FREE_DAILY_LIMIT}
                 </span>
-                {/* Mini progress bar */}
                 <span className="hidden md:flex w-12 h-1.5 rounded-full bg-amber-500/20 overflow-hidden">
                   <span
                     className="h-full rounded-full bg-amber-400 transition-all duration-500"
@@ -379,12 +168,10 @@ export default function Header() {
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? (
-                /* Sun icon */
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
                 </svg>
               ) : (
-                /* Moon icon */
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fillRule="evenodd" d="M7.455 2.004a.75.75 0 01.26.77 7 7 0 009.958 7.967.75.75 0 011.067.853A8.5 8.5 0 116.647 1.921a.75.75 0 01.808.083z" clipRule="evenodd" />
                 </svg>
@@ -437,13 +224,14 @@ export default function Header() {
               )
             )}
 
-            {/* Mobile menu button */}
+            {/* Mobile menu trigger */}
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
               className="xl:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-cyan-500/25 bg-cyan-500/10 text-cyan-300 shadow-[0_0_14px_rgba(6,182,212,0.16)] hover:bg-cyan-500/15 hover:text-cyan-100 transition-colors"
-              aria-label="Toggle menu"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
+              aria-controls="primary-mobile-nav"
             >
               {mobileOpen ? (
                 <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -463,113 +251,69 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="xl:hidden border-t border-[#1e2d4a] bg-[#0b0f1a]/95 px-4 pb-4 pt-2 max-h-[80vh] overflow-y-auto">
-          <Link
-            href="/"
-            onClick={() => setMobileOpen(false)}
-            className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 ${
-              pathname === "/" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-            }`}
-            aria-current={pathname === "/" ? "page" : undefined}
-          >
-            Home
-          </Link>
-          <Link
-            href="/tools"
-            onClick={() => setMobileOpen(false)}
-            className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 ${
-              pathname === "/tools" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-            }`}
-            aria-current={pathname === "/tools" ? "page" : undefined}
-          >
-            All Tools
-          </Link>
-          <Link
-            href="/about"
-            onClick={() => setMobileOpen(false)}
-            className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-1 ${
-              pathname === "/about" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-            }`}
-            aria-current={pathname === "/about" ? "page" : undefined}
-          >
-            About
-          </Link>
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="mt-3">
-              <p className="px-3 py-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                {group.label}
-              </p>
-              <nav className="flex flex-col gap-0.5">
-                {group.links.map(({ href, label }) => {
-                  const active = pathname === href;
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={() => setMobileOpen(false)}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                      }`}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      {label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          ))}
-          <div className="mt-3 pt-3 border-t border-[#1e2d4a] flex flex-col gap-1">
+      {/* Mobile drawer — rendered outside the inner max-width container so it
+          can span the full viewport. */}
+      <div id="primary-mobile-nav">
+        <MobileNav
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          utilitySlot={
             <Link
               href="/settings"
               onClick={() => setMobileOpen(false)}
               className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                pathname === "/settings"
+                  ? "text-cyan-400 bg-cyan-400/10"
+                  : "text-slate-300 hover:text-slate-100 hover:bg-white/5"
               }`}
             >
               Settings
             </Link>
-            {user ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => { void handleLogout(); setMobileOpen(false); }}
-                  className="text-left block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/5 transition-colors"
-                >
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/signup"
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2 text-sm font-medium rounded-lg bg-cyan-600/20 text-cyan-400 transition-colors"
-                >
-                  Get started free
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+          }
+          authSlot={
+            !loading ? (
+              user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-slate-100 hover:bg-white/5 transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void handleLogout();
+                      setMobileOpen(false);
+                    }}
+                    className="text-left block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/5 transition-colors"
+                  >
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-slate-100 hover:bg-white/5 transition-colors"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-sm font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-center transition-colors"
+                  >
+                    Get started free
+                  </Link>
+                </>
+              )
+            ) : null
+          }
+        />
+      </div>
     </header>
   );
 }
-
