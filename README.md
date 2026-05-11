@@ -1,14 +1,27 @@
-# SecureScope – Cyber Intelligence Dashboard
+# SecureScope – IT & Cyber Tools Dashboard
 
-A polished, Apple-inspired cybersecurity toolkit built with **Next.js 16**, **TypeScript**, and **Tailwind CSS v4**.
+A polished, Apple-inspired IT / cyber toolkit portfolio with a **GitHub Pages-ready static dashboard** in `spa/` and a full **Next.js 16** application in `app/`.
 
-Every tool works immediately — add API keys to get live results. Tools without a configured key show a **"Not configured"** badge and return safe default values.
+The static dashboard includes working navigation, category pages, interactive demo tools, checklist generators, copy-to-clipboard output, and dark/light mode. Tools without live APIs are clearly labelled as **Demo result** or **Checklist output**.
 
-**Deployment target: [Vercel](https://vercel.com)** — server-side API routes run as serverless functions. API keys stay on the server and are never exposed to the browser.
+**Deployment targets:** GitHub Pages for the static portfolio dashboard, and [Vercel](https://vercel.com) for the full Next.js app with server-side API routes.
 
 ---
 
 ## Tools
+
+### GitHub Pages static dashboard
+
+Open `spa/index.html` or deploy `spa/` to GitHub Pages. It contains:
+
+- Web Tools: website status, redirects, broken links, metadata preview, page speed, mobile responsiveness, and form QA.
+- Cyber Tools: IP/domain reputation demos, email security, phishing URL review, security headers, SSL, DNS, and port-scan information.
+- Microsoft 365 Tools: new starter, leaver, MFA, Conditional Access, Teams Phone, Intune, and Defender baseline checklists.
+- Domain/IP Tools: WHOIS/RDAP, Geo/ASN, blacklist, subdomain inventory, DNS, SSL, and reputation demos.
+- Automation Tools: daily website testing, lead form QA, GitHub Actions schedules, API key safety, Vercel env guidance, and Power Automate planning.
+- Phone/Lead Testing Tools: phone validation, lead intelligence, call tracking QA, and lead form QA.
+
+### Next.js app routes
 
 | Tool | Path | Data Source |
 |---|---|---|
@@ -50,6 +63,17 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000).
 
 All `npm` scripts work in Command Prompt, PowerShell, and VS Code Terminal on Windows with no extra tooling.
+
+### GitHub Pages static preview
+
+The `spa/` folder is pure HTML/CSS/JS and uses only relative asset paths plus hash routes, so it can run under any repository subpath:
+
+```bash
+cd spa
+python3 -m http.server 4173
+```
+
+Open [http://localhost:4173](http://localhost:4173).
 
 ### Windows 10 / 11
 
@@ -192,7 +216,13 @@ npm run lint     # Run ESLint
 
 ## Deployment
 
-### Vercel (recommended)
+### GitHub Pages (static portfolio)
+
+The workflow `.github/workflows/pages.yml` publishes the `spa/` folder to GitHub Pages on pushes to `main`. In GitHub, set **Settings -> Pages -> Source** to **GitHub Actions**.
+
+The static site intentionally does not call private APIs. Every placeholder output is labelled as a demo result or checklist output, with notes for future integrations such as VirusTotal, AbuseIPDB, HetrixTools, Cloudflare, Twilio, Microsoft Graph, Vercel, and GitHub Actions.
+
+### Vercel (full Next.js app)
 
 Vercel runs Next.js natively — API routes become serverless functions and API keys stay on the server.
 
