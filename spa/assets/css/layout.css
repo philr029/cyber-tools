@@ -353,3 +353,89 @@
   border-top-color: var(--accent);
   animation: spin 0.75s linear infinite;
 }
+
+/* ── Top-nav shell overrides for toolkit dashboard ───────────────── */
+.sidebar--mobile-nav {
+  width: min(320px, 84vw);
+  transform: translateX(-100%);
+}
+
+.sidebar__logo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: inherit;
+}
+
+@media (min-width: 1024px) {
+  .sidebar--mobile-nav {
+    display: none !important;
+  }
+}
+
+.topbar--nav {
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.topbar__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-md);
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-glow);
+}
+
+.topbar__nav {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.topbar__nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  border-radius: var(--r-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.topbar__nav-link:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.topbar__nav-link--active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+@media (min-width: 1024px) {
+  .topbar__nav {
+    display: inline-flex;
+  }
+
+  .topbar__menu-btn {
+    display: none !important;
+  }
+}

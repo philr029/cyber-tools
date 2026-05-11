@@ -1,94 +1,75 @@
-/**
- * router.js — Hash-based client-side router.
- *
- * Usage:
- *   import { router } from './router.js';
- *   router.register('/dashboard', () => renderDashboard());
- *   router.navigate('/account');
- *   router.init();
- */
+const routes = new Map();
+let currentPath = "/home";
 
-const _routes   = new Map();
-let   _current  = null;
-
-function _normalizePath(path) {
-  const trimmed = String(path ?? '').trim();
-  if (!trimmed) return '/dashboard';
-  const base = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-  return base.toLowerCase();
-}
-
-/* ── Public API ─────────────────────────────────────────────────── */
-export const router = {
-  /**
-   * Register a route handler.
-   * @param {string}   path     e.g. '/dashboard'
-   * @param {Function} handler  called when this route is active
-   */
-  register(path, handler) {
-    _routes.set(_normalizePath(path), handler);
-  },
-
-  /** Navigate to a path (writes to location.hash). */
-  navigate(path) {
-    window.location.hash = _normalizePath(path);
-  },
-
-  /** Return the currently-active route path. */
-  current() {
-    return _current;
-  },
-
-  /** Attach event listeners — call once at app startup. */
-  init() {
-    window.addEventListener('hashchange', _resolve);
-    _resolve();
-  },
+const LABELS = {
+  "/home": "Home",
+  "/web-tools": "Web Tools",
+  "/cyber-tools": "Cyber Tools",
+  "/microsoft-365-tools": "Microsoft 365 Tools",
+  "/domain-ip-tools": "Domain/IP Tools",
+  "/automation-tools": "Automation Tools",
+  "/phone-lead-testing-tools": "Phone/Lead Testing Tools",
+  "/about": "About",
 };
 
-/* ── Internal ───────────────────────────────────────────────────── */
-function _resolve() {
-  // Strip the leading '#' from the hash, fall back to /dashboard
-  const hash = window.location.hash.slice(1);
-  const path = _normalizePath(hash.split('?')[0] || '/dashboard');
-
-  // Avoid re-rendering the same view
-  if (_current === path && document.getElementById('view')?.children.length) return;
-
-  // Retrieve only from the explicit allow-list of registered routes;
-  // validate as a function before calling to prevent unexpected dispatch.
-  const handler = _routes.get(path) ?? _routes.get('/dashboard');
-  if (typeof handler !== 'function') return;
-
-  _current = path;
-  handler();
-  _updateActiveLinks(path);
-  _updateBreadcrumb(path);
+function normalizePath(path) {
+  const value = String(path ?? "").trim();
+  if (!value) return "/home";
+  const withSlash = value.startsWith("/") ? value : `/${value}`;
+  return withSlash.toLowerCase();
 }
 
-function _updateActiveLinks(activePath) {
-  document.querySelectorAll('[data-nav]').forEach(link => {
-    // Map route '/dashboard' → data-nav="dashboard"
-    const navKey  = link.getAttribute('data-nav');
-    const segment = activePath.replace('/', '');
-    const active  = segment === navKey;
-    link.classList.toggle('sidebar__nav-link--active', active);
-    link.setAttribute('aria-current', active ? 'page' : 'false');
+function parsePathFromHash() {
+  const hash = window.location.hash.replace(/^#/, "");
+  const [pathOnly] = hash.split("?");
+  return normalizePath(pathOnly || "/home");
+}
+
+function updateActiveNav(path) {
+  document.querySelectorAll("[data-route]").forEach((link) => {
+    const active = link.getAttribute("data-route") === path;
+    link.classList.toggle("sidebar__nav-link--active", active);
+    link.classList.toggle("topbar__nav-link--active", active);
+    link.setAttribute("aria-current", active ? "page" : "false");
   });
 }
 
-function _updateBreadcrumb(path) {
-  const crumb = document.getElementById('topbar-breadcrumb');
-  if (!crumb) return;
-
-  const LABELS = {
-    '/dashboard': 'Dashboard',
-    '/tools':     'Tools',
-    '/ai':        'AI Assistant',
-    '/reports':   'Reports',
-    '/pricing':   'Pricing',
-    '/account':   'Account',
-    '/settings':  'Settings',
-  };
-  crumb.textContent = LABELS[path] ?? 'Dashboard';
+function updateDocumentTitle(path) {
+  const label = LABELS[path] ?? "Home";
+  document.title = `SecureScope Toolkit - ${label}`;
 }
+
+function resolveRoute() {
+  const requestedPath = parsePathFromHash();
+  const handler = routes.get(requestedPath) ?? routes.get("/home");
+  if (typeof handler !== "function") return;
+
+  const resolvedPath = routes.has(requestedPath) ? requestedPath : "/home";
+  if (!routes.has(requestedPath) && requestedPath !== "/home") {
+    window.location.hash = "/home";
+  }
+
+  currentPath = resolvedPath;
+  handler();
+  updateActiveNav(resolvedPath);
+  updateDocumentTitle(resolvedPath);
+}
+
+export const router = {
+  register(path, handler) {
+    routes.set(normalizePath(path), handler);
+  },
+
+  navigate(path) {
+    window.location.hash = normalizePath(path);
+  },
+
+  current() {
+    return currentPath;
+  },
+
+  init() {
+    window.addEventListener("hashchange", resolveRoute);
+    resolveRoute();
+  },
+};

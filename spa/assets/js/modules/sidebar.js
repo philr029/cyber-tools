@@ -1,67 +1,52 @@
-/**
- * sidebar.js — Mobile sidebar open/close behaviour.
- *
- * On desktop (≥1024 px) the sidebar is always visible in the flow;
- * on mobile it slides in as an overlay.
- */
+let isOpen = false;
 
-let _open = false;
+function setOpenState(open) {
+  const menu = document.getElementById("mobile-menu");
+  const overlay = document.getElementById("mobile-menu-overlay");
+  const button = document.getElementById("menu-btn");
 
-export function initSidebar() {
-  const sidebar  = document.getElementById('sidebar');
-  const overlay  = document.getElementById('sidebar-overlay');
-  const menuBtn  = document.getElementById('menu-btn');
-  const closeBtn = document.getElementById('sidebar-close-btn');
-
-  if (!sidebar) return;
-
-  menuBtn?.addEventListener('click',  () => openSidebar());
-  closeBtn?.addEventListener('click', () => closeSidebar());
-  overlay?.addEventListener('click',  () => closeSidebar());
-
-  // Close when a nav link is tapped on mobile
-  sidebar.querySelectorAll('.sidebar__nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-      if (window.innerWidth < 1024) closeSidebar();
-    });
-  });
-
-  // Close on Escape
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && _open) closeSidebar();
-  });
-
-  // Ensure clean state on desktop resize
-  window.addEventListener('resize', () => {
-    if (window.innerWidth >= 1024) _cleanupOverlay();
-  });
+  isOpen = open;
+  menu?.classList.toggle("sidebar--open", open);
+  overlay?.classList.toggle("sidebar-overlay--visible", open);
+  button?.setAttribute("aria-expanded", open ? "true" : "false");
+  document.body.style.overflow = open ? "hidden" : "";
 }
 
 export function openSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  const menuBtn = document.getElementById('menu-btn');
-
-  _open = true;
-  sidebar?.classList.add('sidebar--open');
-  overlay?.classList.add('sidebar-overlay--visible');
-  menuBtn?.setAttribute('aria-expanded', 'true');
-  document.body.style.overflow = 'hidden';
+  setOpenState(true);
 }
 
 export function closeSidebar() {
-  _cleanupOverlay();
+  setOpenState(false);
 }
 
-/* ── Internal ───────────────────────────────────────────────────── */
-function _cleanupOverlay() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  const menuBtn = document.getElementById('menu-btn');
+export function initSidebar() {
+  const menuBtn = document.getElementById("menu-btn");
+  const closeBtn = document.getElementById("mobile-menu-close-btn");
+  const overlay = document.getElementById("mobile-menu-overlay");
+  const menu = document.getElementById("mobile-menu");
 
-  _open = false;
-  sidebar?.classList.remove('sidebar--open');
-  overlay?.classList.remove('sidebar-overlay--visible');
-  menuBtn?.setAttribute('aria-expanded', 'false');
-  document.body.style.overflow = '';
+  menuBtn?.addEventListener("click", () => openSidebar());
+  closeBtn?.addEventListener("click", () => closeSidebar());
+  overlay?.addEventListener("click", () => closeSidebar());
+
+  menu?.querySelectorAll("[data-route]").forEach((link) => {
+    link.addEventListener("click", () => closeSidebar());
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && isOpen) {
+      closeSidebar();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 1024 && isOpen) {
+      closeSidebar();
+    }
+  });
+
+  window.addEventListener("hashchange", () => {
+    if (isOpen) closeSidebar();
+  });
 }
