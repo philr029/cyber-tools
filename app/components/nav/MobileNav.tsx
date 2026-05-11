@@ -15,6 +15,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS } from "./nav-data";
 
@@ -33,6 +34,14 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
   const closeRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const panelId = useId();
+
+  // We render through a portal at document.body to escape the header's
+  // stacking context. Without this the dim overlay gets trapped behind
+  // sibling fixed elements that paint above the header (e.g. the
+  // floating ChatWidget FAB), which prevents tap-to-close from firing.
+  const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only flag for SSR safety
+  useEffect(() => setMounted(true), []);
 
   // Close on Escape.
   useEffect(() => {
@@ -86,7 +95,9 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
   // We avoid a pathname-watching effect because synchronous setState in an
   // effect cascades renders (react-hooks/set-state-in-effect).
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       {/* Overlay — sits behind the panel, taps to close.
           z-[55] places it above other fixed UI (the ChatWidget FAB lives at
@@ -95,7 +106,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
           z-[60] to stay above the overlay. */}
       <div
         className={`xl:hidden fixed inset-0 z-[55] bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${
-          open ? "opacity-100" : "opacity-0 pointer-events-none"
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
         onClick={onClose}
@@ -239,7 +250,8 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
           )}
         </nav>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }
 
