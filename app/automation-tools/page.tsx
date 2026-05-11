@@ -62,6 +62,14 @@ export default function AutomationToolsPage() {
           skill: "Power Automate, integration design.",
         },
         {
+          href: "/tools/automation/api-integration-planner",
+          title: "API Integration Planner",
+          description: "Plan a clean third-party API integration — auth, scopes, env vars, retries, observability and rollback.",
+          badge: "Generator",
+          why: "Stops integrations failing in production from missing retries, alerts or kill-switches.",
+          skill: "Integration design, secrets management.",
+        },
+        {
           href: "/tools/api-tester",
           title: "API Tester (server proxy)",
           description: "Inspect HTTP responses through a hardened server proxy.",
