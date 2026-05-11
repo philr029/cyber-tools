@@ -1,6 +1,6 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 function bullets(s: string): string[] {
   return (s || "")
@@ -11,7 +11,7 @@ function bullets(s: string): string[] {
 
 export default function ChangelogGeneratorPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Changelog Generator"
       description="Produce a Keep-a-Changelog style entry with Added / Changed / Fixed / Removed sections — perfect for release notes and CHANGELOG.md."
       skill="Release management, release notes."

@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import CategoryIndex from "@/app/components/tools/CategoryIndex";
 
 export const metadata: Metadata = {
-  title: "Business Productivity Tools — SecureScope Toolkit",
-  description: "Email tone, meeting notes, project updates, SOPs and risk register builder.",
+  title: "Business & IT Productivity Tools — SecureScope Toolkit",
+  description:
+    "Email tone, meeting notes, project updates, SOPs, risk register, ticket prioritisation, root cause analysis, change requests, asset handover, vendor comparison.",
 };
 
 export default function BusinessToolsPage() {
   return (
     <CategoryIndex
-      eyebrow="Business productivity"
-      title="Business Productivity Tools"
-      intro="The non-glamorous writing that makes IT teams effective — clear emails, structured meeting notes, weekly project updates, well-formed SOPs, and a usable risk register."
+      eyebrow="Business / IT productivity"
+      title="Business & IT Productivity Tools"
+      intro="Generators and checklists for the non-glamorous work that keeps IT teams effective — clear writing, structured meetings and updates, plus ITIL-style ticket triage, RCA, change governance, asset handover and vendor comparison."
       tools={[
         {
           href: "/tools/business/email",
@@ -52,6 +53,46 @@ export default function BusinessToolsPage() {
           badge: "Builder",
           why: "Auditors love a register. So do CFOs.",
           skill: "Risk management.",
+        },
+        {
+          href: "/tools/business/ticket-priority",
+          title: "IT Ticket Priority Calculator",
+          description: "Convert impact × urgency × affected-user count into a deterministic priority and response SLA.",
+          badge: "Calculator",
+          why: "Removes the 'everything is P1' problem.",
+          skill: "ITIL incident management.",
+        },
+        {
+          href: "/tools/business/root-cause",
+          title: "Root Cause Analysis Generator",
+          description: "Drive a problem to its root cause with the 5 Whys, then surface a corrective action and prevention step.",
+          badge: "Generator",
+          why: "Stops you treating symptoms instead of causes.",
+          skill: "Problem management, lean RCA.",
+        },
+        {
+          href: "/tools/business/change-request",
+          title: "Change Request Template Generator",
+          description: "Produce a professional CAB-ready change request — scope, risk, rollback, approvals, validation.",
+          badge: "Generator",
+          why: "Avoids weekend-rollback heroics.",
+          skill: "Change management, release governance.",
+        },
+        {
+          href: "/tools/business/asset-handover",
+          title: "Asset Handover Checklist",
+          description: "Laptop, charger, accounts, MFA, policy acceptance and sign-off in one auditable doc.",
+          badge: "Checklist",
+          why: "Hardware and account loose ends are the most common offboarding blunders.",
+          skill: "IT asset lifecycle, evidence trail.",
+        },
+        {
+          href: "/tools/business/vendor-comparison",
+          title: "Vendor Comparison Matrix",
+          description: "Score vendors on cost, features and risk — produces a clean matrix with a recommendation.",
+          badge: "Generator",
+          why: "Forces an apples-to-apples view before procurement decisions.",
+          skill: "Procurement, vendor risk.",
         },
       ]}
     />

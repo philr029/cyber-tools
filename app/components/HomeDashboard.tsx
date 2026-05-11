@@ -4,10 +4,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 const STATS = [
-  { label: "Total tools", value: "70+", caption: "across coding, IT admin, M365, cyber, web QA, automation, business" },
+  { label: "Total tools", value: "90+", caption: "coding, IT admin, M365, cyber, web QA, automation, business, reporting" },
   { label: "Coding tools", value: "10", caption: "snippets, regex, JSON, API, GH Actions, README, commit, bug, changelog, review" },
   { label: "IT admin tools", value: "8", caption: "starter, leaver, mailbox, licence, access, triage, build, install" },
-  { label: "Security tools", value: "20+", caption: "M365, Defender, cyber, identity, network, endpoint and incident" },
+  { label: "Security tools", value: "25+", caption: "M365, Defender, cyber, identity, network, endpoint and incident" },
   { label: "API integrations planned", value: "8", caption: "VirusTotal, AbuseIPDB, Safe Browsing, HetrixTools, Graph, more" },
 ];
 
@@ -28,45 +28,52 @@ const CATEGORIES = [
   },
   {
     href: "/m365-tools",
-    title: "Microsoft 365 Security",
-    description: "MFA, Conditional Access, Safe Links, forwarding audit, admin roles, Intune, incidents.",
+    title: "Microsoft 365",
+    description: "Licensing, MFA, CA, Safe Links, forwarding audit, admin roles, Intune, Defender, incidents.",
     accent: "from-violet-500/30 to-indigo-500/10",
-    count: "12 tools",
+    count: "16 tools",
   },
   {
     href: "/cyber-tools",
     title: "Cyber Security",
-    description: "Password advisor, phishing analyser, firewall rules, security headers, SSL, DNS, incidents.",
+    description: "Password advisor, phishing analyser, firewall, headers, SSL, DNS, suspicious URL, IR.",
     accent: "from-rose-500/30 to-pink-500/10",
-    count: "13 tools",
+    count: "20+ tools",
   },
   {
     href: "/web-tools",
     title: "Website QA",
-    description: "Uptime, redirects, broken links, meta, SEO, page speed, accessibility, mobile, forms.",
+    description: "Uptime, redirects, broken links, meta, SEO, accessibility, page speed, mobile, launch.",
     accent: "from-amber-500/30 to-orange-500/10",
-    count: "10 tools",
+    count: "11 tools",
   },
   {
     href: "/business-tools",
-    title: "Business Productivity",
-    description: "Email tone, meeting notes, project updates, SOPs, risk register.",
+    title: "Business / IT Productivity",
+    description: "Email, meeting notes, project updates, SOPs, risk register, RCA, change, asset, vendor.",
     accent: "from-sky-500/30 to-cyan-500/10",
-    count: "5 tools",
+    count: "10 tools",
+  },
+  {
+    href: "/reporting-tools",
+    title: "Reporting",
+    description: "Security reports, monthly IT summary, QA reports, automation ROI calculator.",
+    accent: "from-indigo-500/30 to-blue-500/10",
+    count: "4 tools",
   },
   {
     href: "/automation-tools",
     title: "Automation & Ops",
-    description: "Daily test planner, GitHub Actions, API key safety, Vercel env vars, Power Automate.",
+    description: "Daily test planner, GitHub Actions, API key safety, Vercel env vars, API integrations.",
     accent: "from-fuchsia-500/30 to-purple-500/10",
-    count: "8 tools",
+    count: "9 tools",
   },
   {
     href: "/domain-ip-tools",
     title: "Domain & IP",
-    description: "WHOIS, DNS, subdomains, geo, blacklist, redirect tracer, domain protection.",
+    description: "WHOIS, DNS, subdomains, geo, blacklist (incl. monitor), deliverability, redirect tracer.",
     accent: "from-teal-500/30 to-emerald-500/10",
-    count: "7 tools",
+    count: "9 tools",
   },
   {
     href: "/lead-tools",
@@ -80,10 +87,12 @@ const CATEGORIES = [
 const FEATURED = [
   { href: "/tools/coding/snippet", title: "Code Snippet Generator", description: "Starter templates for JavaScript, Python, PowerShell, HTML and CSS.", tag: "Coding" },
   { href: "/tools/it-admin/licence-planner", title: "M365 Licence Planner", description: "Plan SKU counts and costs with editable prices saved locally.", tag: "IT Admin" },
-  { href: "/tools/m365/safe-links", title: "Safe Links Explainer", description: "Decode a Defender Safe Links wrapper and reveal the real destination.", tag: "M365" },
-  { href: "/tools/security/password-advisor", title: "Password Strength Advisor", description: "In-browser strength, entropy and passphrase suggestions — nothing sent.", tag: "Security" },
+  { href: "/tools/phishing-email-analyser", title: "Phishing Email Analyser", description: "Score a suspect email from sender, subject, links and urgency tone.", tag: "Cyber" },
+  { href: "/tools/m365/ca-policy-builder", title: "Conditional Access Policy Builder", description: "Build a clean, named CA policy from group, app, location and device inputs.", tag: "M365" },
+  { href: "/tools/security/password-advisor", title: "Password Strength Advisor", description: "In-browser strength, entropy and passphrase suggestions — nothing sent.", tag: "Cyber" },
+  { href: "/tools/business/ticket-priority", title: "Ticket Priority Calculator", description: "Impact × urgency × users → deterministic priority and SLA.", tag: "Business" },
+  { href: "/tools/reporting/automation-roi", title: "Automation ROI Calculator", description: "Estimate monthly savings, annual savings and payback period.", tag: "Reporting" },
   { href: "/tools/business/risk-register", title: "Risk Register Builder", description: "A structured risk register that exports clean Markdown — saved locally.", tag: "Business" },
-  { href: "/tools/coding/actions-generator", title: "GitHub Actions Workflow Generator", description: "Production-quality YAML for Pages, Playwright, security and schedules.", tag: "Coding" },
 ];
 
 export default function HomeDashboard() {

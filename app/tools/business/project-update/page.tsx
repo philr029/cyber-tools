@@ -1,6 +1,6 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 function bullets(s: string): string[] {
   return (s || "")
@@ -11,7 +11,7 @@ function bullets(s: string): string[] {
 
 export default function ProjectUpdatePage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Project Update Generator"
       description="Turn raw progress notes into a clean weekly status update with completed work, in-progress items, blockers and next steps."
       skill="Project comms, stakeholder management."

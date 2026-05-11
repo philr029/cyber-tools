@@ -1,6 +1,6 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 function bullets(s: string): string[] {
   return (s || "")
@@ -11,7 +11,7 @@ function bullets(s: string): string[] {
 
 export default function MeetingNotesPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Meeting Notes Generator"
       description="Paste rough notes from a meeting and get a structured write-up: summary, decisions, actions, owners and deadlines."
       skill="Facilitation, follow-through."

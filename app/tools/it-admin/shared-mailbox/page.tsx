@@ -1,10 +1,10 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 export default function SharedMailboxPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Shared Mailbox Request Generator"
       description="Capture a shared mailbox request and get the admin checklist plus copy-paste PowerShell commands."
       skill="Exchange Online administration."

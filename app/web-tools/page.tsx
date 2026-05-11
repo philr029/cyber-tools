@@ -14,6 +14,22 @@ export default function WebToolsPage() {
       intro="A focused set of tools and checklists for verifying any website end-to-end — uptime, redirects, broken links, metadata, mobile, performance, and forms."
       tools={[
         {
+          href: "/tools/launch-checklist",
+          title: "Website Launch Checklist",
+          description: "Pre-launch sweep across SEO, analytics, forms, SSL, mobile, accessibility, performance and backups.",
+          badge: "Checklist",
+          why: "Catches the basics that cause most launch incidents.",
+          skill: "Release management.",
+        },
+        {
+          href: "/tools/form-test-plan",
+          title: "Form Test Plan Generator",
+          description: "Regression-ready test plan for any web form — happy path, validation, security and accessibility cases.",
+          badge: "Generator",
+          why: "Forms are the #1 silent revenue leak — a repeatable plan catches regressions.",
+          skill: "Web QA, accessibility.",
+        },
+        {
           href: "/tools/website-status",
           title: "Website Status Checker",
           description: "Ping a URL and get HTTP status, latency, and basic headers right in your browser.",

@@ -1,10 +1,10 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 export default function BugReportGeneratorPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Bug Report Generator"
       description="Take a messy bug description and turn it into a clean ticket: summary, steps, expected vs actual, environment and priority."
       skill="QA discipline, incident triage."

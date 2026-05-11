@@ -1,6 +1,6 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 const TYPES = [
   { value: "feat", label: "feat — new feature" },
@@ -21,7 +21,7 @@ function shorten(s: string, n: number): string {
 
 export default function CommitMessagePage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Commit Message Generator"
       description="Turn a rough change summary into a clean Conventional Commit with a short subject and an optional body — ready to paste into git commit -m."
       skill="Git, Conventional Commits."

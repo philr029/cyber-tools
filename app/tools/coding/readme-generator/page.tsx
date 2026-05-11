@@ -1,10 +1,10 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 export default function ReadmeGeneratorPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="README Generator"
       description="Turn a few short fields into a complete README.md — badges placeholder, install steps, usage and tech stack — ready to drop into any repo."
       skill="Technical writing, project hygiene."

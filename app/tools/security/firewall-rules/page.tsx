@@ -1,10 +1,10 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 export default function FirewallRulesPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Firewall Rule Generator"
       description="Compose a Windows Defender Firewall rule from form inputs and copy a New-NetFirewallRule PowerShell command, plus quick examples for blocking SMB and NetBIOS."
       skill="Endpoint hardening, network controls."

@@ -1,6 +1,6 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 const INCIDENT_TYPES = [
   { value: "phishing", label: "Phishing email / credential harvest" },
@@ -20,7 +20,7 @@ const IMPACT = [
 
 export default function IncidentResponsePage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Microsoft 365 Incident Response Report"
       description="Generate a professional, regulator-ready incident response report covering type, impact, timeline, actions taken and recommendations."
       skill="Incident response, security operations."

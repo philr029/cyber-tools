@@ -1,6 +1,6 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 function bullets(s: string): string[] {
   return (s || "")
@@ -11,7 +11,7 @@ function bullets(s: string): string[] {
 
 export default function SopGeneratorPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="SOP Generator"
       description="Generate a formal Standard Operating Procedure (SOP) covering purpose, scope, ownership, steps, review and references."
       skill="Operational excellence."

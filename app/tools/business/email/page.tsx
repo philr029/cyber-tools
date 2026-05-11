@@ -1,6 +1,6 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 const TONES = [
   { value: "friendly", label: "Friendly" },
@@ -46,7 +46,7 @@ function compose(values: Record<string, string>): string {
 
 export default function EmailGeneratorPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Professional Email Generator"
       description="Compose a polished email in seconds. Pick a tone, paste your rough notes and get a clean draft you can copy straight into Outlook or Gmail."
       skill="Business writing."

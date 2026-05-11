@@ -1,10 +1,10 @@
 "use client";
 
-import GeneratorTool from "@/app/components/tools/GeneratorTool";
+import MultiOutputTool from "@/app/components/tools/MultiOutputTool";
 
 export default function SecurityIncidentReportPage() {
   return (
-    <GeneratorTool
+    <MultiOutputTool
       title="Security Incident Report Generator"
       description="Create a polished, regulator-ready security incident report covering summary, timeline, affected systems, impact, actions, recommendations and next steps."
       skill="Incident management, communications."
