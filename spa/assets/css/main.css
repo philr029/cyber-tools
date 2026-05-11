@@ -87,6 +87,10 @@ a {
   border-radius: 12px;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -100,6 +104,11 @@ a {
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 78%, transparent);
   backdrop-filter: blur(22px);
+}
+
+[data-theme="light"] .site-header,
+[data-theme="light"] .mobile-menu {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .brand {
@@ -130,8 +139,17 @@ a {
 }
 
 .brand__name {
+  color: var(--text);
   font-weight: 800;
   letter-spacing: -0.035em;
+}
+
+[data-theme="light"] .brand__name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .brand__tag {
+  color: #475569 !important;
 }
 
 .brand__tag {
@@ -154,6 +172,19 @@ a {
   font-size: 0.78rem;
   font-weight: 700;
   transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+[data-theme="light"] .desktop-nav a,
+[data-theme="light"] .mobile-menu a {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .desktop-nav a:hover,
+[data-theme="light"] .desktop-nav a.is-active,
+[data-theme="light"] .mobile-menu a:hover,
+[data-theme="light"] .mobile-menu a.is-active {
+  background: rgba(2, 132, 199, 0.12);
+  color: #0369a1 !important;
 }
 
 .desktop-nav a {
@@ -706,6 +737,16 @@ a {
   box-shadow: var(--shadow-soft);
   color: var(--text);
   font-weight: 700;
+}
+
+.copy-confirmation {
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  border-radius: 16px;
+  padding: 0.8rem 0.95rem;
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--success);
+  font-size: 0.9rem;
+  font-weight: 800;
 }
 
 .loading-card {

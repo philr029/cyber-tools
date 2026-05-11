@@ -159,6 +159,8 @@ async function handleInlineCopy(event) {
   if (!(button instanceof HTMLElement)) return;
   const text = decodeURIComponent(button.dataset.copyInline ?? "");
   await copyTextToClipboard(text);
+  flashCopied(button);
+  showCopyStatus();
   toast("Result copied to clipboard.");
 }
 
@@ -166,7 +168,8 @@ function renderRoute() {
   const path = getPath();
   const [segment, slug] = path.slice(1).split("/");
   closeMenu();
-  updateActiveNav(segment || "home");
+  const activeSegment = segment === "tools" && slug ? (findTool(slug)?.category ?? "home") : (segment || "home");
+  updateActiveNav(activeSegment);
 
   if (!segment || segment === "home") return renderHome();
   if (segment === "tools" && slug) return renderTool(slug);
@@ -496,6 +499,8 @@ function wireToolPage(item) {
   copyButton?.addEventListener("click", async () => {
     const copyText = output?.dataset.copyText || output?.innerText || "";
     await copyTextToClipboard(copyText.trim());
+    if (copyButton instanceof HTMLElement) flashCopied(copyButton);
+    showCopyStatus();
     toast("Result copied to clipboard.");
   });
 
@@ -751,8 +756,12 @@ function escapeHtml(value) {
 
 async function copyTextToClipboard(value) {
   if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(value);
-    return;
+    try {
+      await navigator.clipboard.writeText(value);
+      return;
+    } catch {
+      // Some browser contexts block Clipboard API permission; fall back below.
+    }
   }
   const textarea = document.createElement("textarea");
   textarea.value = value;
@@ -772,6 +781,26 @@ function toast(message) {
   item.textContent = message;
   toastRegion.appendChild(item);
   setTimeout(() => item.remove(), 2800);
+}
+
+function flashCopied(button) {
+  const original = button.textContent || "Copy result";
+  button.textContent = "Copied!";
+  button.setAttribute("aria-live", "polite");
+  setTimeout(() => {
+    button.textContent = original;
+    button.removeAttribute("aria-live");
+  }, 1600);
+}
+
+function showCopyStatus() {
+  const output = document.querySelector("#tool-output");
+  if (!output) return;
+  output.querySelector(".copy-confirmation")?.remove();
+  const message = document.createElement("div");
+  message.className = "copy-confirmation";
+  message.textContent = "Copied result to clipboard.";
+  output.prepend(message);
 }
 
 function focusApp() {
