@@ -47,6 +47,8 @@ export interface ChecklistToolProps {
    * checklist lines to inject above the sections in the output.
    */
   deriveSummary?: (values: Record<string, string>) => string[];
+  /** When provided, the checklist state and inputs persist to localStorage. */
+  storageKey?: string;
 }
 
 function progress(checked: number, total: number) {
@@ -124,6 +126,35 @@ export default function ChecklistTool(props: ChecklistToolProps) {
     const t = setTimeout(() => setCopied(false), 1800);
     return () => clearTimeout(t);
   }, [copied]);
+
+  // Hydrate from localStorage when storageKey is supplied.
+  useEffect(() => {
+    if (!props.storageKey || typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(props.storageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { v?: Record<string, string>; c?: Record<string, boolean> };
+      // Hydrating from localStorage — intentional client-side state restore.
+      /* eslint-disable react-hooks/set-state-in-effect */
+      if (parsed?.v) setValues((prev) => ({ ...prev, ...parsed.v }));
+      if (parsed?.c) setChecks((prev) => ({ ...prev, ...parsed.c }));
+      /* eslint-enable react-hooks/set-state-in-effect */
+    } catch {
+      /* ignore */
+    }
+  }, [props.storageKey]);
+
+  useEffect(() => {
+    if (!props.storageKey || typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        props.storageKey,
+        JSON.stringify({ v: values, c: checks }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [props.storageKey, values, checks]);
 
   const checkedCount = Object.values(checks).filter(Boolean).length;
   const pct = progress(checkedCount, allItems.length);
