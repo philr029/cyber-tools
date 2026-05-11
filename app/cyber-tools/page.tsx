@@ -14,6 +14,46 @@ export default function CyberToolsPage() {
       intro="Reputation lookups, transport hardening checks, and lightweight phishing triage — designed to plug straight into VirusTotal, AbuseIPDB, and Microsoft 365 security data."
       tools={[
         {
+          href: "/tools/security/password-advisor",
+          title: "Password Strength Advisor",
+          description: "In-browser strength meter, entropy estimate and passphrase suggestions. Nothing ever leaves the browser.",
+          badge: "In-browser",
+          why: "Most account compromises start with a weak or reused password.",
+          skill: "Authentication hygiene.",
+        },
+        {
+          href: "/tools/security/phishing-link",
+          title: "Phishing Link Analyser",
+          description: "Heuristic risk rating for a suspicious URL — protocol, TLD, subdomain depth, length, embedded creds, keywords.",
+          badge: "Heuristic",
+          why: "Fast first-look before you decide what to escalate.",
+          skill: "URL forensics.",
+        },
+        {
+          href: "/tools/security/firewall-rules",
+          title: "Firewall Rule Generator",
+          description: "Generate Windows Defender Firewall PowerShell from form inputs, with examples for SMB, NetBIOS and RDP.",
+          badge: "Generator",
+          why: "The same correct rule, every time.",
+          skill: "Endpoint hardening.",
+        },
+        {
+          href: "/tools/security/incident-report",
+          title: "Security Incident Report",
+          description: "A polished SEV1–SEV4 report with summary, timeline, impact, actions, recommendations and next steps.",
+          badge: "Generator",
+          why: "Audits, insurers, and execs all want the same report — generate it once.",
+          skill: "Incident response.",
+        },
+        {
+          href: "/tools/security/domain-reputation",
+          title: "Domain Reputation (multi-source)",
+          description: "Placeholder UI showing where DNSBL, VirusTotal, Safe Browsing and HetrixTools plug in via a serverless function.",
+          badge: "Coming Soon API",
+          why: "Keep API keys server-side — never in the GitHub Pages bundle.",
+          skill: "Secure API design.",
+        },
+        {
           href: "/tools/ip-lookup",
           title: "IP Reputation",
           description: "Check an IP for abuse reports, ISP, country, and usage type.",

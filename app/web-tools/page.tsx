@@ -62,6 +62,22 @@ export default function WebToolsPage() {
           skill: "HTML metadata, OG / Twitter cards.",
         },
         {
+          href: "/tools/qa/seo-meta",
+          title: "SEO Meta Tag Checker",
+          description: "What Google and social platforms read on a page — placeholder UI showing where the serverless integration plugs in.",
+          badge: "Coming Soon API",
+          why: "Bad metadata costs you traffic on every share.",
+          skill: "SEO + CORS-aware backend design.",
+        },
+        {
+          href: "/tools/qa/accessibility",
+          title: "Accessibility Checklist",
+          description: "Pragmatic WCAG 2.2 AA pass covering alt text, contrast, keyboard, labels, headings, focus and ARIA.",
+          badge: "Checklist",
+          why: "A11y is both a legal requirement and a usability win.",
+          skill: "Accessibility (a11y).",
+        },
+        {
           href: "/tools/page-speed-checklist",
           title: "Page Speed Checklist",
           description: "Hit good Core Web Vitals scores — images, fonts, scripts, caching, and measurement.",
