@@ -78,6 +78,22 @@ export default function DomainIpToolsPage() {
           skill: "Blacklist data.",
         },
         {
+          href: "/tools/blacklist-monitor",
+          title: "Blacklist Monitoring Planner",
+          description: "Plan a recurring blacklist monitoring routine — schedule, alert channels and escalation.",
+          badge: "Planner",
+          why: "By the time customers tell you mail is bouncing, the listing is hours old.",
+          skill: "Monitoring & alerting design.",
+        },
+        {
+          href: "/tools/email-deliverability",
+          title: "Email Deliverability Checker",
+          description: "SPF / DKIM / DMARC / MX / blacklist deliverability checklist for a sending domain.",
+          badge: "Checklist",
+          why: "Quickest diagnosis of 'why are my emails landing in spam?'.",
+          skill: "Email auth, deliverability.",
+        },
+        {
           href: "/tools/ssl-checker",
           title: "SSL Certificate Inspector",
           description: "Certificate chain, expiry, protocol and key size via SSL Labs.",

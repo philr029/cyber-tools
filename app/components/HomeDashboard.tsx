@@ -4,26 +4,28 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 const STATS = [
-  { label: "Tools available", value: "35+", caption: "across Web, Cyber, M365, Domain/IP, Automation, Phone & Lead" },
-  { label: "Checks automated", value: "120+", caption: "concrete checklist items, ready to copy" },
-  { label: "Security areas covered", value: "12", caption: "identity, email, endpoint, network, cloud, governance…" },
-  { label: "Microsoft 365 workflows", value: "7", caption: "starter, leaver, MFA, CA, Teams Phone, Intune, Defender" },
+  { label: "Tools available", value: "55+", caption: "across Web, Cyber, M365, Domain/IP, Automation, Business, Reporting and Phone & Lead" },
+  { label: "Checks automated", value: "200+", caption: "concrete checklist items, ready to copy" },
+  { label: "Categories", value: "8", caption: "web, cyber, identity, network, automation, business, reporting, lead" },
+  { label: "Microsoft 365 workflows", value: "11", caption: "licensing, starter, leaver, MFA, CA, Teams Phone, Intune, Defender" },
 ];
 
 const CATEGORIES = [
-  { href: "/web-tools", title: "Web Tools", description: "Status, redirects, broken links, meta, page speed, mobile, forms.", accent: "from-cyan-500/30 to-blue-500/10" },
-  { href: "/cyber-tools", title: "Cyber Tools", description: "IP & domain reputation, SSL, DNS, security headers, phishing.", accent: "from-violet-500/30 to-indigo-500/10" },
-  { href: "/m365-tools", title: "Microsoft 365", description: "Starter, leaver, MFA, CA, Teams Phone, Intune, Defender checklists.", accent: "from-emerald-500/30 to-teal-500/10" },
-  { href: "/domain-ip-tools", title: "Domain & IP", description: "WHOIS, DNS, subdomains, geo, blacklist, redirect tracer.", accent: "from-amber-500/30 to-orange-500/10" },
-  { href: "/automation-tools", title: "Automation", description: "Daily test planner, GH Actions, API keys, Vercel env, Power Automate.", accent: "from-rose-500/30 to-pink-500/10" },
+  { href: "/web-tools", title: "Web Tools", description: "Status, redirects, broken links, meta, page speed, mobile, forms, launch checklist.", accent: "from-cyan-500/30 to-blue-500/10" },
+  { href: "/cyber-tools", title: "Cyber Tools", description: "Reputation, SSL, DNS, security headers, phishing email/URL, password strength, IR.", accent: "from-violet-500/30 to-indigo-500/10" },
+  { href: "/m365-tools", title: "Microsoft 365", description: "Licensing, starter/leaver, MFA, CA, Teams Phone, Intune, Defender.", accent: "from-emerald-500/30 to-teal-500/10" },
+  { href: "/domain-ip-tools", title: "Domain & IP", description: "WHOIS, DNS, subdomains, geo, blacklist (incl. monitor), deliverability.", accent: "from-amber-500/30 to-orange-500/10" },
+  { href: "/automation-tools", title: "Automation", description: "Daily test planner, GH Actions, API integration planner, Vercel env, Power Automate.", accent: "from-rose-500/30 to-pink-500/10" },
+  { href: "/business-tools", title: "Business / IT", description: "Ticket priority, RCA, change requests, asset handover, vendor comparison.", accent: "from-fuchsia-500/30 to-pink-500/10" },
+  { href: "/reporting-tools", title: "Reporting", description: "Security reports, monthly IT summary, QA reports, automation ROI calculator.", accent: "from-indigo-500/30 to-blue-500/10" },
   { href: "/lead-tools", title: "Phone & Lead", description: "Phone validator, lead intel, form QA, email header analysis.", accent: "from-sky-500/30 to-cyan-500/10" },
 ];
 
 const FEATURED = [
-  { href: "/tools/m365/new-starter", title: "M365 New Starter Checklist", description: "Provision a user end-to-end — identity, licensing, MFA, Intune, welcome pack.", tag: "M365" },
-  { href: "/tools/email-security-checklist", title: "Email Security Checklist", description: "SPF / DKIM / DMARC / MTA-STS / Defender for Office 365.", tag: "Cyber" },
-  { href: "/tools/meta-preview", title: "Meta Title & Description Preview", description: "Live SERP and social-card preview as you tune metadata.", tag: "Web" },
-  { href: "/tools/automation/github-actions", title: "GitHub Actions Schedule", description: "Generate scheduled workflow YAML in seconds.", tag: "Automation" },
+  { href: "/tools/phishing-email-analyser", title: "Phishing Email Analyser", description: "Score a suspect email from sender, subject, links and urgency tone.", tag: "Cyber" },
+  { href: "/tools/m365/ca-policy-builder", title: "Conditional Access Policy Builder", description: "Build a clean, named CA policy from group, app, location and device inputs.", tag: "M365" },
+  { href: "/tools/business/ticket-priority", title: "Ticket Priority Calculator", description: "Impact × urgency × users → deterministic priority and SLA.", tag: "Business" },
+  { href: "/tools/reporting/automation-roi", title: "Automation ROI Calculator", description: "Estimate monthly savings, annual savings and payback period.", tag: "Reporting" },
 ];
 
 export default function HomeDashboard() {
