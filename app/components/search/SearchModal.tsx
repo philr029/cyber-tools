@@ -39,7 +39,7 @@ function highlightText(text: string, query: string): ReactNode {
     const isHit = parts.some((p) => seg.toLowerCase() === p.toLowerCase());
     if (isHit && seg) {
       return (
-        <mark key={i} className="rounded bg-cyan-500/25 text-cyan-100 px-0.5">
+        <mark key={i} className="rounded-md bg-[var(--ss-accent-soft)] text-[var(--ss-accent)] px-0.5">
           {seg}
         </mark>
       );
@@ -223,14 +223,14 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative w-full max-w-2xl max-h-[min(640px,88dvh)] flex flex-col rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 shadow-[0_24px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl overflow-hidden motion-safe:animate-search-panel"
+        className="relative w-full max-w-2xl max-h-[min(640px,88dvh)] flex flex-col rounded-3xl border border-[var(--ss-border)] glass-surface shadow-[0_28px_90px_rgba(0,0,0,0.55)] overflow-hidden motion-safe:animate-search-panel"
       >
         <h2 id={titleId} className="sr-only">
           Site search
         </h2>
-        <div className="border-b border-[#1e2d4a] px-4 py-3 flex items-center gap-3">
+        <div className="border-b border-[var(--ss-border)] px-4 py-3 flex items-center gap-3">
           <svg
-            className="w-5 h-5 text-cyan-400 shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-105"
+            className="w-5 h-5 text-[var(--ss-accent)] shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-105"
             viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden
@@ -249,29 +249,29 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search pages, tools, categories, routes…"
             autoComplete="off"
-            className="flex-1 min-w-0 bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
+            className="flex-1 min-w-0 bg-transparent text-sm text-[var(--ss-text)] placeholder:text-[var(--ss-text-secondary)] focus:outline-none"
             aria-label="Search query"
           />
-          <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-500 shrink-0">
-            <SearchHotkeyText className="font-mono border border-[#1e2d4a] rounded px-1 py-0.5 bg-black/20" />
+          <div className="hidden sm:flex items-center gap-1 text-[10px] text-[var(--ss-text-secondary)] shrink-0">
+            <SearchHotkeyText className="font-mono border border-[var(--ss-border)] rounded-full px-1.5 py-0.5 bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)]" />
           </div>
           <button
             type="button"
             onClick={reset}
-            className="text-xs font-medium text-slate-400 hover:text-cyan-300 px-2 py-1 rounded-lg hover:bg-white/5 motion-safe:transition-colors"
+            className="text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] px-2 py-1 rounded-full hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] motion-safe:transition-colors"
           >
             Clear
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="text-xs font-medium text-slate-400 hover:text-slate-100 px-2 py-1 rounded-lg hover:bg-white/5 motion-safe:transition-colors"
+            className="text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] px-2 py-1 rounded-full hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] motion-safe:transition-colors"
           >
             Close
           </button>
         </div>
 
-        <div className="px-4 py-2 flex flex-wrap gap-2 border-b border-[#1e2d4a] bg-[#070b14]/80">
+        <div className="px-4 py-2 flex flex-wrap gap-2 border-b border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_70%,transparent)]">
           <label className="sr-only" htmlFor={`${dialogId}-cat`}>
             Category
           </label>
@@ -279,7 +279,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             id={`${dialogId}-cat`}
             value={category}
             onChange={(e) => setCategory(e.target.value as SearchCategoryFilter)}
-            className="text-xs rounded-lg border border-[#1e2d4a] bg-[#0d1321] text-slate-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+            className="text-xs rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_90%,transparent)] text-[var(--ss-text)] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--ss-ring)]"
           >
             {SEARCH_CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -294,7 +294,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             id={`${dialogId}-area`}
             value={toolkitArea}
             onChange={(e) => setToolkitArea(e.target.value as SearchToolkitAreaFilter)}
-            className="text-xs rounded-lg border border-[#1e2d4a] bg-[#0d1321] text-slate-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+            className="text-xs rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_90%,transparent)] text-[var(--ss-text)] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--ss-ring)]"
           >
             {SEARCH_TOOLKIT_AREA_FILTERS.map((a) => (
               <option key={a} value={a}>
@@ -309,7 +309,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             id={`${dialogId}-type`}
             value={toolType}
             onChange={(e) => setToolType(e.target.value as SearchToolType | "all")}
-            className="text-xs rounded-lg border border-[#1e2d4a] bg-[#0d1321] text-slate-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+            className="text-xs rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_90%,transparent)] text-[var(--ss-text)] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--ss-ring)]"
           >
             {(["all", ...SEARCH_TOOL_TYPES] as const).map((t) => (
               <option key={t} value={t}>
@@ -322,7 +322,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
         <div className="flex-1 overflow-y-auto px-2 py-2 motion-safe:transition-[opacity] motion-safe:duration-150">
           {!query.trim() && !filtersActive && spotlight.length > 0 && (
             <div className="mb-3 px-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)] mb-2">
                 {recentUrls.length ? "Recent" : "Popular"}
               </p>
               <ul className="flex flex-col gap-0.5">
@@ -343,7 +343,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
           {!query.trim() && filterBrowse.length > 0 && (
             <div className="mb-3 px-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)] mb-2">
                 Matches current filters
               </p>
               <ul className="flex flex-col gap-0.5">
@@ -363,11 +363,11 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           )}
 
           {!query.trim() && filtersActive && filterBrowse.length === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-slate-500">Nothing matches these filters.</p>
+            <p className="px-3 py-6 text-center text-sm text-[var(--ss-text-secondary)]">Nothing matches these filters.</p>
           )}
 
           {query.trim() && (
-            <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)]">
               {results.length} result{results.length === 1 ? "" : "s"}
             </p>
           )}
@@ -387,29 +387,29 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
           {query.trim() && results.length === 0 && (
             <div className="px-3 py-10 text-center space-y-3">
-              <p className="text-sm text-slate-300">No results found.</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-sm text-[var(--ss-text)]">No results found.</p>
+              <p className="text-xs text-[var(--ss-text-secondary)]">
                 Try a shorter keyword, switch category, or browse the full toolkit.
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 <Link
                   href="/tools/browse"
                   onClick={() => handlePick("/tools/browse")}
-                  className="text-xs font-medium rounded-lg bg-cyan-600/90 hover:bg-cyan-500 text-white px-3 py-2 motion-safe:transition-colors"
+                  className="text-xs font-semibold rounded-full bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] hover:opacity-95 text-white px-3 py-2 motion-safe:transition-opacity"
                 >
                   Open toolkit index
                 </Link>
                 <Link
                   href="/tools"
                   onClick={() => handlePick("/tools")}
-                  className="text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-200 hover:bg-white/5 px-3 py-2 motion-safe:transition-colors"
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3 py-2 motion-safe:transition-colors"
                 >
                   Security suite
                 </Link>
                 <button
                   type="button"
                   onClick={reset}
-                  className="text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-300 hover:bg-white/5 px-3 py-2 motion-safe:transition-colors"
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text-secondary)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3 py-2 motion-safe:transition-colors"
                 >
                   Reset filters
                 </button>
@@ -443,37 +443,37 @@ function ResultRow({
       <Link
         href={href}
         onClick={() => onPick(entry.url)}
-        className={`flex flex-col gap-0.5 rounded-xl px-3 py-2.5 border motion-safe:transition-[background-color,border-color,transform] motion-safe:duration-150 ${
+        className={`flex flex-col gap-0.5 rounded-2xl px-3 py-2.5 border motion-safe:transition-[background-color,border-color,transform] motion-safe:duration-200 ${
           selected
-            ? "bg-cyan-500/10 border-cyan-500/30 ring-1 ring-cyan-500/20"
+            ? "bg-[var(--ss-accent-soft)] border-[color-mix(in_srgb,var(--ss-accent)_45%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_25%,transparent)]"
             : subtle
-              ? "border-transparent hover:bg-white/[0.04] hover:border-[#1e2d4a] motion-safe:hover:-translate-y-px"
-              : "border-transparent hover:bg-white/[0.06] hover:border-cyan-500/15 motion-safe:hover:-translate-y-px"
+              ? "border-transparent hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] hover:border-[var(--ss-border)] motion-safe:hover:-translate-y-px"
+              : "border-transparent hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] hover:border-[color-mix(in_srgb,var(--ss-accent)_25%,transparent)] motion-safe:hover:-translate-y-px"
         }`}
       >
         <div className="flex items-start justify-between gap-2">
-          <span className="text-sm font-medium text-slate-100 leading-snug">
+          <span className="text-sm font-semibold text-[var(--ss-text)] leading-snug">
             {highlightText(entry.title, query)}
           </span>
-          <span className="shrink-0 text-[10px] uppercase tracking-wide text-slate-500">
+          <span className="shrink-0 text-[10px] uppercase tracking-wide text-[var(--ss-text-secondary)]">
             {entry.toolType}
           </span>
         </div>
-        <span className="text-[11px] text-slate-500">{entry.category}</span>
+        <span className="text-[11px] text-[var(--ss-text-secondary)]">{entry.category}</span>
         {entry.toolkitAreas.length > 0 ? (
-          <span className="text-[10px] text-slate-600 line-clamp-1">
+          <span className="text-[10px] text-[color-mix(in_srgb,var(--ss-text-secondary)_85%,transparent)] line-clamp-1">
             {entry.toolkitAreas.slice(0, 3).join(" · ")}
           </span>
         ) : null}
         {entry.description ? (
-          <span className="text-xs text-slate-400 line-clamp-2">{highlightText(entry.description, query)}</span>
+          <span className="text-xs text-[var(--ss-text-secondary)] line-clamp-2">{highlightText(entry.description, query)}</span>
         ) : null}
         {entry.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-0.5">
             {entry.tags.slice(0, 6).map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] rounded-md bg-white/5 text-slate-400 px-1.5 py-0.5 ring-1 ring-white/10"
+                className="text-[10px] rounded-md bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] text-[var(--ss-text-secondary)] px-1.5 py-0.5 ring-1 ring-[var(--ss-border)]"
               >
                 {tag}
               </span>

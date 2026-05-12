@@ -23,6 +23,7 @@ import ScanTimeline from "@/app/components/ScanTimeline";
 import QuickToolsBar from "@/app/components/QuickToolsBar";
 import ToolPresets from "@/app/components/ToolPresets";
 import HomeDashboard from "@/app/components/HomeDashboard";
+import HomeFeatureStrip from "@/app/components/home/HomeFeatureStrip";
 
 // ---------------------------------------------------------------------------
 // Error state
@@ -46,7 +47,7 @@ function ErrorState({ message }: { message: string }) {
 // ---------------------------------------------------------------------------
 function PageFooter() {
   return (
-    <footer className="border-t border-[#1e2d4a] mt-16">
+    <footer className="border-t border-[color-mix(in_srgb,var(--ss-text)_12%,transparent)] mt-16 bg-[color-mix(in_srgb,var(--ss-elevated-solid)_70%,transparent)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
@@ -168,56 +169,73 @@ export default function HomePage() {
     <main className="flex-1">
       {/* ── Hero Section ─────────────────────────────────────────── */}
       <section className="relative hero-gradient grid-bg overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 70%)",
-          }}
-        />
+        <div className="absolute inset-0 ss-ambient-glow pointer-events-none" aria-hidden />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[color-mix(in_srgb,var(--ss-page)_88%,transparent)]" aria-hidden />
 
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full border border-cyan-500/25 bg-cyan-500/5 text-xs font-medium text-cyan-400 animate-fade-in">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            Cyber Intelligence Platform
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-24 sm:pb-16 lg:pt-28 lg:pb-20 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full border border-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)] bg-[var(--ss-accent-soft)] text-xs font-semibold text-[var(--ss-accent)] animate-fade-in">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--ss-accent)] animate-pulse" />
+            SecureScope workspace
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-50 leading-tight tracking-tight mb-5 animate-fade-in-delay text-glow">
-            Cyber Intelligence
-            <br />
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Platform
+          <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-6xl font-semibold text-[var(--ss-text)] leading-[1.08] tracking-tight mb-5 animate-fade-in-delay text-glow">
+            The calm control centre
+            <br className="hidden sm:block" />
+            <span className="bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] bg-clip-text text-transparent">
+              {" "}
+              for IT, security, and marketing
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in-delay">
-            Analyse IPs, domains, and URLs with real-time reputation, DNS, SSL, headers,
-            blacklist, and WHOIS data — all in one place.
+          <p className="text-base sm:text-lg text-[var(--ss-text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-delay">
+            SecureScope brings domain intelligence, web QA, automation planners, and monitoring-style checks into one fast,
+            glass-quiet surface — built to feel like a premium internal tools hub, not a noisy utility drawer.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12 animate-fade-in-delay-2">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 mb-10 sm:mb-12 animate-fade-in-delay-2">
+            <Link
+              href="/tools/browse"
+              className="ss-pill ss-pill-primary btn-micro inline-flex items-center justify-center gap-2 px-7 py-3 text-sm shadow-lg shadow-cyan-500/10"
+            >
+              Explore tools
+            </Link>
+            <Link
+              href="/dashboard"
+              className="ss-pill ss-pill-ghost btn-micro inline-flex items-center justify-center gap-2 px-7 py-3 text-sm"
+            >
+              View dashboard
+            </Link>
+            <Link
+              href="/tools/automated-monitoring"
+              className="ss-pill ss-pill-ghost btn-micro inline-flex items-center justify-center gap-2 px-7 py-3 text-sm"
+            >
+              Run tests
+            </Link>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
             <button
               type="button"
               onClick={() => {
                 document.getElementById("search-section")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="btn-glow btn-micro inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-sm shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-200 hover:from-cyan-400 hover:to-blue-500"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--ss-accent)] hover:text-[color-mix(in_srgb,var(--ss-accent)_85%,#fff)] motion-safe:transition-colors"
             >
               <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
               </svg>
-              Start Lookup
+              Jump to threat lookup
             </button>
+            <span className="hidden sm:inline text-[var(--ss-text-secondary)]">·</span>
             <button
               type="button"
               onClick={() => handleSearch("google.com")}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#1e2d4a] bg-white/5 text-slate-300 font-semibold text-sm hover:bg-white/10 hover:border-slate-600 hover:text-slate-100 transition-all duration-200"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] motion-safe:transition-colors"
             >
               <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fillRule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm6.39-2.908a.75.75 0 01.766.027l3.5 2.25a.75.75 0 010 1.262l-3.5 2.25A.75.75 0 018 12.25v-4.5a.75.75 0 01.39-.658z" clipRule="evenodd" />
               </svg>
-              View Demo
+              Try a live demo lookup
             </button>
           </div>
 
@@ -255,22 +273,24 @@ export default function HomePage() {
         </div>
       </section>
 
+      <HomeFeatureStrip />
+
       {/* ── Trust strip ──────────────────────────────────────────── */}
-      <section className="border-y border-[#1e2d4a] bg-[#0b0f1a]/80">
+      <section className="border-y border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_82%,transparent)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
-            <p className="text-xs text-slate-500 max-w-md">
+            <p className="text-xs text-[var(--ss-text-secondary)] max-w-md leading-relaxed">
               Built with secure server-side APIs, SSRF protection, and modern threat intelligence providers.
             </p>
             <div className="flex items-center gap-2 flex-shrink-0">
               {[
-                { label: "Next.js", color: "text-slate-300 bg-slate-700/40 ring-slate-600/30" },
-                { label: "TypeScript", color: "text-blue-400 bg-blue-500/10 ring-blue-500/20" },
-                { label: "Secure API Routes", color: "text-cyan-400 bg-cyan-500/10 ring-cyan-500/20" },
+                { label: "Next.js", color: "text-[var(--ss-text)] bg-[color-mix(in_srgb,var(--ss-text)_8%,transparent)] ring-[var(--ss-border)]" },
+                { label: "TypeScript", color: "text-[var(--accent-blue)] bg-[color-mix(in_srgb,var(--accent-blue)_12%,transparent)] ring-[color-mix(in_srgb,var(--accent-blue)_25%,transparent)]" },
+                { label: "Secure API Routes", color: "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-[color-mix(in_srgb,var(--ss-accent)_30%,transparent)]" },
               ].map((badge) => (
                 <span
                   key={badge.label}
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${badge.color}`}
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${badge.color}`}
                 >
                   {badge.label}
                 </span>

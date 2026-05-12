@@ -69,18 +69,20 @@ export default function Header() {
           : href === "/automation-tools"
             ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
             : pathname === href);
-    return `px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-      isActive ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+    return `ss-pill px-3 py-1.5 text-xs font-semibold ${
+      isActive
+        ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
+        : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
     }`;
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0b0f1a]/80 backdrop-blur-xl border-b border-[#1e2d4a] shadow-[0_1px_0_rgba(6,182,212,0.08)]">
+    <header className="sticky top-0 z-50 glass-surface border-b border-[var(--ss-border)] shadow-[0_1px_0_color-mix(in_srgb,var(--ss-text)_6%,transparent)]">
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-2">
           <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 min-w-0 group">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_14px_rgba(6,182,212,0.45)] transition-shadow group-hover:shadow-[0_0_22px_rgba(6,182,212,0.65)]">
+            <div className="flex items-center justify-center w-9 h-9 rounded-2xl bg-gradient-to-br from-[var(--ss-accent)] to-[var(--accent-blue)] shadow-[0_12px_30px_rgba(56,189,248,0.22)] transition-shadow group-hover:shadow-[0_16px_40px_rgba(56,189,248,0.3)]">
               <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fillRule="evenodd"
@@ -89,7 +91,7 @@ export default function Header() {
                 />
               </svg>
             </div>
-            <span className="text-base sm:text-lg font-bold text-slate-100 tracking-tight truncate">
+            <span className="text-base sm:text-lg font-semibold text-[var(--ss-text)] tracking-tight truncate">
               SecureScope
             </span>
           </Link>
@@ -121,7 +123,7 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className={`flex items-center ml-1 rounded-lg ${isToolsActive ? "bg-cyan-400/10" : ""}`}>
+            <div className={`flex items-center ml-1 rounded-full ${isToolsActive ? "bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_30%,transparent)]" : ""}`}>
               <MegaMenu label="Tools" />
             </div>
           </nav>
@@ -130,12 +132,12 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border bg-white/[0.03] text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 hover:bg-cyan-500/5 motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5 ${
-                pathname === "/search" ? "border-cyan-500/40 bg-cyan-500/10" : "border-[#1e2d4a]"
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] hover:bg-[var(--ss-accent-soft)] motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5 ${
+                pathname === "/search" ? "border-[color-mix(in_srgb,var(--ss-accent)_45%,transparent)] bg-[var(--ss-accent-soft)] text-[var(--ss-text)]" : "border-[var(--ss-border)]"
               }`}
               aria-label="Open search"
             >
-              <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <svg className="w-4 h-4 text-[var(--ss-accent)]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fillRule="evenodd"
                   d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.517 3.516a1 1 0 01-1.414 1.414l-3.516-3.517A7 7 0 012 9z"
@@ -143,17 +145,17 @@ export default function Header() {
                 />
               </svg>
               <span className="hidden md:inline text-xs font-medium">Search</span>
-              <span className="hidden lg:inline text-[10px] text-slate-500 font-mono border border-[#1e2d4a] rounded px-1 py-0.5 bg-black/20">
+              <span className="hidden lg:inline text-[10px] text-[var(--ss-text-secondary)] font-mono border border-[var(--ss-border)] rounded-full px-1.5 py-0.5 bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)]">
                 <SearchHotkeyText />
               </span>
             </button>
 
             <Link
               href="/settings"
-              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${
                 pathname === "/settings"
-                  ? "text-cyan-400 bg-cyan-400/10"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
+                  : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
               }`}
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -194,7 +196,7 @@ export default function Header() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex items-center justify-center w-8 h-8 rounded-lg border border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5 hover:border-[#1e2d4a] transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-full border border-transparent text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] hover:border-[var(--ss-border)] transition-colors"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
@@ -220,10 +222,10 @@ export default function Header() {
                 <div className="hidden sm:flex items-center gap-2">
                   <Link
                     href="/dashboard"
-                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                    className={`ss-pill flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold ${
                       pathname.startsWith("/dashboard")
-                        ? "text-cyan-400 bg-cyan-400/10"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                        ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
+                        : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
                     }`}
                   >
                     <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -238,7 +240,7 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+                    className="ss-pill flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
                   >
                     Sign out
                   </button>
@@ -247,13 +249,13 @@ export default function Header() {
                 <div className="hidden sm:flex items-center gap-2">
                   <Link
                     href="/login"
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+                    className="ss-pill px-3 py-1.5 text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/signup"
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors"
+                    className="ss-pill ss-pill-primary px-3 py-1.5 text-xs font-semibold text-white"
                   >
                     Get started
                   </Link>
@@ -263,7 +265,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="xl:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-cyan-500/25 bg-cyan-500/10 text-cyan-300 shadow-[0_0_14px_rgba(6,182,212,0.16)] hover:bg-cyan-500/15 hover:text-cyan-100 transition-colors"
+              className="xl:hidden flex items-center justify-center w-9 h-9 rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] text-[var(--ss-text)] hover:bg-[var(--ss-accent-soft)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] motion-safe:transition-colors"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               aria-controls={PRIMARY_MOBILE_NAV_ID}
@@ -295,8 +297,10 @@ export default function Header() {
             <Link
               href="/settings"
               onClick={() => setMobileOpen(false)}
-              className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-300 hover:text-slate-100 hover:bg-white/5"
+              className={`block px-3 py-2 text-sm font-semibold rounded-xl transition-colors ${
+                pathname === "/settings"
+                  ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]"
+                  : "text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
               }`}
             >
               Settings
@@ -309,7 +313,7 @@ export default function Header() {
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileOpen(false)}
-                    className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-slate-100 hover:bg-white/5 transition-colors"
+                    className="block px-3 py-2 text-sm font-semibold rounded-xl text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
                   >
                     Dashboard
                   </Link>
@@ -319,7 +323,7 @@ export default function Header() {
                       void handleLogout();
                       setMobileOpen(false);
                     }}
-                    className="text-left block px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/5 transition-colors"
+                    className="text-left block px-3 py-2 text-sm font-semibold rounded-xl text-[var(--ss-text-secondary)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
                   >
                     Sign out
                   </button>
@@ -329,14 +333,14 @@ export default function Header() {
                   <Link
                     href="/login"
                     onClick={() => setMobileOpen(false)}
-                    className="block px-3 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-slate-100 hover:bg-white/5 transition-colors"
+                    className="block px-3 py-2 text-sm font-semibold rounded-xl text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/signup"
                     onClick={() => setMobileOpen(false)}
-                    className="block px-3 py-2 text-sm font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-center transition-colors"
+                    className="block px-3 py-2 text-sm font-semibold rounded-xl ss-pill-primary text-center text-white"
                   >
                     Get started free
                   </Link>

@@ -44,146 +44,72 @@ const STATS = [
 
 const CATEGORIES = [
   {
-    href: "/coding-tools",
-    title: "Coding Automation",
-    description: "Snippets, regex, JSON, API requests, GH Actions, READMEs, commits, changelogs, reviews.",
-    accent: "from-cyan-500/30 to-blue-500/10",
-    count: "10 tools",
-  },
-  {
     href: "/it-admin-tools",
-    title: "IT Admin Automation",
-    description: "New starter, leaver, shared mailbox, licence planner, access review, triage, build, install.",
-    accent: "from-emerald-500/30 to-teal-500/10",
-    count: "8 tools",
-  },
-  {
-    href: "/m365-tools",
-    title: "Microsoft 365",
-    description: "Licensing, MFA, CA, Safe Links, forwarding audit, admin roles, Intune, Defender, incidents.",
-    accent: "from-violet-500/30 to-indigo-500/10",
-    count: "16 tools",
+    title: "IT Admin",
+    description: "Starters, leavers, mailboxes, licensing, access reviews, triage, and device build flows.",
+    accent: "from-emerald-500/25 to-teal-500/10",
+    count: "Hub + checklists",
   },
   {
     href: "/cyber-tools",
     title: "Cyber Security",
-    description: "Password advisor, phishing analyser, firewall, headers, SSL, DNS, suspicious URL, IR.",
-    accent: "from-rose-500/30 to-pink-500/10",
-    count: "20+ tools",
-  },
-  {
-    href: "/web-tools",
-    title: "Website QA",
-    description: "Uptime, redirects, broken links, meta, SEO, accessibility, page speed, mobile, launch.",
-    accent: "from-amber-500/30 to-orange-500/10",
-    count: "11 tools",
+    description: "Phishing, headers, SSL, DNS hygiene, suspicious URLs, threat scoring, and IR prompts.",
+    accent: "from-rose-500/25 to-pink-500/10",
+    count: "Security hub",
   },
   {
     href: "/marketing-tools",
-    title: "Marketing & Growth",
-    description: "UTMs, social drafts, subject lines, SERP previews, and conversion calculators.",
-    accent: "from-pink-500/30 to-rose-500/10",
-    count: "8+ tools",
+    title: "Marketing",
+    description: "UTMs, campaigns, social drafts, subject lines, SERP previews, and calculators.",
+    accent: "from-fuchsia-500/25 to-pink-500/10",
+    count: "Growth toolkit",
   },
   {
-    href: "/business-tools",
-    title: "Business / IT Productivity",
-    description: "Email, meeting notes, project updates, SOPs, risk register, RCA, change, asset, vendor.",
-    accent: "from-sky-500/30 to-cyan-500/10",
-    count: "10 tools",
-  },
-  {
-    href: "/reporting-tools",
-    title: "Reporting",
-    description: "Security reports, monthly IT summary, QA reports, automation ROI calculator.",
-    accent: "from-indigo-500/30 to-blue-500/10",
-    count: "4 tools",
-  },
-  {
-    href: "/automation-tools",
-    title: "Automation & Ops",
-    description: "Daily test planner, GitHub Actions, API key safety, Vercel env vars, API integrations.",
-    accent: "from-fuchsia-500/30 to-purple-500/10",
-    count: "9 tools",
-  },
-  {
-    href: "/domain-ip-tools",
-    title: "Domain & IP",
-    description: "WHOIS, DNS, subdomains, geo, blacklist (incl. monitor), deliverability, redirect tracer.",
-    accent: "from-teal-500/30 to-emerald-500/10",
-    count: "9 tools",
+    href: "/web-tools",
+    title: "Website Testing",
+    description: "Launch QA, redirects, broken links, performance, accessibility, forms, and uptime.",
+    accent: "from-amber-500/25 to-orange-500/10",
+    count: "Web QA hub",
   },
   {
     href: "/lead-tools",
-    title: "Phone & Lead",
-    description: "Phone validator, lead intel, form QA, email header analysis.",
-    accent: "from-indigo-500/30 to-violet-500/10",
-    count: "5 tools",
+    title: "Phone Testing",
+    description: "Validators, lead intelligence, and phone-line test scripts alongside CRM-adjacent flows.",
+    accent: "from-indigo-500/25 to-violet-500/10",
+    count: "Phone & lead",
+  },
+  {
+    href: "/automation-tools",
+    title: "Automation",
+    description: "Monitoring hub, daily planners, GitHub Actions, API safety, and integration contracts.",
+    accent: "from-purple-500/25 to-indigo-500/10",
+    count: "Ops automation",
+  },
+  {
+    href: "/coding-tools",
+    title: "Developer Tools",
+    description: "Snippets, regex, JSON, API requests, repo health, Actions YAML, and review checklists.",
+    accent: "from-sky-500/25 to-cyan-500/10",
+    count: "Engineering hub",
   },
 ];
 
 export default function HomeDashboard() {
   return (
-    <div id="portfolio-toolkit">
+    <div id="portfolio-toolkit" className="scroll-mt-28">
       <section className="mb-10">
-        <div className="relative overflow-hidden rounded-3xl border border-[#1e2d4a] bg-gradient-to-br from-[#0b1224] via-[#0a0f1e] to-[#0b1422] p-8 lg:p-12">
-          <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" aria-hidden="true" />
-          <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-violet-500/15 blur-3xl" aria-hidden="true" />
-          <div className="relative max-w-3xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-cyan-300/90">
-              IT Automation Toolkit · Developer Automation Hub
-            </p>
-            <h1 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
-              IT Automation Toolkit
-            </h1>
-            <p className="mt-4 text-base sm:text-lg leading-7 text-slate-300/90">
-              A collection of tools for IT admins, developers, cyber security, Microsoft 365, and website automation.
-              Built to feel like a SaaS dashboard — and engineered so each tool stays useful in real day-to-day work.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/tools/browse"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_0_24px_rgba(6,182,212,0.35)] hover:from-cyan-400 hover:to-blue-500 transition-colors"
-              >
-                Browse toolkit
-              </Link>
-              <Link
-                href="/tools"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-white/10 transition-colors"
-              >
-                Security lookup suite
-              </Link>
-              <Link
-                href="/coding-tools"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/15 transition-colors"
-              >
-                Coding tools
-              </Link>
-              <Link
-                href="/it-admin-tools"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10 transition-colors"
-              >
-                IT admin tools
-              </Link>
-              <Link
-                href="/cyber-tools"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10 transition-colors"
-              >
-                Cyber security
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mb-10">
-        <SectionHeader eyebrow="Toolkit by the numbers" title="Dashboard stats" />
+        <SectionHeader eyebrow="Signal" title="Toolkit by the numbers" />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {STATS.map((s) => (
-            <article key={s.label} className="rounded-2xl border border-[#1e2d4a] bg-[#0f1629] p-5 transition-all duration-200 hover:border-cyan-400/40 hover:bg-[#0f1d3a]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{s.label}</p>
-              <p className="mt-3 text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{s.value}</p>
-              <p className="mt-2 text-xs leading-5 text-slate-400">{s.caption}</p>
+            <article
+              key={s.label}
+              className="ss-card card-lift rounded-2xl p-5 motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:-translate-y-0.5"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--ss-text-secondary)]">{s.label}</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] bg-clip-text text-transparent">
+                {s.value}
+              </p>
+              <p className="mt-2 text-xs leading-5 text-[var(--ss-text-secondary)]">{s.caption}</p>
             </article>
           ))}
         </div>
@@ -191,35 +117,35 @@ export default function HomeDashboard() {
 
       <section className="mb-10">
         <SectionReveal>
-          <SectionHeader eyebrow="Categories" title="Pick a category and jump in" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <SectionHeader eyebrow="Navigate" title="Organised hubs for every discipline" />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {CATEGORIES.map((c) => (
-            <Link
-              key={c.href}
-              href={c.href}
-              className="group relative overflow-hidden rounded-2xl border border-[#1e2d4a] bg-[#0f1629] p-5 transition-all duration-200 hover:border-cyan-400/40 hover:-translate-y-0.5"
-            >
-              <div className={`absolute inset-x-0 top-0 h-32 bg-gradient-to-br ${c.accent} opacity-60 blur-2xl pointer-events-none`} aria-hidden="true" />
-              <div className="relative">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-semibold text-slate-100">{c.title}</h3>
-                  {c.count && (
-                    <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200 shrink-0">
-                      {c.count}
-                    </span>
-                  )}
+              <Link
+                key={c.href}
+                href={c.href}
+                className="group ss-card card-lift relative overflow-hidden p-5 sm:p-6 motion-safe:transition-[transform,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-1"
+              >
+                <div className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-br ${c.accent} opacity-55 blur-2xl pointer-events-none`} aria-hidden="true" />
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-base font-semibold tracking-tight text-[var(--ss-text)]">{c.title}</h3>
+                    {c.count && (
+                      <span className="rounded-full border border-[var(--ss-border)] bg-[var(--ss-accent-soft)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--ss-accent)] shrink-0">
+                        {c.count}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--ss-text-secondary)]">{c.description}</p>
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--ss-accent)] transition-colors group-hover:underline">
+                    Open hub
+                    <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                    </svg>
+                  </span>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-slate-400">{c.description}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 transition-colors group-hover:text-cyan-200">
-                  Open category
-                  <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
-                  </svg>
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
         </SectionReveal>
       </section>
 
@@ -290,9 +216,9 @@ export default function HomeDashboard() {
       </section>
 
       <section className="mb-10">
-        <div className="rounded-2xl border border-[#1e2d4a] bg-[#0f1629] p-6 lg:p-8">
+        <div className="ss-card rounded-3xl p-6 lg:p-8">
           <SectionHeader eyebrow="Why I built this" title="A useful sandbox that doubles as a portfolio" plain />
-          <div className="grid gap-4 lg:grid-cols-3 text-sm leading-6 text-slate-300">
+          <div className="grid gap-4 lg:grid-cols-3 text-sm">
             <Block title="Real day-to-day IT work">
               I support Microsoft 365 tenants, helpdesks, websites and lead-generation funnels. Every tool here grew out of a real task I needed to repeat reliably.
             </Block>
@@ -304,16 +230,25 @@ export default function HomeDashboard() {
             </Block>
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/cyber-tools" className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-[0_0_18px_rgba(6,182,212,0.25)] hover:from-cyan-400 hover:to-blue-500 transition-colors">
+            <Link
+              href="/cyber-tools"
+              className="ss-pill ss-pill-primary btn-micro inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white"
+            >
               Try the cyber tools
             </Link>
-            <Link href="/m365-tools" className="inline-flex items-center gap-1.5 rounded-xl border border-[#1e2d4a] bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 transition-colors">
+            <Link
+              href="/m365-tools"
+              className="ss-pill ss-pill-ghost btn-micro inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
+            >
               See the Microsoft 365 checklists
             </Link>
-            <Link href="/automation-tools" className="inline-flex items-center gap-1.5 rounded-xl border border-[#1e2d4a] bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 transition-colors">
+            <Link
+              href="/automation-tools"
+              className="ss-pill ss-pill-ghost btn-micro inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
+            >
               Browse the automation tools
             </Link>
-            <Link href="/about" className="inline-flex items-center gap-1.5 rounded-xl border border-[#1e2d4a] bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 transition-colors">
+            <Link href="/about" className="ss-pill ss-pill-ghost btn-micro inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold">
               About this project
             </Link>
           </div>
@@ -323,20 +258,20 @@ export default function HomeDashboard() {
   );
 }
 
-function SectionHeader({ eyebrow, title, plain }: { eyebrow: string; title: string; plain?: boolean }) {
+function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string; plain?: boolean }) {
   return (
     <div className="mb-5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300/80">{eyebrow}</p>
-      <h2 className={`mt-2 text-xl font-bold tracking-tight ${plain ? "text-slate-100" : "text-slate-100"}`}>{title}</h2>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--ss-text-secondary)]">{eyebrow}</p>
+      <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--ss-text)]">{title}</h2>
     </div>
   );
 }
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-[#1e2d4a]/60 bg-black/20 p-4">
-      <p className="text-sm font-semibold text-slate-100 mb-2">{title}</p>
-      <p>{children}</p>
+    <div className="rounded-2xl border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)] p-4">
+      <p className="text-sm font-semibold text-[var(--ss-text)] mb-2">{title}</p>
+      <p className="text-[var(--ss-text-secondary)] leading-relaxed">{children}</p>
     </div>
   );
 }
