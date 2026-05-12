@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import { connection } from "next/server";
 import "./globals.css";
 import Header from "@/app/components/Header";
@@ -10,12 +10,6 @@ import { WorkspaceProvider } from "@/lib/workspace-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import { ThemeProvider } from "@/lib/theme-context";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
@@ -23,9 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SecureScope – Enterprise Security Platform",
+  title: "SecureScope – IT & Security Automation Hub",
   description:
-    "Enterprise-grade cyber intelligence platform. Monitor assets, manage cases, automate workflows, and respond to threats.",
+    "A polished toolkit for IT admins, security analysts, and marketers: domain intelligence, web QA, automation planners, and monitoring — in one fast workspace.",
 };
 
 export default async function RootLayout({
@@ -36,15 +30,15 @@ export default async function RootLayout({
   await connection();
 
   return (
-    <html lang="en" className={`h-full ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-full flex flex-col bg-[#050505] antialiased">
+    <html lang="en" className={`h-full ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-[var(--ss-page)] text-[var(--ss-text)] antialiased">
         <AuthProvider>
           <ToastProvider>
             <WorkspaceProvider>
               <NotificationsProvider>
                 <ThemeProvider>
                   <Header />
-                  <main id="main-content" className="flex-1 flex flex-col motion-safe:animate-page-enter">
+                  <main id="main-content" className="flex flex-1 flex-col">
                     {children}
                   </main>
                   <ChatWidget />

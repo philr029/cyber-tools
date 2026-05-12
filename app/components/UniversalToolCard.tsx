@@ -23,17 +23,26 @@ export interface UniversalToolCardProps {
 }
 
 const STATUS_STYLES: Record<ToolStatus, string> = {
-  live: "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
-  demo: "border-amber-500/30 bg-amber-500/10 text-amber-100",
-  planned: "border-slate-500/40 bg-slate-800/60 text-slate-300",
+  live: "border-emerald-500/35 bg-emerald-500/10 text-emerald-100",
+  demo: "border-sky-500/35 bg-sky-500/10 text-sky-100",
+  planned: "border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_8%,transparent)] text-[var(--ss-text-secondary)]",
   beta: "border-violet-500/35 bg-violet-500/10 text-violet-100",
 };
 
 function StatusBadge({ status }: { status: ToolStatus }) {
-  const label = status === "live" ? "Live" : status === "demo" ? "Demo" : status === "beta" ? "Beta" : "Planned";
+  const label =
+    status === "live"
+      ? "Live"
+      : status === "beta"
+        ? "Beta"
+        : status === "demo"
+          ? "Preview"
+          : status === "planned"
+            ? "Coming soon"
+            : "Planned";
   return (
     <span
-      className={`text-[9px] font-bold uppercase tracking-wider rounded-md px-1.5 py-0.5 ring-1 ${STATUS_STYLES[status]}`}
+      className={`text-[9px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 ring-1 ${STATUS_STYLES[status]}`}
     >
       {label}
     </span>
@@ -59,32 +68,32 @@ export default function UniversalToolCard({
     <>
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-500/20">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-[var(--ss-accent-soft)] text-[var(--ss-accent)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]">
             {Icon ? <Icon className="h-5 w-5" weight="duotone" aria-hidden /> : null}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-100 leading-snug group-hover:text-cyan-300 motion-safe:transition-colors">
+            <p className="text-sm font-semibold text-[var(--ss-text)] leading-snug group-hover:text-[var(--ss-accent)] motion-safe:transition-colors">
               {title}
             </p>
-            <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{description}</p>
+            <p className="text-[11px] text-[var(--ss-text-secondary)] mt-0.5 line-clamp-2">{description}</p>
           </div>
         </div>
         <StatusBadge status={status} />
       </div>
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-1.5 min-w-0">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-full ring-1 ring-[#1e2d4a]">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)] bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-2 py-0.5 rounded-full ring-1 ring-[var(--ss-border)]">
             {categoryTag}
           </span>
           {dashboardLabel ? (
-            <span className="text-[10px] font-medium text-slate-500 bg-slate-900/50 px-2 py-0.5 rounded-full ring-1 ring-white/10 truncate max-w-[11rem]">
+            <span className="text-[10px] font-medium text-[var(--ss-text-secondary)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] px-2 py-0.5 rounded-full ring-1 ring-[var(--ss-border)] truncate max-w-[11rem]">
               {dashboardLabel}
             </span>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-1.5 justify-end">
           {badge ? (
-            <span className="text-[10px] font-medium text-slate-500 bg-slate-800/40 px-2 py-0.5 rounded-full">{badge}</span>
+            <span className="text-[10px] font-medium text-[var(--ss-text-secondary)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] px-2 py-0.5 rounded-full">{badge}</span>
           ) : null}
         </div>
       </div>
@@ -93,14 +102,14 @@ export default function UniversalToolCard({
           {showTags.map((tag) => (
             <span
               key={tag}
-              className="text-[9px] rounded-md bg-white/[0.04] text-slate-500 px-1.5 py-0.5 ring-1 ring-white/10"
+              className="text-[9px] rounded-md bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] text-[var(--ss-text-secondary)] px-1.5 py-0.5 ring-1 ring-[var(--ss-border)]"
             >
               {tag}
             </span>
           ))}
         </div>
       ) : null}
-      <span className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 group-hover:text-cyan-300">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--ss-accent)] group-hover:text-[color-mix(in_srgb,var(--ss-accent)_85%,#fff)]">
         {comingSoon ? "Coming soon" : ctaLabel}
         {!comingSoon ? (
           <ArrowRight className="h-3.5 w-3.5 motion-safe:transition-transform group-hover:translate-x-0.5" aria-hidden weight="bold" />
@@ -112,7 +121,7 @@ export default function UniversalToolCard({
   if (comingSoon) {
     return (
       <div
-        className="group flex h-full flex-col gap-3 rounded-2xl border border-dashed border-[#1e2d4a] bg-[#0a0f1a]/80 p-4 opacity-85 cursor-not-allowed"
+        className="group flex h-full flex-col gap-3 rounded-2xl border border-dashed border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_85%,transparent)] p-4 opacity-90 cursor-not-allowed"
         aria-disabled="true"
         role="group"
         aria-label={`${title} — coming soon`}
@@ -125,7 +134,7 @@ export default function UniversalToolCard({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col gap-3 rounded-2xl border border-[#1e2d4a] bg-[#0f1629] p-4 motion-safe:transition-[transform,box-shadow,border-color,background-color] motion-safe:duration-200 hover:border-cyan-500/35 hover:bg-[#101a32] motion-safe:hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
+      className="group ss-card card-lift flex h-full flex-col gap-3 p-4 motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-200 hover:border-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)] motion-safe:hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]"
     >
       {inner}
     </Link>

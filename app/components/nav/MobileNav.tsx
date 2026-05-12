@@ -110,7 +110,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
           than getting absorbed by floating widgets. The drawer itself uses
           z-[60] to stay above the overlay. */}
       <div
-        className={`xl:hidden fixed inset-0 z-[55] bg-black/60 backdrop-blur-sm motion-safe:transition-opacity motion-safe:duration-200 ${
+        className={`xl:hidden fixed inset-0 z-[55] bg-black/55 backdrop-blur-md motion-safe:transition-opacity motion-safe:duration-200 motion-safe:ease-out ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
@@ -127,19 +127,19 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
-        className={`xl:hidden fixed inset-x-0 top-14 z-[72] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-2xl border-x border-b border-[#1e2d4a] bg-[#0b0f1a]/98 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] motion-safe:transition-[transform,opacity] motion-safe:duration-200 motion-safe:ease-out ${
-          open ? "translate-y-0" : "-translate-y-2 pointer-events-none opacity-0"
+        className={`xl:hidden fixed inset-x-0 top-14 z-[72] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-3xl border-x border-b border-[var(--ss-border)] glass-surface shadow-[0_24px_70px_rgba(0,0,0,0.45)] motion-safe:transition-[transform,opacity] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          open ? "translate-y-0 opacity-100" : "-translate-y-3 pointer-events-none opacity-0"
         }`}
       >
-        <div className="px-4 py-3 flex items-center justify-between border-b border-[#1e2d4a]">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--ss-border)]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)]">
             Menu
           </span>
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded-md hover:bg-white/5 transition-colors"
+            className="text-xs text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] px-2 py-1 rounded-full hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
             aria-label="Close menu"
           >
             Close
@@ -154,7 +154,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                 onOpenSearch();
                 onClose();
               }}
-              className="mb-3 w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-cyan-500/25 bg-cyan-500/10 text-sm font-medium text-cyan-100 hover:bg-cyan-500/15 transition-colors"
+              className="mb-3 w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-full border border-[var(--ss-border)] bg-[var(--ss-accent-soft)] text-sm font-semibold text-[var(--ss-text)] hover:border-[color-mix(in_srgb,var(--ss-accent)_45%,transparent)] transition-colors"
             >
               <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
                 <path
@@ -164,7 +164,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                 />
               </svg>
               Search site
-              <span className="ml-auto text-[10px] text-cyan-200/60 font-normal">
+              <span className="ml-auto text-[10px] text-[var(--ss-text-secondary)] font-normal">
                 <SearchHotkeyText />
               </span>
             </button>
@@ -191,7 +191,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
             ))}
           </ul>
 
-          <p className="px-2 py-1 mt-2 mb-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+          <p className="px-2 py-1 mt-2 mb-1 text-[10px] font-semibold text-[var(--ss-text-secondary)] uppercase tracking-wider">
             Tools & categories
           </p>
           <ul className="flex flex-col gap-1">
@@ -206,10 +206,10 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                     type="button"
                     onClick={() => setExpanded(isOpen ? null : group.label)}
                     aria-expanded={isOpen}
-                    className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                    className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold rounded-xl transition-colors ${
                       isActive
-                        ? "text-cyan-400 bg-cyan-400/10"
-                        : "text-slate-300 hover:text-slate-100 hover:bg-white/5"
+                        ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]"
+                        : "text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
                     }`}
                   >
                     <span>{group.label}</span>
@@ -229,7 +229,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                     </svg>
                   </button>
                   {isOpen && (
-                    <ul className="mt-0.5 ml-2 pl-3 border-l border-[#1e2d4a] flex flex-col gap-0.5">
+                    <ul className="mt-0.5 ml-2 pl-3 border-l border-[var(--ss-border)] flex flex-col gap-0.5">
                       {group.links.map((link) => {
                         const linkActive = pathname === link.href;
                         if (link.comingSoon) {
@@ -252,16 +252,16 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                             <Link
                               href={link.href}
                               onClick={onClose}
-                              className={`block px-3 py-2 text-sm rounded-md transition-colors ${
+                              className={`block px-3 py-2 text-sm rounded-lg transition-colors ${
                                 linkActive
-                                  ? "text-cyan-400 bg-cyan-400/10"
-                                  : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
+                                  ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]"
+                                  : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
                               }`}
                               aria-current={linkActive ? "page" : undefined}
                             >
-                              <span className="font-medium text-slate-200">{link.label}</span>
+                              <span className="font-medium text-[var(--ss-text)]">{link.label}</span>
                               {link.description ? (
-                                <span className="block text-xs text-slate-500 mt-0.5">{link.description}</span>
+                                <span className="block text-xs text-[var(--ss-text-secondary)] mt-0.5">{link.description}</span>
                               ) : null}
                             </Link>
                           </li>
@@ -275,7 +275,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
           </ul>
 
           {(authSlot || utilitySlot) && (
-            <div className="mt-4 pt-4 border-t border-[#1e2d4a] flex flex-col gap-2">
+            <div className="mt-4 pt-4 border-t border-[var(--ss-border)] flex flex-col gap-2">
               {utilitySlot}
               {authSlot}
             </div>
@@ -307,10 +307,10 @@ function MobileLink({
       <Link
         href={href}
         onClick={onNav}
-        className={`block px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+        className={`block px-3 py-2.5 text-sm font-semibold rounded-xl transition-colors ${
           active
-            ? "text-cyan-400 bg-cyan-400/10"
-            : "text-slate-300 hover:text-slate-100 hover:bg-white/5"
+            ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]"
+            : "text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
         }`}
         aria-current={active ? "page" : undefined}
       >

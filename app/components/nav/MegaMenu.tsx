@@ -183,10 +183,10 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
             first?.focus();
           });
         }}
-        className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+        className={`ss-pill flex items-center gap-1 px-3 py-1.5 text-xs font-semibold ${
           isAnyGroupActive || open
-            ? "text-cyan-400 bg-cyan-400/10"
-            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
+            : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
         }`}
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -228,10 +228,10 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         aria-labelledby={triggerId}
         onMouseEnter={cancelCloseAndKeepOpen}
         onMouseLeave={scheduleClose}
-        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-1.25rem))] max-h-[calc(100vh-4.5rem)] overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-safe:ease-out ${
+        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-1.25rem))] max-h-[calc(100vh-4.5rem)] overflow-y-auto rounded-3xl border border-[var(--ss-border)] glass-surface shadow-[0_28px_80px_rgba(0,0,0,0.45)] motion-safe:transition-[opacity,transform,filter] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
           open
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 -translate-y-1.5 pointer-events-none motion-reduce:translate-y-0 motion-reduce:opacity-0"
+            ? "opacity-100 translate-y-0 pointer-events-auto scale-100"
+            : "opacity-0 -translate-y-2 pointer-events-none scale-[0.99] motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-0"
         }`}
         hidden={!open}
         inert={!open}
@@ -246,10 +246,10 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
             />
           ))}
         </div>
-        <div className="border-t border-[#1e2d4a] px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-xs">
-          <span className="text-slate-500 flex flex-wrap items-center gap-1">
-            Press <SearchHotkeyText className="font-mono text-slate-400" /> for instant search, or{" "}
-            <Link href="/search" data-mega-link onClick={handleLinkClick} className="text-cyan-400 hover:text-cyan-300 font-medium">
+        <div className="border-t border-[var(--ss-border)] px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-xs">
+          <span className="text-[var(--ss-text-secondary)] flex flex-wrap items-center gap-1">
+            Press <SearchHotkeyText className="font-mono text-[var(--ss-text)]" /> for instant search, or{" "}
+            <Link href="/search" data-mega-link onClick={handleLinkClick} className="text-[var(--ss-accent)] hover:underline font-semibold">
               open the search page
             </Link>
             .
@@ -259,7 +259,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
               href="/projects"
               data-mega-link
               onClick={handleLinkClick}
-              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] font-medium transition-colors"
             >
               Projects
             </Link>
@@ -267,7 +267,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
               href="/about"
               data-mega-link
               onClick={handleLinkClick}
-              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] font-medium transition-colors"
             >
               About
             </Link>
@@ -275,7 +275,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
               href="/contact"
               data-mega-link
               onClick={handleLinkClick}
-              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] font-medium transition-colors"
             >
               Contact
             </Link>
@@ -283,7 +283,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
               href="/pricing"
               data-mega-link
               onClick={handleLinkClick}
-              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] font-medium transition-colors"
             >
               Pricing
             </Link>
@@ -291,7 +291,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
               href="/enterprise"
               data-mega-link
               onClick={handleLinkClick}
-              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] font-medium transition-colors"
             >
               Enterprise
             </Link>
@@ -299,7 +299,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
               href="/tools"
               data-mega-link
               onClick={handleLinkClick}
-              className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-[var(--ss-accent)] hover:underline font-semibold transition-colors"
             >
               Browse all tools →
             </Link>
@@ -331,7 +331,7 @@ function MegaColumn({
         href={group.index}
         data-mega-link
         onClick={onLinkClick}
-        className="group flex items-start gap-2 mb-2.5 rounded-lg px-2 py-1.5 -mx-2 hover:bg-white/5 transition-colors"
+        className="group flex items-start gap-2 mb-2.5 rounded-xl px-2 py-1.5 -mx-2 hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] transition-colors"
       >
         <span
           aria-hidden="true"
@@ -340,11 +340,11 @@ function MegaColumn({
           <Icon className="h-5 w-5" weight="duotone" aria-hidden />
         </span>
         <span className="min-w-0">
-          <span className="block text-sm font-semibold text-slate-100 group-hover:text-cyan-300 transition-colors">
+          <span className="block text-sm font-semibold text-[var(--ss-text)] group-hover:text-[var(--ss-accent)] transition-colors">
             {group.label}
           </span>
           {group.tagline && (
-            <span className="block text-[11px] text-slate-500 leading-tight">{group.tagline}</span>
+            <span className="block text-[11px] text-[var(--ss-text-secondary)] leading-tight">{group.tagline}</span>
           )}
         </span>
       </Link>
@@ -375,14 +375,14 @@ function MegaColumn({
                 href={link.href}
                 data-mega-link
                 onClick={onLinkClick}
-                className={`block px-2 py-1.5 text-xs rounded-md transition-colors ${
-                  active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                className={`block px-2 py-1.5 text-xs rounded-lg transition-colors ${
+                  active ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]" : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)]"
                 }`}
                 aria-current={active ? "page" : undefined}
               >
-                <span className="font-medium text-slate-200/95">{link.label}</span>
+                <span className="font-medium text-[var(--ss-text)]">{link.label}</span>
                 {link.description ? (
-                  <span className="block text-[11px] text-slate-500 leading-snug mt-0.5">{link.description}</span>
+                  <span className="block text-[11px] text-[var(--ss-text-secondary)] leading-snug mt-0.5">{link.description}</span>
                 ) : null}
               </Link>
             </li>
@@ -394,7 +394,7 @@ function MegaColumn({
               href={group.index}
               data-mega-link
               onClick={onLinkClick}
-              className="block px-2 py-1.5 text-[11px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
+              className="block px-2 py-1.5 text-[11px] font-semibold text-[var(--ss-accent)] hover:underline transition-colors"
             >
               View all in {group.label} →
             </Link>
