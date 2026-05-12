@@ -17,7 +17,7 @@ import { useTheme } from "@/lib/theme-context";
 import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
 import MegaMenu from "@/app/components/nav/MegaMenu";
 import MobileNav, { PRIMARY_MOBILE_NAV_ID } from "@/app/components/nav/MobileNav";
-import SearchModal, { useSearchHotkey } from "@/app/components/search/SearchModal";
+import SearchModal, { GLOBAL_SEARCH_DIALOG_ID, useSearchHotkey } from "@/app/components/search/SearchModal";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 import { TOP_BAR_LINKS } from "@/app/components/nav/nav-data";
 
@@ -26,13 +26,36 @@ export default function Header() {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
   const { user, loading, logout } = useAuth();
   const { toast } = useToast();
   const { theme, toggle: toggleTheme } = useTheme();
   const { scansToday } = useDailyScans(user?.plan ?? null);
 
-  const openSearch = useCallback(() => setSearchOpen(true), []);
-  useSearchHotkey(openSearch, !searchOpen);
+  const handleToolsOpenChange = useCallback((next: boolean) => {
+    setToolsMenuOpen(next);
+    if (next) {
+      setSearchOpen(false);
+      setMobileOpen(false);
+    }
+  }, []);
+
+  const toggleSearch = useCallback(() => {
+    setSearchOpen((wasOpen) => {
+      if (wasOpen) return false;
+      setToolsMenuOpen(false);
+      setMobileOpen(false);
+      return true;
+    });
+  }, []);
+
+  const openSearchFromMobile = useCallback(() => {
+    setToolsMenuOpen(false);
+    setMobileOpen(false);
+    setSearchOpen(true);
+  }, []);
+
+  useSearchHotkey(toggleSearch, true);
 
   const isToolsActive = useMemo(() => {
     if (pathname.startsWith("/tools")) return true;
@@ -56,6 +79,10 @@ export default function Header() {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [mobileOpen]);
+
+  useEffect(() => {
+    setSearchOpen(false);
+  }, [pathname]);
 
   async function handleLogout() {
     await logout();
@@ -81,7 +108,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 glass-surface border-b border-[var(--ss-border)] shadow-[0_1px_0_color-mix(in_srgb,var(--ss-text)_6%,transparent)]">
+    <header className="sticky top-0 z-[60] glass-surface border-b border-[var(--ss-border)] shadow-[0_1px_0_color-mix(in_srgb,var(--ss-text)_6%,transparent)]">
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-2">
@@ -128,18 +155,21 @@ export default function Header() {
               </Link>
             ))}
             <div className={`flex items-center ml-1 rounded-full ${isToolsActive ? "bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_30%,transparent)]" : ""}`}>
-              <MegaMenu label="Tools" />
+              <MegaMenu label="Tools" open={toolsMenuOpen} onOpenChange={handleToolsOpenChange} />
             </div>
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <button
               type="button"
-              onClick={() => setSearchOpen(true)}
+              onClick={toggleSearch}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] hover:bg-[var(--ss-accent-soft)] motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5 ${
                 pathname === "/search" ? "border-[color-mix(in_srgb,var(--ss-accent)_45%,transparent)] bg-[var(--ss-accent-soft)] text-[var(--ss-text)]" : "border-[var(--ss-border)]"
               }`}
-              aria-label="Open search"
+              aria-label={searchOpen ? "Close search" : "Open search"}
+              aria-expanded={searchOpen}
+              aria-haspopup="dialog"
+              aria-controls={GLOBAL_SEARCH_DIALOG_ID}
             >
               <svg className="w-4 h-4 text-[var(--ss-accent)]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
@@ -268,7 +298,16 @@ export default function Header() {
 
             <button
               type="button"
-              onClick={() => setMobileOpen((v) => !v)}
+              onClick={() => {
+                setMobileOpen((v) => {
+                  const next = !v;
+                  if (next) {
+                    setSearchOpen(false);
+                    setToolsMenuOpen(false);
+                  }
+                  return next;
+                });
+              }}
               className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] text-[var(--ss-text)] hover:bg-[var(--ss-accent-soft)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] motion-safe:transition-colors"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
@@ -296,7 +335,7 @@ export default function Header() {
         <MobileNav
           open={mobileOpen}
           onClose={() => setMobileOpen(false)}
-          onOpenSearch={openSearch}
+          onOpenSearch={openSearchFromMobile}
           utilitySlot={
             <Link
               href="/settings"

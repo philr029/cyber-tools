@@ -6,12 +6,14 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type ComponentType,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   BookOpen,
   Briefcase,
@@ -87,6 +89,9 @@ const TYPE_LABELS: Record<SearchToolType | "all", string> = {
   auth: "Auth",
 };
 
+/** Stable id for `aria-controls` on the header search trigger (dialog may be unmounted when closed). */
+export const GLOBAL_SEARCH_DIALOG_ID = "ss-global-search-dialog";
+
 interface SearchModalProps {
   open: boolean;
   onClose: () => void;
@@ -105,6 +110,11 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   const [toolkitArea, setToolkitArea] = useState<SearchToolkitAreaFilter>("all");
   const [activeIndex, setActiveIndex] = useState(-1);
   const recentUrls = useMemo(() => (open ? readRecentSearches() : []), [open]);
+  const [portalReady, setPortalReady] = useState(false);
+
+  useLayoutEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -178,6 +188,12 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
+      const isK = e.key === "k" || e.key === "K";
+      if ((e.metaKey || e.ctrlKey) && isK && !e.altKey) {
+        e.preventDefault();
+        onClose();
+        return;
+      }
       if (e.key === "Escape") {
         e.preventDefault();
         onClose();
@@ -241,23 +257,28 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     [onClose],
   );
 
-  if (!open) return null;
+  if (!open || !portalReady) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center sm:pt-[8vh] pt-4 px-3 motion-safe:animate-search-backdrop">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm motion-safe:transition-opacity motion-safe:duration-200" aria-hidden />
+  const modal = (
+    <div className="fixed inset-0 z-[200] flex items-start justify-center sm:pt-[10vh] pt-6 px-4 sm:px-5 motion-safe:animate-search-backdrop pointer-events-auto">
+      <div
+        className="absolute inset-0 bg-[color-mix(in_srgb,var(--ss-page)_55%,#000)] backdrop-blur-xl motion-safe:transition-opacity motion-safe:duration-200 cursor-default"
+        aria-hidden
+        onClick={onClose}
+      />
 
       <div
         ref={panelRef}
+        id={GLOBAL_SEARCH_DIALOG_ID}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative w-full max-w-2xl max-h-[min(640px,88dvh)] flex flex-col rounded-3xl border border-[var(--ss-border)] glass-surface shadow-[0_28px_90px_rgba(0,0,0,0.55)] overflow-hidden motion-safe:animate-search-panel"
+        className="relative w-full max-w-xl max-h-[min(560px,86dvh)] flex flex-col rounded-[1.35rem] sm:rounded-[1.5rem] border border-[color-mix(in_srgb,var(--ss-border)_85%,transparent)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_92%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--ss-text)_4%,transparent),0_24px_80px_rgba(0,0,0,0.35),0_0_1px_rgba(0,0,0,0.08)] overflow-hidden motion-safe:animate-search-panel ring-1 ring-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
       >
         <h2 id={titleId} className="sr-only">
           Site search
         </h2>
-        <div className="border-b border-[var(--ss-border)] px-4 py-3 flex items-center gap-3">
+        <div className="border-b border-[color-mix(in_srgb,var(--ss-border)_70%,transparent)] px-4 sm:px-5 py-3.5 flex items-center gap-3 bg-[color-mix(in_srgb,var(--ss-elevated-solid)_40%,transparent)]">
           <svg
             className="w-5 h-5 text-[var(--ss-accent)] shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-105"
             viewBox="0 0 20 20"
@@ -278,7 +299,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search pages, tools, categories, routes…"
             autoComplete="off"
-            className="flex-1 min-w-0 bg-transparent text-sm text-[var(--ss-text)] placeholder:text-[var(--ss-text-secondary)] focus:outline-none"
+            className="flex-1 min-w-0 bg-transparent text-[15px] sm:text-base text-[var(--ss-text)] placeholder:text-[color-mix(in_srgb,var(--ss-text-secondary)_75%,transparent)] focus:outline-none tracking-tight"
             aria-label="Search query"
           />
           <div className="hidden sm:flex items-center gap-1 text-[10px] text-[var(--ss-text-secondary)] shrink-0">
@@ -300,7 +321,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           </button>
         </div>
 
-        <div className="px-4 py-2 flex flex-wrap gap-2 border-b border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_70%,transparent)]">
+        <div className="px-4 sm:px-5 py-2.5 flex flex-wrap gap-2 border-b border-[color-mix(in_srgb,var(--ss-border)_70%,transparent)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_55%,transparent)]">
           <label className="sr-only" htmlFor={`${dialogId}-cat`}>
             Category
           </label>
@@ -348,7 +369,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           </select>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 py-2 motion-safe:transition-[opacity] motion-safe:duration-150">
+        <div className="flex-1 overflow-y-auto px-2 sm:px-3 py-2 motion-safe:transition-[opacity] motion-safe:duration-150">
           {!query.trim() && !filtersActive && spotlight.length > 0 && (
             <div className="mb-3 px-2">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)] mb-2">
@@ -449,6 +470,8 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }
 
 function ResultRow({

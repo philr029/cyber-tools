@@ -97,8 +97,6 @@ export default function ChatWidget() {
     setIsLoading(true);
     setShowSuggestions(false);
 
-    console.log("[ChatWidget] Sending message:", text.substring(0, 80));
-
     // Build conversation history excluding the welcome message
     const history = messages
       .filter((m) => m.id !== "welcome")

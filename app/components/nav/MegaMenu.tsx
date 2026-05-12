@@ -47,9 +47,16 @@ const GROUP_ACCENTS: Record<string, string> = {
 
 const DEFAULT_MAX_LINKS = 6;
 
-export default function MegaMenu({ label = "Tools" }: { label?: string }) {
+export default function MegaMenu({
+  label = "Tools",
+  open,
+  onOpenChange,
+}: {
+  label?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const openTimer = useRef<number | null>(null);
@@ -83,29 +90,29 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
     pathname.startsWith("/tools/preview") ||
     pathname.startsWith("/search");
 
-  const handleLinkClick = useCallback(() => setOpen(false), []);
+  const handleLinkClick = useCallback(() => onOpenChange(false), [onOpenChange]);
 
   const scheduleOpen = useCallback(() => {
     if (!finePointer) return;
     clearTimers();
-    openTimer.current = window.setTimeout(() => setOpen(true), 90);
-  }, [clearTimers, finePointer]);
+    openTimer.current = window.setTimeout(() => onOpenChange(true), 90);
+  }, [clearTimers, finePointer, onOpenChange]);
 
   const scheduleClose = useCallback(() => {
     if (!finePointer) return;
     clearTimers();
-    closeTimer.current = window.setTimeout(() => setOpen(false), 340);
-  }, [clearTimers, finePointer]);
+    closeTimer.current = window.setTimeout(() => onOpenChange(false), 340);
+  }, [clearTimers, finePointer, onOpenChange]);
 
   const cancelCloseAndKeepOpen = useCallback(() => {
     clearTimers();
-    setOpen(true);
-  }, [clearTimers]);
+    onOpenChange(true);
+  }, [clearTimers, onOpenChange]);
 
   const toggle = useCallback(() => {
     clearTimers();
-    setOpen((v) => !v);
-  }, [clearTimers]);
+    onOpenChange(!open);
+  }, [clearTimers, onOpenChange, open]);
 
   // Close on Escape, returning focus to the trigger so keyboard users keep
   // their place in the tab order.
@@ -113,13 +120,13 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
       if (e.key !== "Escape") return;
-      setOpen(false);
+      onOpenChange(false);
       triggerRef.current?.focus();
     }
     if (typeof document === "undefined") return;
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [open]);
+  }, [open, onOpenChange]);
 
   // Close on outside click/touch (pointerdown covers mouse, pen, and touch).
   useEffect(() => {
@@ -132,14 +139,14 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
       const t = e.target;
       if (!t || !(t instanceof Node)) return;
       if (!root.contains(t)) {
-        setOpen(false);
+        onOpenChange(false);
       }
     }
 
     // Capture phase so we still see events that are stopped lower in the tree.
     document.addEventListener("pointerdown", handlePointerDown, true);
     return () => document.removeEventListener("pointerdown", handlePointerDown, true);
-  }, [open]);
+  }, [open, onOpenChange]);
 
   // Close when focus leaves the trigger + panel (Tab / programmatic focus moves).
   useEffect(() => {
@@ -152,12 +159,16 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
       if (!el) return;
       const rt = e.relatedTarget;
       if (rt instanceof Node && el.contains(rt)) return;
-      setOpen(false);
+      onOpenChange(false);
     }
 
     root.addEventListener("focusout", onFocusOut);
     return () => root.removeEventListener("focusout", onFocusOut);
-  }, [open]);
+  }, [open, onOpenChange]);
+
+  useEffect(() => {
+    onOpenChange(false);
+  }, [pathname, onOpenChange]);
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -173,7 +184,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
           if (e.key !== "ArrowDown" && e.key !== " " && e.key !== "Enter") return;
           e.preventDefault();
           clearTimers();
-          setOpen(true);
+          onOpenChange(true);
           requestAnimationFrame(() => {
             const root = wrapperRef.current;
             if (!root) return;
