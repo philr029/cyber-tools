@@ -14,11 +14,12 @@
 // =============================================================================
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS, TOP_BAR_LINKS } from "./nav-data";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
+import { navGroupContainsPath, navLinkMatchesPath } from "@/lib/navigation/path-match";
 
 export const PRIMARY_MOBILE_NAV_ID = "primary-mobile-nav";
 
@@ -44,8 +45,9 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
   // sibling fixed elements that paint above the header (e.g. the
   // floating ChatWidget FAB), which prevents tap-to-close from firing.
   const [mounted, setMounted] = useState(false);
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only flag for SSR safety
-  useEffect(() => setMounted(true), []);
+  useLayoutEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close on Escape.
   useEffect(() => {
@@ -78,9 +80,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
     const wasOpen = prevOpenRef.current;
     prevOpenRef.current = open;
     if (!open || wasOpen) return;
-    const active = NAV_GROUPS.find(
-      (g) => pathname === g.index || g.links.some((l) => pathname === l.href),
-    );
+    const active = NAV_GROUPS.find((g) => navGroupContainsPath(g, pathname));
     if (active) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot update on open transition
       setExpanded(active.label);
@@ -110,7 +110,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
           than getting absorbed by floating widgets. The drawer itself uses
           z-[60] to stay above the overlay. */}
       <div
-        className={`xl:hidden fixed inset-0 z-[55] bg-black/55 backdrop-blur-md motion-safe:transition-opacity motion-safe:duration-200 motion-safe:ease-out ${
+        className={`lg:hidden fixed inset-0 z-[55] bg-black/55 backdrop-blur-md motion-safe:transition-opacity motion-safe:duration-200 motion-safe:ease-out ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
@@ -127,7 +127,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
-        className={`xl:hidden fixed inset-x-0 top-14 z-[72] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-3xl border-x border-b border-[var(--ss-border)] glass-surface shadow-[0_24px_70px_rgba(0,0,0,0.45)] motion-safe:transition-[transform,opacity] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`lg:hidden fixed inset-x-0 top-14 z-[72] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-3xl border-x border-b border-[var(--ss-border)] glass-surface shadow-[0_24px_70px_rgba(0,0,0,0.45)] motion-safe:transition-[transform,opacity] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
           open ? "translate-y-0 opacity-100" : "-translate-y-3 pointer-events-none opacity-0"
         }`}
       >
@@ -197,9 +197,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
           <ul className="flex flex-col gap-1">
             {NAV_GROUPS.map((group) => {
               const isOpen = expanded === group.label;
-              const isActive =
-                pathname === group.index ||
-                group.links.some((l) => pathname === l.href);
+              const isActive = navGroupContainsPath(group, pathname);
               return (
                 <li key={group.label}>
                   <button
@@ -231,7 +229,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                   {isOpen && (
                     <ul className="mt-0.5 ml-2 pl-3 border-l border-[var(--ss-border)] flex flex-col gap-0.5">
                       {group.links.map((link) => {
-                        const linkActive = pathname === link.href;
+                        const linkActive = navLinkMatchesPath(pathname, link.href);
                         if (link.comingSoon) {
                           return (
                             <li key={`${link.href}-soon`}>

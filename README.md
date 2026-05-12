@@ -355,6 +355,28 @@ Steps:
 
 ---
 
+## Vercel deployment checklist
+
+After `npm run build` succeeds locally:
+
+1. **Framework preset** — Vercel should auto-detect Next.js. Build command: `npm run build`; output: `.next`.
+2. **Linux paths** — All `app/` routes and imports use **lowercase** paths. Avoid renaming files with casual casing; macOS may hide issues that break on Vercel.
+3. **Middleware** — `proxy.ts` gates `/dashboard/*`. Confirm session cookies work on your production domain (SameSite / secure flags).
+4. **Environment variables** — Copy from `.env.example`. Keep API secrets **server-only** (no `NEXT_PUBLIC_` prefix unless intentionally public).
+5. **Navigation** — Desktop mega menu appears from the `lg` breakpoint (1024px). Below that width, use the hamburger drawer and command palette search (**⌘/Ctrl + K**).
+6. **Static assets** — Files in `public/` are served from the site root; reference as `/path/to/asset`.
+
+### Troubleshooting
+
+| Symptom | Likely cause |
+|---|---|
+| 404 on a tool that works locally | Case mismatch in `href` vs folder name on disk; check git on Linux. |
+| Mega menu flashes or closes | Coarse pointer / touch hybrid — use click/tap to pin open; hover timing is relaxed for fine pointers. |
+| Mobile drawer behind FAB | Drawer renders in a portal with `z-[72]` above the chat FAB (`z-50`). |
+| Search empty for new page | Add keywords in `lib/data/searchIndex.ts` or extend the site catalog entry. |
+
+---
+
 ## Licence
 
 MIT

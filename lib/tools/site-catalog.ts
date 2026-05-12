@@ -1,6 +1,6 @@
 // =============================================================================
-// Site tools catalog — single source for mega menu, mobile nav, search index,
-// category pages, and homepage tool cards.
+// Site tools catalog — search index, category pages, browse grid, and homepage.
+// Primary navigation groups live in `lib/navigation/app-menu.ts`.
 // =============================================================================
 
 /** Navigation link shape (mega menu + mobile drawer). */
@@ -18,13 +18,6 @@ export interface NavGroup {
   links: NavLink[];
   maxFeaturedLinks?: number;
 }
-
-/** Compact primary bar — secondary routes live under Tools. */
-export const TOP_BAR_LINKS: NavLink[] = [
-  { href: "/", label: "Home", description: "SecureScope home" },
-  { href: "/automation-tools", label: "Automation", description: "CI/CD, monitoring & integration planners" },
-  { href: "/dashboard", label: "Dashboards", description: "Saved scans, alerts & workspace" },
-];
 
 /** Canonical mega-menu / search category labels (8 groups). */
 export const MEGA_GROUP_LABELS = [
@@ -942,25 +935,6 @@ export function toolsByMegaGroup(label: MegaGroupLabel): SiteTool[] {
     .sort((a, b) => a.megaOrder - b.megaOrder);
 }
 
-export function buildNavGroups(): NavGroup[] {
-  return MEGA_GROUP_SPECS.map((spec) => {
-    const tools = toolsByMegaGroup(spec.label);
-    const links: NavLink[] = tools.map((t) => ({
-      href: t.href,
-      label: t.label,
-      description: t.description,
-      comingSoon: t.comingSoon,
-    }));
-    return {
-      label: spec.label,
-      index: spec.index,
-      tagline: spec.tagline,
-      maxFeaturedLinks: spec.maxFeaturedLinks,
-      links,
-    };
-  });
-}
-
 export function featuredToolsList(limit = 8): SiteTool[] {
   const u = uniqueSiteTools();
   const featured = u.filter((t) => t.featured);
@@ -1013,4 +987,3 @@ export function categoryCardsWhere(pred: (t: SiteTool) => boolean) {
     }));
 }
 
-export const NAV_GROUPS: NavGroup[] = buildNavGroups();

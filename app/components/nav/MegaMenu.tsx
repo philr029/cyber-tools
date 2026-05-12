@@ -1,7 +1,7 @@
 "use client";
 
 // =============================================================================
-// MegaMenu (desktop, xl+)
+// MegaMenu (desktop, lg+)
 // -----------------------------------------------------------------------------
 // Category panel for all tools. Opens on click, fine-pointer hover (with short
 // delays), and ArrowDown / Enter on the trigger. Closes on Escape, outside
@@ -12,39 +12,37 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useCallback, type ComponentType } from "react";
 import { usePathname } from "next/navigation";
 import {
+  BookOpen,
   Briefcase,
-  Code,
   GearSix,
-  Globe,
+  HouseLine,
   Megaphone,
   ShieldCheck,
-  Sparkle,
   TreeStructure,
   type IconProps,
 } from "@phosphor-icons/react";
 import { NAV_GROUPS, type NavGroup } from "./nav-data";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
+import { navGroupContainsPath, navLinkMatchesPath } from "@/lib/navigation/path-match";
 
 const GROUP_ICONS: Record<string, ComponentType<IconProps>> = {
-  "Website Testing Tools": Globe,
-  "Domain & DNS Tools": TreeStructure,
-  "Security Tools": ShieldCheck,
+  Dashboard: HouseLine,
+  "IT Tools": TreeStructure,
   "Marketing Tools": Megaphone,
-  "Automation Tools": GearSix,
-  "Coding/Developer Tools": Code,
-  "AI Tools": Sparkle,
-  "Business/Productivity Tools": Briefcase,
+  Automation: GearSix,
+  Security: ShieldCheck,
+  Projects: Briefcase,
+  Resources: BookOpen,
 };
 
 const GROUP_ACCENTS: Record<string, string> = {
-  "Website Testing Tools": "bg-indigo-500/10 text-indigo-300 ring-indigo-500/20",
-  "Domain & DNS Tools": "bg-teal-500/10 text-teal-300 ring-teal-500/20",
-  "Security Tools": "bg-rose-500/10 text-rose-300 ring-rose-500/20",
-  "Automation Tools": "bg-amber-500/10 text-amber-300 ring-amber-500/20",
+  Dashboard: "bg-sky-500/10 text-sky-300 ring-sky-500/20",
+  "IT Tools": "bg-teal-500/10 text-teal-300 ring-teal-500/20",
   "Marketing Tools": "bg-pink-500/10 text-pink-300 ring-pink-500/20",
-  "AI Tools": "bg-violet-500/10 text-violet-300 ring-violet-500/20",
-  "Coding/Developer Tools": "bg-sky-500/10 text-sky-300 ring-sky-500/20",
-  "Business/Productivity Tools": "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
+  Automation: "bg-amber-500/10 text-amber-300 ring-amber-500/20",
+  Security: "bg-rose-500/10 text-rose-300 ring-rose-500/20",
+  Projects: "bg-violet-500/10 text-violet-300 ring-violet-500/20",
+  Resources: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
 };
 
 const DEFAULT_MAX_LINKS = 6;
@@ -79,7 +77,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   }, []);
 
   const isAnyGroupActive =
-    NAV_GROUPS.some((g) => pathname === g.index || g.links.some((l) => pathname === l.href)) ||
+    NAV_GROUPS.some((g) => navGroupContainsPath(g, pathname)) ||
     pathname.startsWith("/marketing-tools") ||
     pathname.startsWith("/tools/browse") ||
     pathname.startsWith("/tools/preview") ||
@@ -96,7 +94,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   const scheduleClose = useCallback(() => {
     if (!finePointer) return;
     clearTimers();
-    closeTimer.current = window.setTimeout(() => setOpen(false), 220);
+    closeTimer.current = window.setTimeout(() => setOpen(false), 340);
   }, [clearTimers, finePointer]);
 
   const cancelCloseAndKeepOpen = useCallback(() => {
@@ -236,7 +234,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         hidden={!open}
         inert={!open}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-5 gap-y-5 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5 p-6">
           {NAV_GROUPS.map((group) => (
             <MegaColumn
               key={group.label}
@@ -320,7 +318,7 @@ function MegaColumn({
   onLinkClick: () => void;
 }) {
   const accent = GROUP_ACCENTS[group.label] ?? "bg-slate-500/10 text-slate-300 ring-slate-500/20";
-  const Icon = GROUP_ICONS[group.label] ?? Globe;
+  const Icon = GROUP_ICONS[group.label] ?? TreeStructure;
   const max = group.maxFeaturedLinks ?? DEFAULT_MAX_LINKS;
   const featuredLinks = group.links.filter((l) => l.href !== group.index).slice(0, max);
   const hasMore = group.links.filter((l) => l.href !== group.index).length > max;
@@ -331,7 +329,10 @@ function MegaColumn({
         href={group.index}
         data-mega-link
         onClick={onLinkClick}
-        className="group flex items-start gap-2 mb-2.5 rounded-xl px-2 py-1.5 -mx-2 hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] transition-colors"
+        aria-current={navLinkMatchesPath(pathname, group.index) ? "page" : undefined}
+        className={`group flex items-start gap-2 mb-2.5 rounded-xl px-2 py-1.5 -mx-2 hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] transition-colors ${
+          navLinkMatchesPath(pathname, group.index) ? "bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_28%,transparent)]" : ""
+        }`}
       >
         <span
           aria-hidden="true"
@@ -350,7 +351,7 @@ function MegaColumn({
       </Link>
       <ul className="flex flex-col gap-1">
         {featuredLinks.map((link) => {
-          const active = pathname === link.href;
+          const active = navLinkMatchesPath(pathname, link.href);
           if (link.comingSoon) {
             return (
               <li key={link.href}>
