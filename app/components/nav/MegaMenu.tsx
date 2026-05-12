@@ -9,22 +9,42 @@
 // =============================================================================
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, useCallback } from "react";
+import { useEffect, useId, useRef, useState, useCallback, type ComponentType } from "react";
 import { usePathname } from "next/navigation";
+import {
+  Briefcase,
+  Code,
+  GearSix,
+  Globe,
+  Megaphone,
+  ShieldCheck,
+  Sparkle,
+  TreeStructure,
+  type IconProps,
+} from "@phosphor-icons/react";
 import { NAV_GROUPS, type NavGroup } from "./nav-data";
+import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 
-// One accent colour per group — keeps the panel visually scannable without
-// pulling in an icon library. Using Tailwind arbitrary classes inline so each
-// colour stays in source for tree-shaking.
+const GROUP_ICONS: Record<string, ComponentType<IconProps>> = {
+  "Website Testing Tools": Globe,
+  "Domain & DNS Tools": TreeStructure,
+  "Security Tools": ShieldCheck,
+  "Marketing Tools": Megaphone,
+  "Automation Tools": GearSix,
+  "Coding/Developer Tools": Code,
+  "AI Tools": Sparkle,
+  "Business/Productivity Tools": Briefcase,
+};
+
 const GROUP_ACCENTS: Record<string, string> = {
   "Website Testing Tools": "bg-indigo-500/10 text-indigo-300 ring-indigo-500/20",
-  "IT Tools": "bg-sky-500/10 text-sky-300 ring-sky-500/20",
-  "Cybersecurity Tools": "bg-rose-500/10 text-rose-300 ring-rose-500/20",
+  "Domain & DNS Tools": "bg-teal-500/10 text-teal-300 ring-teal-500/20",
+  "Security Tools": "bg-rose-500/10 text-rose-300 ring-rose-500/20",
   "Automation Tools": "bg-amber-500/10 text-amber-300 ring-amber-500/20",
   "Marketing Tools": "bg-pink-500/10 text-pink-300 ring-pink-500/20",
   "AI Tools": "bg-violet-500/10 text-violet-300 ring-violet-500/20",
-  "Finance Tools": "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
-  "Admin Tools": "bg-slate-500/10 text-slate-200 ring-slate-500/25",
+  "Coding/Developer Tools": "bg-sky-500/10 text-sky-300 ring-sky-500/20",
+  "Business/Productivity Tools": "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
 };
 
 const DEFAULT_MAX_LINKS = 6;
@@ -60,7 +80,8 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
 
   const isAnyGroupActive =
     NAV_GROUPS.some((g) => pathname === g.index || g.links.some((l) => pathname === l.href)) ||
-    pathname.startsWith("/marketing-tools");
+    pathname.startsWith("/marketing-tools") ||
+    pathname.startsWith("/search");
 
   const handleLinkClick = useCallback(() => setOpen(false), []);
 
@@ -210,6 +231,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
             : "opacity-0 -translate-y-1.5 pointer-events-none motion-reduce:translate-y-0 motion-reduce:opacity-0"
         }`}
         hidden={!open}
+        inert={!open}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-5 gap-y-5 p-6">
           {NAV_GROUPS.map((group) => (
@@ -222,7 +244,13 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
           ))}
         </div>
         <div className="border-t border-[#1e2d4a] px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-xs">
-          <span className="text-slate-500">Press ⌘K / Ctrl+K for instant search across the site.</span>
+          <span className="text-slate-500 flex flex-wrap items-center gap-1">
+            Press <SearchHotkeyText className="font-mono text-slate-400" /> for instant search, or{" "}
+            <Link href="/search" data-mega-link onClick={handleLinkClick} className="text-cyan-400 hover:text-cyan-300 font-medium">
+              open the search page
+            </Link>
+            .
+          </span>
           <div className="flex flex-wrap gap-3">
             <Link
               href="/projects"
@@ -289,6 +317,7 @@ function MegaColumn({
   onLinkClick: () => void;
 }) {
   const accent = GROUP_ACCENTS[group.label] ?? "bg-slate-500/10 text-slate-300 ring-slate-500/20";
+  const Icon = GROUP_ICONS[group.label] ?? Globe;
   const max = group.maxFeaturedLinks ?? DEFAULT_MAX_LINKS;
   const featuredLinks = group.links.filter((l) => l.href !== group.index).slice(0, max);
   const hasMore = group.links.filter((l) => l.href !== group.index).length > max;
@@ -303,9 +332,9 @@ function MegaColumn({
       >
         <span
           aria-hidden="true"
-          className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md ring-1 text-[10px] font-bold uppercase ${accent}`}
+          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${accent}`}
         >
-          {group.label.slice(0, 2)}
+          <Icon className="h-5 w-5" weight="duotone" aria-hidden />
         </span>
         <span className="min-w-0">
           <span className="block text-sm font-semibold text-slate-100 group-hover:text-cyan-300 transition-colors">

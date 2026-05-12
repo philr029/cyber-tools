@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CategoryIndex from "@/app/components/tools/CategoryIndex";
+import { categoryCardsWhere } from "@/lib/tools/site-catalog";
 
 export const metadata: Metadata = {
   title: "Phone & Lead Testing Tools — SecureScope Toolkit",
@@ -12,56 +13,16 @@ export default function LeadToolsPage() {
       eyebrow="Phone & Lead Testing"
       title="Phone & Lead Testing Tools"
       intro="Validate phone numbers, score inbound leads, and stress-test lead-capture forms before they reach your CRM."
-      tools={[
-        {
-          href: "/tools/phone-lookup",
-          title: "Phone Validator",
-          description: "Twilio-powered carrier, country and line-type validation for any number.",
-          badge: "Twilio",
-          why: "Catches bad data at the gate, not after CRM bloat.",
-          skill: "Twilio Lookup API integration.",
-        },
-        {
-          href: "/tools/automated-monitoring",
-          title: "Automated Monitoring Hub",
-          description: "Ops-style dashboard for phone probes, form POST tests, and deliverability context.",
-          badge: "Live",
-          why: "Shows how to keep telephony and MXToolbox keys off the client while still automating checks.",
-          skill: "Secure API orchestration, SSRF controls.",
-        },
-        {
-          href: "/tools/lead-intelligence",
-          title: "Lead Intelligence",
-          description: "Quick enrichment view for a lead's email, domain and risk signals.",
-          badge: "Live",
-          why: "Helps sales prioritise without manual research.",
-          skill: "Multi-source enrichment.",
-        },
-        {
-          href: "/tools/automation/lead-form-qa",
-          title: "Lead Form QA Checklist",
-          description: "Functional, anti-spam and accessibility checklist for any marketing form.",
-          badge: "Checklist",
-          why: "Forms quietly drop pipeline when integrations break.",
-          skill: "Web QA, marketing-ops integration.",
-        },
-        {
-          href: "/tools/form-tester",
-          title: "Form Tester (server relay)",
-          description: "Submit a form through SecureScope's relay and inspect the response.",
-          badge: "Live",
-          why: "Verify server handling without bypassing security headers.",
-          skill: "Secure relay, response auditing.",
-        },
-        {
-          href: "/tools/email-headers",
-          title: "Email Header Analyser",
-          description: "Paste raw email headers — see hops, SPF/DKIM/DMARC verdicts, and authentication chain.",
-          badge: "Live",
-          why: "Confirms a lead email actually came from where it claims.",
-          skill: "Email forensics.",
-        },
-      ]}
+      tools={categoryCardsWhere(
+        (t) =>
+          t.href === "/lead-tools" ||
+          t.href === "/tools/phone-lookup" ||
+          t.href === "/tools/lead-intelligence" ||
+          t.href === "/tools/automated-monitoring" ||
+          t.href === "/tools/automation/lead-form-qa" ||
+          t.href === "/tools/form-tester" ||
+          t.href === "/tools/email-headers",
+      )}
     />
   );
 }

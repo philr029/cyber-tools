@@ -2,6 +2,37 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { ComponentType } from "react";
+import {
+  Briefcase,
+  Browser,
+  Code,
+  GearSix,
+  Megaphone,
+  Package,
+  ShieldCheck,
+  Sparkle,
+  TreeStructure,
+  type IconProps,
+} from "@phosphor-icons/react";
+import UniversalToolCard from "@/app/components/UniversalToolCard";
+import SectionReveal from "@/app/components/ui/SectionReveal";
+import { featuredToolsList, mostUsefulToolsList, recentlyAddedToolsList, type SiteTool } from "@/lib/tools/site-catalog";
+
+const TAG_ICONS: Record<string, ComponentType<IconProps>> = {
+  "Web QA": Browser,
+  DNS: TreeStructure,
+  Security: ShieldCheck,
+  Marketing: Megaphone,
+  Automation: GearSix,
+  Developer: Code,
+  AI: Sparkle,
+  Productivity: Briefcase,
+};
+
+function iconForTool(t: SiteTool) {
+  return TAG_ICONS[t.categoryTag] ?? Package;
+}
 
 const STATS = [
   { label: "Total tools", value: "90+", caption: "coding, IT admin, M365, cyber, web QA, automation, business, reporting" },
@@ -48,6 +79,13 @@ const CATEGORIES = [
     count: "11 tools",
   },
   {
+    href: "/marketing-tools",
+    title: "Marketing & Growth",
+    description: "UTMs, social drafts, subject lines, SERP previews, and conversion calculators.",
+    accent: "from-pink-500/30 to-rose-500/10",
+    count: "8+ tools",
+  },
+  {
     href: "/business-tools",
     title: "Business / IT Productivity",
     description: "Email, meeting notes, project updates, SOPs, risk register, RCA, change, asset, vendor.",
@@ -82,17 +120,6 @@ const CATEGORIES = [
     accent: "from-indigo-500/30 to-violet-500/10",
     count: "5 tools",
   },
-];
-
-const FEATURED = [
-  { href: "/tools/coding/snippet", title: "Code Snippet Generator", description: "Starter templates for JavaScript, Python, PowerShell, HTML and CSS.", tag: "Coding" },
-  { href: "/tools/it-admin/licence-planner", title: "M365 Licence Planner", description: "Plan SKU counts and costs with editable prices saved locally.", tag: "IT Admin" },
-  { href: "/tools/phishing-email-analyser", title: "Phishing Email Analyser", description: "Score a suspect email from sender, subject, links and urgency tone.", tag: "Cyber" },
-  { href: "/tools/m365/ca-policy-builder", title: "Conditional Access Policy Builder", description: "Build a clean, named CA policy from group, app, location and device inputs.", tag: "M365" },
-  { href: "/tools/security/password-advisor", title: "Password Strength Advisor", description: "In-browser strength, entropy and passphrase suggestions — nothing sent.", tag: "Cyber" },
-  { href: "/tools/business/ticket-priority", title: "Ticket Priority Calculator", description: "Impact × urgency × users → deterministic priority and SLA.", tag: "Business" },
-  { href: "/tools/reporting/automation-roi", title: "Automation ROI Calculator", description: "Estimate monthly savings, annual savings and payback period.", tag: "Reporting" },
-  { href: "/tools/business/risk-register", title: "Risk Register Builder", description: "A structured risk register that exports clean Markdown — saved locally.", tag: "Business" },
 ];
 
 export default function HomeDashboard() {
@@ -157,9 +184,10 @@ export default function HomeDashboard() {
       </section>
 
       <section className="mb-10">
-        <SectionHeader eyebrow="Categories" title="Pick a category and jump in" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {CATEGORIES.map((c) => (
+        <SectionReveal>
+          <SectionHeader eyebrow="Categories" title="Pick a category and jump in" />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {CATEGORIES.map((c) => (
             <Link
               key={c.href}
               href={c.href}
@@ -186,28 +214,61 @@ export default function HomeDashboard() {
             </Link>
           ))}
         </div>
+        </SectionReveal>
       </section>
 
       <section className="mb-10">
-        <SectionHeader eyebrow="Featured tools" title="A few highlights to try first" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURED.map((f) => (
-            <Link
-              key={f.href}
-              href={f.href}
-              className="group rounded-2xl border border-[#1e2d4a] bg-[#0f1629] p-5 transition-all duration-200 hover:border-cyan-400/40"
-            >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <h3 className="text-base font-semibold text-slate-100">{f.title}</h3>
-                <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-cyan-200">{f.tag}</span>
-              </div>
-              <p className="text-sm leading-6 text-slate-400">{f.description}</p>
-              <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300">
-                Open tool →
-              </span>
-            </Link>
-          ))}
-        </div>
+        <SectionReveal>
+          <SectionHeader eyebrow="Featured tools" title="Hand-picked modules to try first" />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredToolsList(6).map((t) => (
+              <UniversalToolCard
+                key={t.href}
+                href={t.href}
+                title={t.label}
+                description={t.description}
+                categoryTag={t.categoryTag}
+                icon={iconForTool(t)}
+              />
+            ))}
+          </div>
+        </SectionReveal>
+      </section>
+
+      <section className="mb-10">
+        <SectionReveal>
+          <SectionHeader eyebrow="Recently added" title="Fresh routes in the toolkit" />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {recentlyAddedToolsList(6).map((t) => (
+              <UniversalToolCard
+                key={t.href}
+                href={t.href}
+                title={t.label}
+                description={t.description}
+                categoryTag={t.categoryTag}
+                icon={iconForTool(t)}
+              />
+            ))}
+          </div>
+        </SectionReveal>
+      </section>
+
+      <section className="mb-10">
+        <SectionReveal>
+          <SectionHeader eyebrow="Most useful" title="High-frequency desk tools" />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {mostUsefulToolsList(6).map((t) => (
+              <UniversalToolCard
+                key={t.href}
+                href={t.href}
+                title={t.label}
+                description={t.description}
+                categoryTag={t.categoryTag}
+                icon={iconForTool(t)}
+              />
+            ))}
+          </div>
+        </SectionReveal>
       </section>
 
       <section className="mb-10">
