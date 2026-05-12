@@ -264,9 +264,9 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   if (!open || !portalReady || typeof document === "undefined" || !document.body) return null;
 
   const modal = (
-    <div className="fixed inset-0 z-[200] flex items-start justify-center sm:pt-[10vh] pt-6 px-4 sm:px-5 motion-safe:animate-search-backdrop pointer-events-auto">
+    <div className="fixed inset-0 z-[200] flex items-start justify-center sm:pt-[10vh] pt-5 px-4 sm:px-5 motion-safe:animate-search-backdrop pointer-events-auto">
       <div
-        className="absolute inset-0 bg-[color-mix(in_srgb,var(--ss-page)_55%,#000)] backdrop-blur-xl motion-safe:transition-opacity motion-safe:duration-200 cursor-default"
+        className="absolute inset-0 bg-[color-mix(in_srgb,var(--ss-page)_52%,#000)] backdrop-blur-xl motion-safe:transition-opacity motion-safe:duration-200 cursor-default"
         aria-hidden
         onClick={onClose}
       />
@@ -277,12 +277,12 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative w-full max-w-xl max-h-[min(560px,86dvh)] flex flex-col rounded-[1.35rem] sm:rounded-[1.5rem] border border-[color-mix(in_srgb,var(--ss-border)_85%,transparent)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_92%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--ss-text)_4%,transparent),0_24px_80px_rgba(0,0,0,0.35),0_0_1px_rgba(0,0,0,0.08)] overflow-hidden motion-safe:animate-search-panel ring-1 ring-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
+        className="relative w-full max-w-xl max-h-[min(560px,86dvh)] flex flex-col rounded-[1.375rem] sm:rounded-[1.5rem] border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_94%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--ss-text)_4%,transparent),0_22px_72px_rgba(0,0,0,0.36)] overflow-hidden motion-safe:animate-search-panel ring-1 ring-[color-mix(in_srgb,var(--ss-text)_5%,transparent)]"
       >
         <h2 id={titleId} className="sr-only">
           Site search
         </h2>
-        <div className="border-b border-[color-mix(in_srgb,var(--ss-border)_70%,transparent)] px-4 sm:px-5 py-3.5 flex items-center gap-3 bg-[color-mix(in_srgb,var(--ss-elevated-solid)_40%,transparent)]">
+        <div className="border-b border-[color-mix(in_srgb,var(--ss-border)_80%,transparent)] px-4 sm:px-5 py-4 flex items-center gap-3 bg-[color-mix(in_srgb,var(--ss-elevated-solid)_35%,transparent)]">
           <svg
             className="w-5 h-5 text-[var(--ss-accent)] shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-105"
             viewBox="0 0 20 20"
@@ -303,7 +303,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search pages, tools, categories, routes…"
             autoComplete="off"
-            className="flex-1 min-w-0 bg-transparent text-[15px] sm:text-base text-[var(--ss-text)] placeholder:text-[color-mix(in_srgb,var(--ss-text-secondary)_75%,transparent)] focus:outline-none tracking-tight"
+            className="flex-1 min-w-0 bg-transparent text-[15px] sm:text-base text-[var(--ss-text)] caret-[var(--ss-accent)] placeholder:text-[color-mix(in_srgb,var(--ss-text-secondary)_72%,transparent)] focus:outline-none tracking-tight"
             aria-label="Search query"
           />
           <div className="hidden sm:flex items-center gap-1 text-[10px] text-[var(--ss-text-secondary)] shrink-0">
@@ -312,20 +312,20 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           <button
             type="button"
             onClick={reset}
-            className="text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] px-2 py-1 rounded-full hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] motion-safe:transition-colors"
+            className="text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] px-2.5 py-1.5 rounded-full hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
           >
             Clear
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] px-2 py-1 rounded-full hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] motion-safe:transition-colors"
+            className="text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] px-2.5 py-1.5 rounded-full hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
           >
             Close
           </button>
         </div>
 
-        <div className="px-4 sm:px-5 py-2.5 flex flex-wrap gap-2 border-b border-[color-mix(in_srgb,var(--ss-border)_70%,transparent)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_55%,transparent)]">
+        <div className="px-4 sm:px-5 py-3 flex flex-wrap gap-2 border-b border-[color-mix(in_srgb,var(--ss-border)_80%,transparent)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_50%,transparent)]">
           <label className="sr-only" htmlFor={`${dialogId}-cat`}>
             Category
           </label>
@@ -417,7 +417,9 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           )}
 
           {!query.trim() && filtersActive && filterBrowse.length === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-[var(--ss-text-secondary)]">Nothing matches these filters.</p>
+            <p className="mx-2 my-2 rounded-2xl border border-dashed border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_3%,transparent)] px-4 py-8 text-center text-sm text-[var(--ss-text-secondary)] leading-relaxed">
+              Nothing matches these filters.
+            </p>
           )}
 
           {query.trim() && (
@@ -440,30 +442,30 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           </ul>
 
           {query.trim() && results.length === 0 && (
-            <div className="px-3 py-10 text-center space-y-3">
-              <p className="text-sm text-[var(--ss-text)]">No results found.</p>
-              <p className="text-xs text-[var(--ss-text-secondary)]">
+            <div className="mx-2 my-2 rounded-2xl border border-dashed border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_3%,transparent)] px-4 py-10 text-center space-y-3">
+              <p className="text-sm font-medium tracking-tight text-[var(--ss-text)]">No results found</p>
+              <p className="text-xs text-[var(--ss-text-secondary)] max-w-xs mx-auto leading-relaxed">
                 Try a shorter keyword, switch category, or browse the full toolkit.
               </p>
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="flex flex-wrap justify-center gap-2 pt-1">
                 <Link
                   href="/tools/browse"
                   onClick={() => handlePick("/tools/browse")}
-                  className="text-xs font-semibold rounded-full bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] hover:opacity-95 text-white px-3 py-2 motion-safe:transition-opacity"
+                  className="text-xs font-semibold rounded-full bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] hover:opacity-95 text-white px-3.5 py-2 motion-safe:transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
                 >
                   Open toolkit index
                 </Link>
                 <Link
                   href="/tools"
                   onClick={() => handlePick("/tools")}
-                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3 py-2 motion-safe:transition-colors"
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3.5 py-2 motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
                 >
                   Security suite
                 </Link>
                 <button
                   type="button"
                   onClick={reset}
-                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text-secondary)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3 py-2 motion-safe:transition-colors"
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text-secondary)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3.5 py-2 motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
                 >
                   Reset filters
                 </button>
@@ -500,7 +502,7 @@ function ResultRow({
       <Link
         href={href}
         onClick={() => onPick(entry.url)}
-        className={`flex flex-col gap-0.5 rounded-2xl px-3 py-2.5 border motion-safe:transition-[background-color,border-color,transform] motion-safe:duration-200 ${
+        className={`flex flex-col gap-0.5 rounded-xl px-3 py-2.5 border motion-safe:transition-[background-color,border-color,transform] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
           selected
             ? "bg-[var(--ss-accent-soft)] border-[color-mix(in_srgb,var(--ss-accent)_45%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_25%,transparent)]"
             : subtle

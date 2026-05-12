@@ -50,67 +50,61 @@ const BackIcon = (
 
 export default function CategoryIndex({ eyebrow, title, intro, tools, callout }: CategoryIndexProps) {
   return (
-    <main className="flex-1 bg-[#050505]">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center gap-2 text-sm text-white/45">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 transition-colors hover:text-cyan-200"
-          >
+    <main className="flex-1 bg-[var(--ss-page)]">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+        <div className="mb-8 flex items-center gap-2 text-sm text-[var(--ss-text-secondary)]">
+          <Link href="/" className="inline-flex items-center gap-1.5 transition-colors hover:text-[var(--ss-accent)]">
             {BackIcon}
             Home
           </Link>
-          <span>/</span>
-          <Link
-            href="/tools/browse"
-            className="transition-colors hover:text-cyan-200"
-          >
+          <span className="text-[color-mix(in_srgb,var(--ss-text-secondary)_45%,transparent)]">/</span>
+          <Link href="/tools/browse" className="transition-colors hover:text-[var(--ss-accent)]">
             Toolkit index
           </Link>
-          <span>/</span>
-          <span className="font-medium text-white/70">{title}</span>
+          <span className="text-[color-mix(in_srgb,var(--ss-text-secondary)_45%,transparent)]">/</span>
+          <span className="font-medium text-[var(--ss-text)]">{title}</span>
         </div>
 
-        <header className="mb-10 rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.10),transparent_40%),rgba(255,255,255,0.03)] p-8 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-cyan-200/90">{eyebrow}</p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">{intro}</p>
-          {callout && <div className="mt-5">{callout}</div>}
+        <header className="mb-12 rounded-[28px] border border-[var(--ss-border)] bg-[radial-gradient(circle_at_top,color-mix(in_srgb,var(--ss-accent)_12%,transparent),transparent_42%),color-mix(in_srgb,var(--ss-elevated-solid)_55%,transparent)] p-8 sm:p-9 backdrop-blur-xl shadow-[0_20px_64px_rgba(0,0,0,0.28)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--ss-accent)]">{eyebrow}</p>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--ss-text)] sm:text-4xl">{title}</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--ss-text-secondary)] sm:text-base">{intro}</p>
+          {callout && <div className="mt-6">{callout}</div>}
         </header>
 
-        <section aria-label={`${title} tools`} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section aria-label={`${title} tools`} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {tools.map((tool) => {
             const card = (
-              <article className="group flex h-full flex-col rounded-[24px] border border-white/10 bg-[rgba(255,255,255,0.03)] p-5 motion-safe:transition-[transform,border-color,background-color,box-shadow] motion-safe:duration-200 hover:border-cyan-400/30 hover:bg-[rgba(34,211,238,0.05)] motion-safe:hover:-translate-y-0.5 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+              <article className="group flex h-full flex-col rounded-[1.375rem] border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_82%,transparent)] p-5 sm:p-6 motion-safe:transition-[transform,border-color,background-color,box-shadow] motion-safe:duration-200 hover:border-[color-mix(in_srgb,var(--ss-accent)_32%,transparent)] hover:bg-[color-mix(in_srgb,var(--ss-accent-soft)_35%,transparent)] motion-safe:hover:-translate-y-0.5 shadow-[0_12px_40px_rgba(0,0,0,0.22)]">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     {tool.icon && (
-                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/30 to-blue-600/20 text-white">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-[0.85rem] bg-gradient-to-br from-[color-mix(in_srgb,var(--ss-accent)_28%,transparent)] to-[color-mix(in_srgb,var(--accent-blue)_22%,transparent)] text-[var(--ss-text)]">
                         {tool.icon}
                       </span>
                     )}
-                    <h2 className="text-base font-semibold text-white">{tool.title}</h2>
+                    <h2 className="text-base font-semibold text-[var(--ss-text)]">{tool.title}</h2>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 justify-end">
                     {tool.status && tool.status !== "live" ? (
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/55">
+                      <span className="rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--ss-text-secondary)]">
                         {tool.status}
                       </span>
                     ) : null}
                     {tool.badge && (
-                      <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                      <span className="rounded-full border border-[color-mix(in_srgb,var(--ss-accent)_28%,transparent)] bg-[var(--ss-accent-soft)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ss-accent)]">
                         {tool.badge}
                       </span>
                     )}
                   </div>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-white/70">{tool.description}</p>
+                <p className="mt-3 text-sm leading-6 text-[var(--ss-text-secondary)]">{tool.description}</p>
                 {tool.tags && tool.tags.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {tool.tags.slice(0, 4).map((tag) => (
                       <span
                         key={tag}
-                        className="text-[9px] rounded-md bg-white/[0.04] text-white/45 px-1.5 py-0.5 ring-1 ring-white/10"
+                        className="text-[9px] rounded-md bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] text-[var(--ss-text-secondary)] px-1.5 py-0.5 ring-1 ring-[var(--ss-border)]"
                       >
                         {tag}
                       </span>
@@ -118,21 +112,21 @@ export default function CategoryIndex({ eyebrow, title, intro, tools, callout }:
                   </div>
                 ) : null}
                 {(tool.why || tool.skill) && (
-                  <div className="mt-3 space-y-1.5 text-[11px] text-white/55">
+                  <div className="mt-3 space-y-1.5 text-[11px] text-[var(--ss-text-secondary)]">
                     {tool.why && (
                       <p>
-                        <span className="font-semibold text-white/65">Why it matters:</span> {tool.why}
+                        <span className="font-semibold text-[var(--ss-text)]">Why it matters:</span> {tool.why}
                       </p>
                     )}
                     {tool.skill && (
                       <p>
-                        <span className="font-semibold text-white/65">Skill:</span> {tool.skill}
+                        <span className="font-semibold text-[var(--ss-text)]">Skill:</span> {tool.skill}
                       </p>
                     )}
                   </div>
                 )}
                 <div className="mt-auto pt-4">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-200 transition-colors group-hover:text-cyan-100">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--ss-accent)] transition-colors group-hover:text-[color-mix(in_srgb,var(--ss-accent)_88%,#fff)]">
                     Open tool {ArrowIcon}
                   </span>
                 </div>
@@ -153,22 +147,22 @@ export default function CategoryIndex({ eyebrow, title, intro, tools, callout }:
           })}
         </section>
 
-        <div className="mt-10 flex flex-wrap items-center gap-3">
+        <div className="mt-12 flex flex-wrap items-center gap-3">
           <Link
             href="/tools/browse"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/75 hover:text-white hover:border-white/30 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] px-4 py-2.5 text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:border-[color-mix(in_srgb,var(--ss-accent)_30%,transparent)] motion-safe:transition-colors"
           >
             {BackIcon} Toolkit index
           </Link>
           <Link
             href="/tools"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/75 hover:text-white hover:border-white/30 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] px-4 py-2.5 text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:border-[color-mix(in_srgb,var(--ss-accent)_30%,transparent)] motion-safe:transition-colors"
           >
             Security lookup suite
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/75 hover:text-white hover:border-white/30 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] px-4 py-2.5 text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:border-[color-mix(in_srgb,var(--ss-accent)_30%,transparent)] motion-safe:transition-colors"
           >
             Back to home
           </Link>

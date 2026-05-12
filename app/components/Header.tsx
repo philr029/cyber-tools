@@ -105,7 +105,7 @@ export default function Header() {
           : href === "/automation-tools"
             ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
             : pathname === href);
-    return `ss-pill px-3 py-1.5 text-xs font-semibold ${
+    return `ss-pill px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)] ${
       isActive
         ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
         : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
@@ -113,12 +113,12 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-[60] glass-surface border-b border-[var(--ss-border)] shadow-[0_1px_0_color-mix(in_srgb,var(--ss-text)_6%,transparent)]">
+    <header className="sticky top-0 z-[60] glass-surface border-b border-[var(--ss-border)]">
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 gap-2">
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 min-w-0 group">
-            <div className="flex items-center justify-center w-9 h-9 rounded-2xl bg-gradient-to-br from-[var(--ss-accent)] to-[var(--accent-blue)] shadow-[0_12px_30px_rgba(56,189,248,0.22)] transition-shadow group-hover:shadow-[0_16px_40px_rgba(56,189,248,0.3)]">
+        <div className="flex items-center justify-between min-h-14 h-14 gap-3">
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 min-w-0 group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]">
+            <div className="flex items-center justify-center w-9 h-9 rounded-[0.85rem] bg-gradient-to-br from-[var(--ss-accent)] to-[var(--accent-blue)] shadow-[0_10px_28px_color-mix(in_srgb,var(--ss-accent)_32%,transparent)] motion-safe:transition-shadow motion-safe:duration-200 group-hover:shadow-[0_14px_36px_color-mix(in_srgb,var(--ss-accent)_40%,transparent)]">
               <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fillRule="evenodd"
@@ -132,7 +132,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center min-w-0" aria-label="Main navigation">
+          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0" aria-label="Main navigation">
             {TOP_BAR_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -168,7 +168,7 @@ export default function Header() {
             <button
               type="button"
               onClick={toggleSearch}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] hover:bg-[var(--ss-accent-soft)] motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5 ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] hover:bg-[var(--ss-accent-soft)] motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)] ${
                 pathname === "/search" ? "border-[color-mix(in_srgb,var(--ss-accent)_45%,transparent)] bg-[var(--ss-accent-soft)] text-[var(--ss-text)]" : "border-[var(--ss-border)]"
               }`}
               aria-label={searchOpen ? "Close search" : "Open search"}
@@ -191,7 +191,7 @@ export default function Header() {
 
             <Link
               href="/settings"
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)] ${
                 pathname === "/settings"
                   ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
                   : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
@@ -235,7 +235,7 @@ export default function Header() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex items-center justify-center w-8 h-8 rounded-full border border-transparent text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] hover:border-[var(--ss-border)] transition-colors"
+              className="flex items-center justify-center w-9 h-9 rounded-full border border-transparent text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] hover:border-[var(--ss-border)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
@@ -313,7 +313,7 @@ export default function Header() {
                   return next;
                 });
               }}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] text-[var(--ss-text)] hover:bg-[var(--ss-accent-soft)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] motion-safe:transition-colors"
+              className="lg:hidden flex items-center justify-center size-10 rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] text-[var(--ss-text)] hover:bg-[var(--ss-accent-soft)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               aria-controls={PRIMARY_MOBILE_NAV_ID}

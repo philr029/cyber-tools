@@ -238,7 +238,7 @@ export default function MegaMenu({
         aria-labelledby={triggerId}
         onMouseEnter={cancelCloseAndKeepOpen}
         onMouseLeave={scheduleClose}
-        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-1.25rem))] max-h-[calc(100vh-4.5rem)] overflow-y-auto rounded-3xl border border-[var(--ss-border)] glass-surface shadow-[0_28px_80px_rgba(0,0,0,0.45)] motion-safe:transition-[opacity,transform,filter] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-1.25rem))] max-h-[calc(100vh-4.5rem)] overflow-y-auto rounded-[1.375rem] border border-[var(--ss-border)] glass-surface shadow-[0_22px_72px_rgba(0,0,0,0.42)] motion-safe:transition-[opacity,transform,filter] motion-safe:duration-[220ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
           open
             ? "opacity-100 translate-y-0 pointer-events-auto scale-100"
             : "opacity-0 -translate-y-2 pointer-events-none scale-[0.99] motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-0"
@@ -246,7 +246,7 @@ export default function MegaMenu({
         hidden={!open}
         inert={!open}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-6 p-6 sm:p-7">
           {NAV_GROUPS.map((group) => (
             <MegaColumn
               key={group.label}
@@ -256,7 +256,7 @@ export default function MegaMenu({
             />
           ))}
         </div>
-        <div className="border-t border-[var(--ss-border)] px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-xs">
+        <div className="border-t border-[var(--ss-border)] px-6 sm:px-7 py-3.5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-xs bg-[color-mix(in_srgb,var(--ss-text)_2%,transparent)]">
           <span className="text-[var(--ss-text-secondary)] flex flex-wrap items-center gap-1">
             Press <SearchHotkeyText className="font-mono text-[var(--ss-text)]" /> for instant search, or{" "}
             <Link href="/search" data-mega-link onClick={handleLinkClick} className="text-[var(--ss-accent)] hover:underline font-semibold">

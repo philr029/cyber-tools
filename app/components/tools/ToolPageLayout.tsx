@@ -33,27 +33,27 @@ export default function ToolPageLayout({
   activityEntries,
 }: ToolPageLayoutProps) {
   return (
-    <main className="flex-1 bg-[#050505]">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-[32px] border border-white/8 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.08),transparent_42%),#050505] p-6 sm:p-8">
-          <div className="mb-6 flex items-center gap-2 text-sm text-white/45">
+    <main className="flex-1 bg-[var(--ss-page)]">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <div className="rounded-[28px] border border-[var(--ss-border)] bg-[radial-gradient(circle_at_top,color-mix(in_srgb,var(--ss-accent)_10%,transparent),transparent_44%),color-mix(in_srgb,var(--ss-page-2)_100%,transparent)] p-6 sm:p-8">
+          <div className="mb-6 flex items-center gap-2 text-sm text-[var(--ss-text-secondary)]">
             <Link
               href="/tools"
-              className="inline-flex items-center gap-1.5 text-sm text-white/45 transition-colors hover:text-cyan-200"
+              className="inline-flex items-center gap-1.5 text-sm transition-colors hover:text-[var(--ss-accent)]"
             >
               {BackIcon}
               Suite
             </Link>
-            <span>/</span>
-            <span className="font-medium text-white/70">{title}</span>
+            <span className="text-[color-mix(in_srgb,var(--ss-text-secondary)_45%,transparent)]">/</span>
+            <span className="font-medium text-[var(--ss-text)]">{title}</span>
           </div>
 
-          <div className="mb-8 rounded-[28px] border border-white/10 bg-[rgba(255,255,255,0.03)] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+          <div className="mb-8 rounded-[24px] border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_88%,transparent)] p-6 sm:p-8 shadow-[0_14px_48px_rgba(0,0,0,0.26)] backdrop-blur-xl">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-2xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">Security-First Module</p>
-                <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h1>
-                <p className="mt-3 text-sm leading-7 text-white/62">{description}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--ss-text-secondary)]">Security-first module</p>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--ss-text)] sm:text-4xl">{title}</h1>
+                <p className="mt-3 text-sm leading-7 text-[var(--ss-text-secondary)]">{description}</p>
               </div>
               <div className="flex flex-col items-start gap-3">
                 <SecuritySignals />

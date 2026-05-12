@@ -121,7 +121,7 @@ export default function UniversalToolCard({
   if (comingSoon) {
     return (
       <div
-        className="group flex h-full flex-col gap-3 rounded-2xl border border-dashed border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_85%,transparent)] p-4 opacity-90 cursor-not-allowed"
+        className="group flex h-full flex-col gap-3 rounded-[1.25rem] border border-dashed border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_85%,transparent)] p-5 opacity-90 cursor-not-allowed"
         aria-disabled="true"
         role="group"
         aria-label={`${title} — coming soon`}
@@ -134,7 +134,7 @@ export default function UniversalToolCard({
   return (
     <Link
       href={href}
-      className="group ss-card card-lift flex h-full flex-col gap-3 p-4 motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-200 hover:border-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)] motion-safe:hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]"
+      className="group ss-card card-lift flex h-full flex-col gap-3 p-5 motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-200 hover:border-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)] motion-safe:hover:-translate-y-0.5 hover:shadow-[0_18px_48px_rgba(0,0,0,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]"
     >
       {inner}
     </Link>
