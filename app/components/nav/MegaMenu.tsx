@@ -4,20 +4,21 @@
 // MegaMenu (desktop)
 // -----------------------------------------------------------------------------
 // A single header-attached panel that lists every tool category in columns.
-// Opens on hover OR keyboard focus, closes on Escape, outside-click, or after a
-// short mouse-leave delay so the cursor can sweep across the gap. Mobile uses
-// `MobileNav` instead — this component is hidden below the `lg` breakpoint.
+// Opens and closes via click/tap on the trigger, or via keyboard (Enter,
+// Space, ArrowDown). Closes on Escape, outside pointer/touch, or when focus
+// leaves the menu (blur). Mobile uses `MobileNav` instead — this component is
+// hidden below the `xl` breakpoint.
+//
+// Note: We intentionally do not open on :hover / mouseenter. Combining hover
+// open with a click toggle caused the menu to open on pointer enter and then
+// immediately close on the following click (common on touch and many desktop
+// browsers), which looked like a dead control on production.
 // =============================================================================
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS, type NavGroup } from "./nav-data";
-
-// How long to wait after the cursor leaves the trigger/panel before closing.
-// Keeps the panel open while the user moves the mouse across the small gap
-// between trigger and panel content.
-const CLOSE_DELAY_MS = 120;
 
 // One accent colour per group — keeps the panel visually scannable without
 // pulling in an icon library. Using Tailwind arbitrary classes inline so each
@@ -44,93 +45,88 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelId = useId();
+  const triggerId = useId();
 
-  // Highlight the trigger when the user is on any page covered by the menu.
   const isAnyGroupActive = NAV_GROUPS.some(
     (g) => pathname === g.index || g.links.some((l) => pathname === l.href),
   );
 
-  const clearCloseTimer = useCallback(() => {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
+  const handleLinkClick = useCallback(() => setOpen(false), []);
+
+  const toggle = useCallback(() => {
+    setOpen((v) => !v);
   }, []);
-
-  const scheduleClose = useCallback(() => {
-    clearCloseTimer();
-    closeTimerRef.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
-  }, [clearCloseTimer]);
-
-  const openNow = useCallback(() => {
-    clearCloseTimer();
-    setOpen(true);
-  }, [clearCloseTimer]);
 
   // Close on Escape, returning focus to the trigger so keyboard users keep
   // their place in the tab order.
   useEffect(() => {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setOpen(false);
-        triggerRef.current?.focus();
-      }
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      triggerRef.current?.focus();
     }
+    if (typeof document === "undefined") return;
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [open]);
 
-  // Close when clicking anywhere outside the trigger + panel wrapper.
+  // Close on outside click/touch (pointerdown covers mouse, pen, and touch).
   useEffect(() => {
     if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+    if (typeof document === "undefined") return;
+
+    function handlePointerDown(e: PointerEvent) {
+      const root = wrapperRef.current;
+      if (!root) return;
+      const t = e.target;
+      if (!t || !(t instanceof Node)) return;
+      if (!root.contains(t)) {
         setOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+
+    // Capture phase so we still see events that are stopped lower in the tree.
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    return () => document.removeEventListener("pointerdown", handlePointerDown, true);
   }, [open]);
 
-  // Note: route-change closing is handled by `onClick={() => setOpen(false)}`
-  // on each link below. We avoid a pathname-watching effect because calling
-  // setState synchronously in an effect triggers cascading renders (and the
-  // react-hooks/set-state-in-effect lint rule).
-  const handleLinkClick = useCallback(() => setOpen(false), []);
+  // Close when focus leaves the trigger + panel (Tab / programmatic focus moves).
+  useEffect(() => {
+    if (!open) return;
+    const root = wrapperRef.current;
+    if (!root) return;
+
+    function onFocusOut(e: FocusEvent) {
+      const el = wrapperRef.current;
+      if (!el) return;
+      const rt = e.relatedTarget;
+      if (rt instanceof Node && el.contains(rt)) return;
+      setOpen(false);
+    }
+
+    root.addEventListener("focusout", onFocusOut);
+    return () => root.removeEventListener("focusout", onFocusOut);
+  }, [open]);
 
   return (
-    <div
-      ref={wrapperRef}
-      className="relative"
-      onMouseEnter={openNow}
-      onMouseLeave={scheduleClose}
-      // Keep the panel open while focus is anywhere inside the wrapper.
-      onFocusCapture={openNow}
-      onBlurCapture={(e) => {
-        if (!wrapperRef.current?.contains(e.relatedTarget as Node)) {
-          setOpen(false);
-        }
-      }}
-    >
+    <div ref={wrapperRef} className="relative">
       <button
         ref={triggerRef}
+        id={triggerId}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         onKeyDown={(e) => {
-          // Allow Down/Space/Enter to open and focus first link.
-          if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
-            e.preventDefault();
-            openNow();
-            requestAnimationFrame(() => {
-              const first = wrapperRef.current?.querySelector<HTMLAnchorElement>(
-                "[data-mega-link]",
-              );
-              first?.focus();
-            });
-          }
+          if (e.key !== "ArrowDown" && e.key !== " " && e.key !== "Enter") return;
+          e.preventDefault();
+          setOpen(true);
+          requestAnimationFrame(() => {
+            const root = wrapperRef.current;
+            if (!root) return;
+            const first = root.querySelector<HTMLAnchorElement>("[data-mega-link]");
+            first?.focus();
+          });
         }}
         className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
           isAnyGroupActive || open
@@ -157,13 +153,15 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
       </button>
 
       {/* Mega panel — fixed in viewport so it can be full-width without
-          pushing the trigger button. `pointer-events-none` while closed keeps
-          hover/click targets accurate. */}
+          pushing the trigger. z-[70] keeps it above sticky header (z-50) and
+          typical page overlays. pointer-events-none while closed keeps hit
+          targets accurate. */}
       <div
         id={panelId}
         role="menu"
         aria-label={`${label} categories`}
-        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-40 w-[min(1200px,calc(100vw-2rem))] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-all duration-150 ease-out ${
+        aria-labelledby={triggerId}
+        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-2rem))] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-all duration-150 ease-out ${
           open
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 -translate-y-1 pointer-events-none"
