@@ -70,6 +70,15 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     toolType: "page",
     toolkitAreas: ["IT tools"],
   },
+  {
+    title: "Toolkit roadmap",
+    description: "Coming-soon and preview modules from the security suite grid.",
+    category: "Tools",
+    tags: ["roadmap", "coming soon", "preview", "planned"],
+    url: "/tools/coming-soon",
+    toolType: "tool",
+    toolkitAreas: ["Cybersecurity"],
+  },
 ];
 
 const POPULAR_HREFS = [

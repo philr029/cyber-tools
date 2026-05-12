@@ -44,11 +44,7 @@ export default function SecuritySuiteCard({
   preview = false,
   icon,
 }: SecuritySuiteCardProps) {
-  const className = `group relative overflow-hidden rounded-[28px] border border-white/10 bg-[rgba(255,255,255,0.03)] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition duration-200 ${
-    preview
-      ? "cursor-default"
-      : "hover:-translate-y-1 hover:border-cyan-400/25 hover:bg-[rgba(255,255,255,0.045)]"
-  } ${size === "wide" ? "md:col-span-2" : ""}`;
+  const className = `group relative block overflow-hidden rounded-[28px] border border-white/10 bg-[rgba(255,255,255,0.03)] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl motion-safe:transition-[transform,border-color,background-color] motion-safe:duration-200 hover:-translate-y-1 hover:border-cyan-400/25 hover:bg-[rgba(255,255,255,0.045)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] ${size === "wide" ? "md:col-span-2" : ""}`;
 
   const cardContent = (
     <>
@@ -77,29 +73,23 @@ export default function SecuritySuiteCard({
         </div>
         <div className="mt-auto flex items-center justify-between text-[11px] uppercase tracking-[0.24em] text-white/45">
           <span>{size === "wide" ? "Priority Suite" : "Security Module"}</span>
-          <span className={`inline-flex items-center gap-2 text-white/60 transition ${preview ? "" : "group-hover:text-cyan-200"}`}>
+          <span className="inline-flex items-center gap-2 text-white/60 transition group-hover:text-cyan-200">
             {preview ? "Coming soon" : "Open"}
-            {!preview && (
-              <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
-              </svg>
-            )}
+            <svg className="h-3.5 w-3.5 motion-safe:transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+            </svg>
           </span>
         </div>
       </div>
     </>
   );
 
-  if (preview) {
-    return (
-      <article className={className}>
-        {cardContent}
-      </article>
-    );
-  }
-
   return (
-    <Link href={href} className={className}>
+    <Link
+      href={href}
+      className={className}
+      aria-label={preview ? `${title} — coming soon (roadmap)` : title}
+    >
       {cardContent}
     </Link>
   );

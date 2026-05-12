@@ -132,7 +132,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
     description: "Higher-fidelity reconnaissance modules for entity tracing, metadata inspection, and internet-wide exposure discovery.",
     tools: [
       {
-        href: "/tools/username-footprint",
+        href: "/tools/coming-soon?k=username-footprint",
         title: "Username Footprint",
         description: "Trace public account reuse across platforms. Spot naming collisions and exposure patterns quickly.",
         badge: "Preview",
@@ -142,7 +142,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
         icon: <UserCircle className="h-6 w-6 text-white" weight="regular" aria-hidden="true" />,
       },
       {
-        href: "/tools/metadata-scraper",
+        href: "/tools/coming-soon?k=metadata-scraper",
         title: "Metadata Scraper",
         description: "Extract visible file and page metadata safely. Surface attribution clues and hidden context fields.",
         badge: "Preview",
@@ -153,7 +153,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
         icon: <FileMagnifyingGlass className="h-6 w-6 text-white" weight="regular" aria-hidden="true" />,
       },
       {
-        href: "/tools/shodan-explorer",
+        href: "/tools/coming-soon?k=shodan-explorer",
         title: "Shodan Explorer",
         description: "Pivot through exposed services and banners fast. Triage internet-facing assets by risk signals.",
         badge: "Preview",
@@ -195,7 +195,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
         ),
       },
       {
-        href: "/tools/global-latency",
+        href: "/tools/coming-soon?k=global-latency",
         title: "Global Latency Check",
         description: "Preview worldwide response timing checks and route quality baselines for distributed services.",
         badge: "Preview",
@@ -215,7 +215,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
     description: "Publishing and growth modules for metadata validation, search result previews, and campaign link hygiene.",
     tools: [
       {
-        href: "/tools/og-preview",
+        href: "/tools/coming-soon?k=og-preview",
         title: "OG Tag Previewer",
         description: "Inspect Open Graph and social card presentation before content goes live.",
         badge: "Preview",
@@ -230,7 +230,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
         ),
       },
       {
-        href: "/tools/serp-visualizer",
+        href: "/tools/coming-soon?k=serp-visualizer",
         title: "SERP Visualizer",
         description: "Model title, description, and rich-result presentation in a search-engine styled viewport.",
         badge: "Preview",
@@ -244,7 +244,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
         ),
       },
       {
-        href: "/tools/utm-architect",
+        href: "/tools/coming-soon?k=utm-architect",
         title: "UTM Architect",
         description: "Build clean, validated campaign URLs with tracking parameter governance built in.",
         badge: "Preview",
@@ -265,7 +265,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
     description: "Developer-focused helpers for token inspection and schedule translation during engineering workflows.",
     tools: [
       {
-        href: "/tools/jwt-decoder",
+        href: "/tools/coming-soon?k=jwt-decoder",
         title: "JWT Decoder",
         description: "Decode token headers and claims instantly. Review expiry, issuer, and audience values at a glance.",
         badge: "Preview",
@@ -275,7 +275,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
         icon: <BracketsCurly className="h-6 w-6 text-white" weight="regular" aria-hidden="true" />,
       },
       {
-        href: "/tools/cron-job-translator",
+        href: "/tools/coming-soon?k=cron-job-translator",
         title: "Cron Job Translator",
         description: "Convert cron expressions into plain language. Validate run cadence before deployment or handoff.",
         badge: "Preview",
@@ -291,7 +291,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
     description: "Review public web-facing policy and consent signals from a privacy and governance perspective.",
     tools: [
       {
-        href: "/tools/privacy-policy-scanner",
+        href: "/tools/coming-soon?k=privacy-policy-scanner",
         title: "Privacy Policy Scanner",
         description: "Detect key policy sections, missing disclosures, and transparency gaps across public pages.",
         badge: "Preview",
@@ -305,7 +305,7 @@ const SUITE_GROUPS: Array<{ title: string; description: string; tools: SuiteCard
         ),
       },
       {
-        href: "/tools/cookie-audit",
+        href: "/tools/coming-soon?k=cookie-audit",
         title: "Cookie Tracker Audit",
         description: "Enumerate first- and third-party tracking signals to support consent and policy reviews.",
         badge: "Preview",
