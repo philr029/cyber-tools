@@ -27,11 +27,21 @@ export type SafeURLResult =
   | { ok: true; url: URL }
   | { ok: false; reason: string };
 
+export interface AssertSafeURLOptions {
+  /**
+   * Opt-in escape hatch for lab environments only. Requires
+   * `MONITORING_ALLOW_PRIVATE_TARGETS=true` in the environment **and** a
+   * non-production `NODE_ENV`. Never enable in production — it defeats SSRF
+   * protections for monitoring runners that hit local/staging URLs.
+   */
+  allowPrivateTargets?: boolean;
+}
+
 /**
  * Validates that a URL string is safe to fetch from the server.
  * Rejects private IPs, localhost, metadata endpoints, and non-HTTP protocols.
  */
-export function assertSafeURL(rawURL: string): SafeURLResult {
+export function assertSafeURL(rawURL: string, options?: AssertSafeURLOptions): SafeURLResult {
   let url: URL;
   try {
     url = new URL(rawURL);
@@ -45,16 +55,23 @@ export function assertSafeURL(rawURL: string): SafeURLResult {
 
   const hostname = url.hostname.toLowerCase();
 
-  if (BLOCKED_HOSTNAMES.has(hostname)) {
-    return { ok: false, reason: "Requests to that hostname are not allowed." };
-  }
+  const privateBypass =
+    options?.allowPrivateTargets === true &&
+    process.env.MONITORING_ALLOW_PRIVATE_TARGETS === "true" &&
+    process.env.NODE_ENV !== "production";
 
-  // Check whether the hostname resolves to a private range.
-  // We check textual IP patterns — DNS resolution happens at request time
-  // and is harder to guard against here, but this stops obvious direct IP attacks.
-  for (const pattern of PRIVATE_IP_RANGES) {
-    if (pattern.test(hostname)) {
-      return { ok: false, reason: "Requests to private or reserved IP ranges are not allowed." };
+  if (!privateBypass) {
+    if (BLOCKED_HOSTNAMES.has(hostname)) {
+      return { ok: false, reason: "Requests to that hostname are not allowed." };
+    }
+
+    // Check whether the hostname resolves to a private range.
+    // We check textual IP patterns — DNS resolution happens at request time
+    // and is harder to guard against here, but this stops obvious direct IP attacks.
+    for (const pattern of PRIVATE_IP_RANGES) {
+      if (pattern.test(hostname)) {
+        return { ok: false, reason: "Requests to private or reserved IP ranges are not allowed." };
+      }
     }
   }
 
