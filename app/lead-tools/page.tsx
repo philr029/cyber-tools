@@ -22,6 +22,14 @@ export default function LeadToolsPage() {
           skill: "Twilio Lookup API integration.",
         },
         {
+          href: "/tools/automated-monitoring",
+          title: "Automated Monitoring Hub",
+          description: "Ops-style dashboard for phone probes, form POST tests, and deliverability context.",
+          badge: "Live",
+          why: "Shows how to keep telephony and MXToolbox keys off the client while still automating checks.",
+          skill: "Secure API orchestration, SSRF controls.",
+        },
+        {
           href: "/tools/lead-intelligence",
           title: "Lead Intelligence",
           description: "Quick enrichment view for a lead's email, domain and risk signals.",

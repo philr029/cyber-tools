@@ -74,6 +74,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/web-tools", label: "All web tools" },
       { href: "/tools/launch-checklist", label: "Launch Checklist" },
       { href: "/tools/website-status", label: "Website Status" },
+      { href: "/tools/automated-monitoring", label: "Automated Monitoring Hub", description: "Server-side uptime, forms, DNS & MXToolbox with mock storage." },
       { href: "/tools/redirect-trace", label: "URL Redirect Tracer" },
       { href: "/tools/broken-links", label: "Broken Link Checker" },
       { href: "/tools/meta-preview", label: "Meta Title/Description" },
@@ -142,6 +143,7 @@ export const NAV_GROUPS: NavGroup[] = [
     tagline: "WHOIS, DNS, geo & deliverability",
     links: [
       { href: "/domain-ip-tools", label: "All domain & IP tools" },
+      { href: "/tools/automated-monitoring", label: "Automated Monitoring Hub", description: "DNS bundles, MXToolbox proxy & blacklist context." },
       { href: "/tools/whois", label: "WHOIS / RDAP" },
       { href: "/tools/dns-lookup", label: "DNS Lookup" },
       { href: "/tools/subdomains", label: "Subdomain Finder" },
@@ -162,6 +164,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/tools/automation/daily-test-planner", label: "Daily Test Planner" },
       { href: "/tools/automation/lead-form-qa", label: "Lead Form QA" },
       { href: "/tools/automation/github-actions", label: "GitHub Actions Schedule" },
+      { href: "/tools/automated-monitoring", label: "Automated Monitoring Hub", description: "Phone, uptime, forms, DNS, MXToolbox & search — server-side only." },
       { href: "/tools/automation/api-key-safety", label: "API Key Safety" },
       { href: "/tools/automation/vercel-env-guide", label: "Vercel Env Vars" },
       { href: "/tools/automation/power-automate", label: "Power Automate Planner" },
@@ -207,6 +210,7 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: "/lead-tools", label: "All phone & lead tools" },
       { href: "/tools/phone-lookup", label: "Phone Validator" },
+      { href: "/tools/automated-monitoring", label: "Automated Monitoring Hub", description: "Phone, forms & deliverability checks (server-side)." },
       { href: "/tools/lead-intelligence", label: "Lead Intelligence" },
       { href: "/tools/automation/lead-form-qa", label: "Lead Form QA Checklist" },
       { href: "/tools/form-tester", label: "Form Tester" },

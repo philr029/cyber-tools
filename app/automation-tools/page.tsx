@@ -38,6 +38,14 @@ export default function AutomationToolsPage() {
           skill: "GitHub Actions, CI scheduling.",
         },
         {
+          href: "/tools/automated-monitoring",
+          title: "Automated Monitoring Hub",
+          description: "Dashboard for server-side phone, uptime, form, DNS, and MXToolbox checks with advanced search.",
+          badge: "Live",
+          why: "Demonstrates secure-by-default monitoring patterns for interviews and pilots.",
+          skill: "Observability, SSRF-safe probes, secret handling.",
+        },
+        {
           href: "/tools/automation/api-key-safety",
           title: "API Key Safety Checklist",
           description: "Storage, scope, rotation, and detection controls for project secrets.",

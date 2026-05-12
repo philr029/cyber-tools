@@ -38,6 +38,14 @@ export default function WebToolsPage() {
           skill: "Frontend networking, fetch, browser limitations.",
         },
         {
+          href: "/tools/automated-monitoring",
+          title: "Automated Monitoring Hub",
+          description: "Server-driven uptime, TLS, forms, DNS bundles, MXToolbox proxy, and searchable history.",
+          badge: "Live",
+          why: "Keeps API keys off the client while still showing a portfolio-grade ops dashboard.",
+          skill: "Next.js API routes, observability UX.",
+        },
+        {
           href: "/tools/redirect-trace",
           title: "URL Redirect Tracer",
           description: "Follow every hop in a redirect chain and inspect each Location header.",
