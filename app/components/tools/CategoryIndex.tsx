@@ -79,7 +79,7 @@ export default function CategoryIndex({ eyebrow, title, intro, tools, callout }:
         <section aria-label={`${title} tools`} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {tools.map((tool) => {
             const card = (
-              <article className="group flex h-full flex-col rounded-[24px] border border-white/10 bg-[rgba(255,255,255,0.03)] p-5 transition-all duration-200 hover:border-cyan-400/30 hover:bg-[rgba(34,211,238,0.05)] hover:-translate-y-0.5 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+              <article className="group flex h-full flex-col rounded-[24px] border border-white/10 bg-[rgba(255,255,255,0.03)] p-5 motion-safe:transition-[transform,border-color,background-color,box-shadow] motion-safe:duration-200 hover:border-cyan-400/30 hover:bg-[rgba(34,211,238,0.05)] motion-safe:hover:-translate-y-0.5 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     {tool.icon && (

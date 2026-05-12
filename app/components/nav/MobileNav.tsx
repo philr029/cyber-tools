@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS, TOP_BAR_LINKS } from "./nav-data";
+import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 
 export const PRIMARY_MOBILE_NAV_ID = "primary-mobile-nav";
 
@@ -162,7 +163,9 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                 />
               </svg>
               Search site
-              <span className="ml-auto text-[10px] text-cyan-200/60 font-normal">⌘K</span>
+              <span className="ml-auto text-[10px] text-cyan-200/60 font-normal">
+                <SearchHotkeyText />
+              </span>
             </button>
           )}
 

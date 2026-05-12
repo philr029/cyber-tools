@@ -18,6 +18,7 @@ import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
 import MegaMenu from "@/app/components/nav/MegaMenu";
 import MobileNav, { PRIMARY_MOBILE_NAV_ID } from "@/app/components/nav/MobileNav";
 import SearchModal, { useSearchHotkey } from "@/app/components/search/SearchModal";
+import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 import { TOP_BAR_LINKS } from "@/app/components/nav/nav-data";
 
 export default function Header() {
@@ -43,6 +44,7 @@ export default function Header() {
     if (pathname === "/reporting-tools" || pathname === "/coding-tools") return true;
     if (pathname === "/about" || pathname === "/contact" || pathname === "/projects") return true;
     if (pathname === "/pricing" || pathname === "/enterprise" || pathname === "/settings") return true;
+    if (pathname === "/search") return true;
     return false;
   }, [pathname]);
 
@@ -131,7 +133,9 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#1e2d4a] bg-white/[0.03] text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 hover:bg-cyan-500/5 motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5"
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border bg-white/[0.03] text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 hover:bg-cyan-500/5 motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5 ${
+                pathname === "/search" ? "border-cyan-500/40 bg-cyan-500/10" : "border-[#1e2d4a]"
+              }`}
               aria-label="Open search"
             >
               <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -142,9 +146,9 @@ export default function Header() {
                 />
               </svg>
               <span className="hidden md:inline text-xs font-medium">Search</span>
-              <kbd className="hidden lg:inline text-[10px] text-slate-500 font-mono border border-[#1e2d4a] rounded px-1 py-0.5 bg-black/20">
-                ⌘K
-              </kbd>
+              <span className="hidden lg:inline text-[10px] text-slate-500 font-mono border border-[#1e2d4a] rounded px-1 py-0.5 bg-black/20">
+                <SearchHotkeyText />
+              </span>
             </button>
 
             <Link

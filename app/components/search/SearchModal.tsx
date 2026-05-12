@@ -24,7 +24,7 @@ import {
   type SearchToolType,
   type SiteSearchEntry,
 } from "@/lib/search/site-search";
-import { withBasePath } from "@/lib/base-path";
+import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 
 function highlightText(text: string, query: string): ReactNode {
   const q = query.trim();
@@ -138,7 +138,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     (entry: SiteSearchEntry) => {
       rememberSearchVisit(entry.url);
       onClose();
-      router.push(withBasePath(entry.url));
+      router.push(entry.url);
     },
     [onClose, router],
   );
@@ -244,8 +244,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             aria-label="Search query"
           />
           <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-500 shrink-0">
-            <kbd className="px-1.5 py-0.5 rounded border border-[#1e2d4a] bg-white/5 font-mono">⌘</kbd>
-            <kbd className="px-1.5 py-0.5 rounded border border-[#1e2d4a] bg-white/5 font-mono">K</kbd>
+            <SearchHotkeyText className="font-mono border border-[#1e2d4a] rounded px-1 py-0.5 bg-black/20" />
           </div>
           <button
             type="button"
@@ -370,7 +369,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 <Link
-                  href={withBasePath("/tools")}
+                  href="/tools"
                   onClick={() => handlePick("/tools")}
                   className="text-xs font-medium rounded-lg bg-cyan-600/90 hover:bg-cyan-500 text-white px-3 py-2 motion-safe:transition-colors"
                 >
@@ -407,7 +406,7 @@ function ResultRow({
   selected?: boolean;
   hitIndex?: number;
 }) {
-  const href = withBasePath(entry.url);
+  const href = entry.url;
   return (
     <li data-search-hit={hitIndex}>
       <Link

@@ -1,4 +1,4 @@
-import { NAV_GROUPS, TOP_BAR_LINKS, type NavGroup, type NavLink } from "@/app/components/nav/nav-data";
+import { TOP_BAR_LINKS, uniqueSiteTools, type SiteTool } from "@/lib/tools/site-catalog";
 import { MARKETING_TOOLS } from "@/lib/marketing-tools/catalog";
 
 export type SearchToolType = "hub" | "tool" | "page" | "dashboard" | "marketing" | "auth";
@@ -13,22 +13,6 @@ export interface SiteSearchEntry {
 }
 
 const SUPPLEMENT: SiteSearchEntry[] = [
-  {
-    title: "URL Analysis",
-    description: "Deep link analysis with redirect and reputation context.",
-    category: "Website Testing Tools",
-    tags: ["url", "analysis", "redirect", "link"],
-    url: "/tools/url-analysis",
-    toolType: "tool",
-  },
-  {
-    title: "Threat Score",
-    description: "Composite risk scoring for domains and URLs.",
-    category: "Cybersecurity Tools",
-    tags: ["threat", "risk", "score", "domain"],
-    url: "/tools/threat-score",
-    toolType: "tool",
-  },
   {
     title: "Sign in",
     description: "Access dashboards, saved scans and alerts.",
@@ -45,6 +29,14 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     url: "/signup",
     toolType: "auth",
   },
+  {
+    title: "Site search",
+    description: "Full-text search with category filters across every tool and hub.",
+    category: "Top navigation",
+    tags: ["search", "find", "filter", "browse"],
+    url: "/search",
+    toolType: "page",
+  },
 ];
 
 const POPULAR_HREFS = [
@@ -56,6 +48,7 @@ const POPULAR_HREFS = [
   "/dashboard",
   "/automation-tools",
   "/web-tools",
+  "/search",
 ];
 
 function slugifyTags(...parts: string[]): string[] {
@@ -72,6 +65,7 @@ function slugifyTags(...parts: string[]): string[] {
 function inferToolType(href: string): SearchToolType {
   if (href.startsWith("/dashboard")) return "dashboard";
   if (href.startsWith("/login") || href.startsWith("/signup")) return "auth";
+  if (href === "/search") return "page";
   if (href.startsWith("/tools/marketing") || href === "/marketing-tools") return "marketing";
   if (
     href.endsWith("-tools") ||
@@ -83,7 +77,14 @@ function inferToolType(href: string): SearchToolType {
     href === "/about" ||
     href === "/reporting-tools" ||
     href === "/business-tools" ||
-    href === "/lead-tools"
+    href === "/lead-tools" ||
+    href === "/domain-ip-tools" ||
+    href === "/web-tools" ||
+    href === "/cyber-tools" ||
+    href === "/coding-tools" ||
+    href === "/automation-tools" ||
+    href === "/m365-tools" ||
+    href === "/it-admin-tools"
   )
     return "hub";
   return "tool";
@@ -103,53 +104,40 @@ function pushDeduped(map: Map<string, SiteSearchEntry>, entry: SiteSearchEntry) 
   });
 }
 
-function fromNavLink(link: NavLink, category: string): SiteSearchEntry {
+function fromSiteTool(t: SiteTool): SiteSearchEntry {
   return {
-    title: link.label,
-    description: link.description ?? "",
-    category,
-    tags: slugifyTags(link.label, link.description ?? "", category),
-    url: link.href,
-    toolType: inferToolType(link.href),
+    title: t.label,
+    description: t.description,
+    category: t.megaGroup,
+    tags: [...t.keywords, ...slugifyTags(t.label, t.description, t.href.replace(/^\//, ""))],
+    url: t.href,
+    toolType: inferToolType(t.href),
   };
-}
-
-function fromNavGroup(group: NavGroup): SiteSearchEntry[] {
-  const rows: SiteSearchEntry[] = [];
-  rows.push({
-    title: `${group.label} hub`,
-    description: group.tagline ?? `Browse everything in ${group.label}.`,
-    category: group.label,
-    tags: slugifyTags(group.label, group.tagline ?? "", group.index),
-    url: group.index,
-    toolType: inferToolType(group.index),
-  });
-  for (const link of group.links) {
-    rows.push(fromNavLink(link, group.label));
-  }
-  return rows;
 }
 
 function buildIndex(): SiteSearchEntry[] {
   const map = new Map<string, SiteSearchEntry>();
 
   for (const link of TOP_BAR_LINKS) {
-    pushDeduped(map, fromNavLink(link, "Top navigation"));
+    pushDeduped(map, {
+      title: link.label,
+      description: link.description ?? "",
+      category: "Top navigation",
+      tags: slugifyTags(link.label, link.description ?? "", "navigation"),
+      url: link.href,
+      toolType: inferToolType(link.href),
+    });
   }
 
-  for (const group of NAV_GROUPS) {
-    for (const row of fromNavGroup(group)) {
-      pushDeduped(map, row);
-    }
+  for (const t of uniqueSiteTools()) {
+    pushDeduped(map, fromSiteTool(t));
   }
 
   for (const tool of MARKETING_TOOLS) {
-    const finSlug =
-      tool.slug === "roas-calculator" || tool.slug === "conversion-rate-calculator" ? "Finance Tools" : "Marketing Tools";
     pushDeduped(map, {
       title: tool.name,
       description: tool.description,
-      category: finSlug,
+      category: "Marketing Tools",
       tags: slugifyTags(tool.name, tool.description, tool.slug, tool.categoryId),
       url: tool.href,
       toolType: "marketing",
