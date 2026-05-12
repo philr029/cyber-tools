@@ -1,6 +1,6 @@
 // =============================================================================
-// Navigation data (re-exported from the site tools catalog).
+// Navigation data — top bar + mega menu / mobile groups.
 // =============================================================================
 
 export type { NavLink, NavGroup } from "@/lib/tools/site-catalog";
-export { TOP_BAR_LINKS, NAV_GROUPS } from "@/lib/tools/site-catalog";
+export { TOP_BAR_LINKS, PRIMARY_NAV_MENU as NAV_GROUPS } from "@/lib/navigation/app-menu";

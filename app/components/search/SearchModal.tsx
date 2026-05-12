@@ -9,8 +9,23 @@ import {
   useMemo,
   useRef,
   useState,
+  type ComponentType,
   type ReactNode,
 } from "react";
+import {
+  BookOpen,
+  Briefcase,
+  Bug,
+  Certificate,
+  GithubLogo,
+  Lock,
+  MagnifyingGlass,
+  Plugs,
+  ShieldCheck,
+  Student,
+  UserGear,
+  type IconProps,
+} from "@phosphor-icons/react";
 import {
   SEARCH_CATEGORIES,
   SEARCH_TOOL_TYPES,
@@ -27,6 +42,20 @@ import {
   type SiteSearchEntry,
 } from "@/lib/search/site-search";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
+
+const SEARCH_ENTRY_ICONS: Record<string, ComponentType<IconProps>> = {
+  BookOpen,
+  Certificate,
+  ShieldCheck,
+  GithubLogo,
+  Briefcase,
+  Student,
+  Bug,
+  Lock,
+  UserGear,
+  Plugs,
+  MagnifyingGlass,
+};
 
 function highlightText(text: string, query: string): ReactNode {
   const q = query.trim();
@@ -438,6 +467,7 @@ function ResultRow({
   hitIndex?: number;
 }) {
   const href = entry.url;
+  const IconCmp = entry.icon && SEARCH_ENTRY_ICONS[entry.icon] ? SEARCH_ENTRY_ICONS[entry.icon]! : MagnifyingGlass;
   return (
     <li data-search-hit={hitIndex}>
       <Link
@@ -452,9 +482,14 @@ function ResultRow({
         }`}
       >
         <div className="flex items-start justify-between gap-2">
-          <span className="text-sm font-semibold text-[var(--ss-text)] leading-snug">
-            {highlightText(entry.title, query)}
-          </span>
+          <div className="flex items-start gap-2 min-w-0 flex-1">
+            <span className="mt-0.5 shrink-0 text-[var(--ss-accent)] opacity-90" aria-hidden>
+              <IconCmp className="w-4 h-4" weight="duotone" />
+            </span>
+            <span className="text-sm font-semibold text-[var(--ss-text)] leading-snug min-w-0">
+              {highlightText(entry.title, query)}
+            </span>
+          </div>
           <span className="shrink-0 text-[10px] uppercase tracking-wide text-[var(--ss-text-secondary)]">
             {entry.toolType}
           </span>

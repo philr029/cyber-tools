@@ -1,5 +1,5 @@
+import { TOP_BAR_LINKS } from "@/lib/navigation/app-menu";
 import {
-  TOP_BAR_LINKS,
   uniqueSiteTools,
   SITE_SEARCH_TOOLKIT_FILTERS,
   DASHBOARD_SECTION_META,
@@ -7,6 +7,7 @@ import {
   type ToolkitSearchFilter,
 } from "@/lib/tools/site-catalog";
 import { MARKETING_TOOLS } from "@/lib/marketing-tools/catalog";
+import { SEARCH_INDEX_ICON_ENTRIES } from "@/lib/data/searchIndex";
 
 export type SearchToolType = "hub" | "tool" | "page" | "dashboard" | "marketing" | "auth";
 
@@ -19,6 +20,8 @@ export interface SiteSearchEntry {
   toolType: SearchToolType;
   /** Portfolio-area filters (subset of `ToolkitSearchFilter`, never includes `all`). */
   toolkitAreas: ToolkitSearchFilter[];
+  /** Phosphor icon component name for palette rows (optional). */
+  icon?: string;
 }
 
 const SUPPLEMENT: SiteSearchEntry[] = [
@@ -80,6 +83,7 @@ const POPULAR_HREFS = [
   "/automation-tools",
   "/web-tools",
   "/search",
+  "/resources",
 ];
 
 function slugifyTags(...parts: string[]): string[] {
@@ -96,6 +100,7 @@ function slugifyTags(...parts: string[]): string[] {
 function inferToolType(href: string): SearchToolType {
   if (href.startsWith("/dashboard")) return "dashboard";
   if (href.startsWith("/login") || href.startsWith("/signup")) return "auth";
+  if (href.startsWith("/resources") || href.startsWith("/projects/")) return "page";
   if (href === "/search") return "page";
   if (href.startsWith("/tools/marketing") || href === "/marketing-tools") return "marketing";
   if (
@@ -139,6 +144,7 @@ function pushDeduped(map: Map<string, SiteSearchEntry>, entry: SiteSearchEntry) 
     description: prev.description.length >= entry.description.length ? prev.description : entry.description,
     tags: [...tags],
     toolkitAreas: [...toolkitAreas],
+    icon: prev.icon ?? entry.icon,
   });
 }
 
@@ -191,6 +197,19 @@ function buildIndex(): SiteSearchEntry[] {
 
   for (const row of SUPPLEMENT) {
     pushDeduped(map, row);
+  }
+
+  for (const row of SEARCH_INDEX_ICON_ENTRIES) {
+    pushDeduped(map, {
+      title: row.title,
+      description: row.description,
+      category: row.category,
+      tags: [...row.keywords, ...slugifyTags(row.title, row.description, row.url)],
+      url: row.url,
+      toolType: inferToolType(row.url),
+      toolkitAreas: row.toolkitAreas ?? [],
+      icon: row.icon,
+    });
   }
 
   return [...map.values()];

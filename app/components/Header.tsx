@@ -36,18 +36,22 @@ export default function Header() {
 
   const isToolsActive = useMemo(() => {
     if (pathname.startsWith("/tools")) return true;
+    if (pathname.startsWith("/resources")) return true;
+    if (pathname.startsWith("/projects")) return true;
+    if (pathname.startsWith("/dashboard")) return true;
     if (pathname.endsWith("-tools")) return true;
     if (pathname === "/marketing-tools") return true;
     if (pathname === "/web-tools") return true;
     if (pathname === "/it-admin-tools" || pathname === "/m365-tools" || pathname === "/cyber-tools") return true;
     if (pathname === "/domain-ip-tools" || pathname === "/lead-tools" || pathname === "/business-tools") return true;
     if (pathname === "/reporting-tools" || pathname === "/coding-tools") return true;
+    if (pathname === "/automation-tools") return true;
     return false;
   }, [pathname]);
 
   useEffect(() => {
     function onResize() {
-      if (window.innerWidth >= 1280 && mobileOpen) setMobileOpen(false);
+      if (window.innerWidth >= 1024 && mobileOpen) setMobileOpen(false);
     }
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -96,7 +100,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden xl:flex items-center gap-0.5 flex-1 justify-center min-w-0" aria-label="Main navigation">
+          <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center min-w-0" aria-label="Main navigation">
             {TOP_BAR_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -265,7 +269,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="xl:hidden flex items-center justify-center w-9 h-9 rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] text-[var(--ss-text)] hover:bg-[var(--ss-accent-soft)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] motion-safe:transition-colors"
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] text-[var(--ss-text)] hover:bg-[var(--ss-accent-soft)] hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] motion-safe:transition-colors"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               aria-controls={PRIMARY_MOBILE_NAV_ID}
@@ -288,7 +292,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="xl:hidden">
+      <div className="lg:hidden">
         <MobileNav
           open={mobileOpen}
           onClose={() => setMobileOpen(false)}
