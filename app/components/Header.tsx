@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -27,6 +27,10 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const mobileOpenRef = useRef(mobileOpen);
+  const toolsMenuOpenRef = useRef(toolsMenuOpen);
+  mobileOpenRef.current = mobileOpen;
+  toolsMenuOpenRef.current = toolsMenuOpen;
   const { user, loading, logout } = useAuth();
   const { toast } = useToast();
   const { theme, toggle: toggleTheme } = useTheme();
@@ -74,12 +78,12 @@ export default function Header() {
 
   useEffect(() => {
     function onResize() {
-      if (window.innerWidth >= 1024 && mobileOpen) setMobileOpen(false);
-      if (window.innerWidth < 1024 && toolsMenuOpen) setToolsMenuOpen(false);
+      if (window.innerWidth >= 1024 && mobileOpenRef.current) setMobileOpen(false);
+      if (window.innerWidth < 1024 && toolsMenuOpenRef.current) setToolsMenuOpen(false);
     }
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [mobileOpen, toolsMenuOpen]);
+  }, []);
 
   useEffect(() => {
     setSearchOpen(false);
