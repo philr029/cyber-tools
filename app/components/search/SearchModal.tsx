@@ -89,12 +89,6 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     return undefined;
   }, [open]);
 
-  useEffect(() => {
-    if (!open) {
-      setActiveIndex(-1);
-    }
-  }, [open]);
-
   const results = useMemo(
     () => searchSite({ query, category, toolType, toolkitArea, limit: 50 }),
     [query, category, toolType, toolkitArea],
@@ -121,8 +115,12 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   }, [query, results, spotlight, filterBrowse, filtersActive]);
 
   useEffect(() => {
-    setActiveIndex(-1);
-  }, [query, category, toolType, toolkitArea, filtersActive, keyboardTargets]);
+    if (!open) return;
+    const id = requestAnimationFrame(() => {
+      setActiveIndex(-1);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [open, query, category, toolType, toolkitArea, filtersActive]);
 
   useEffect(() => {
     if (!open) return;

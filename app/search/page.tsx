@@ -57,7 +57,11 @@ export default function SearchPage() {
 
   useEffect(() => {
     const q = sp.get("q");
-    if (q != null) setQuery(q);
+    if (q == null) return undefined;
+    const id = requestAnimationFrame(() => {
+      setQuery(q);
+    });
+    return () => cancelAnimationFrame(id);
   }, [sp]);
 
   const results = useMemo(
