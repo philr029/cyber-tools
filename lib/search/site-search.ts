@@ -16,7 +16,7 @@ const SUPPLEMENT: SiteSearchEntry[] = [
   {
     title: "URL Analysis",
     description: "Deep link analysis with redirect and reputation context.",
-    category: "Website Tools",
+    category: "Website Testing Tools",
     tags: ["url", "analysis", "redirect", "link"],
     url: "/tools/url-analysis",
     toolType: "tool",
@@ -24,7 +24,7 @@ const SUPPLEMENT: SiteSearchEntry[] = [
   {
     title: "Threat Score",
     description: "Composite risk scoring for domains and URLs.",
-    category: "IT & Security Tools",
+    category: "Cybersecurity Tools",
     tags: ["threat", "risk", "score", "domain"],
     url: "/tools/threat-score",
     toolType: "tool",
@@ -80,7 +80,10 @@ function inferToolType(href: string): SearchToolType {
     href === "/enterprise" ||
     href === "/projects" ||
     href === "/contact" ||
-    href === "/about"
+    href === "/about" ||
+    href === "/reporting-tools" ||
+    href === "/business-tools" ||
+    href === "/lead-tools"
   )
     return "hub";
   return "tool";
@@ -141,10 +144,12 @@ function buildIndex(): SiteSearchEntry[] {
   }
 
   for (const tool of MARKETING_TOOLS) {
+    const finSlug =
+      tool.slug === "roas-calculator" || tool.slug === "conversion-rate-calculator" ? "Finance Tools" : "Marketing Tools";
     pushDeduped(map, {
       title: tool.name,
       description: tool.description,
-      category: "Marketing Tools",
+      category: finSlug,
       tags: slugifyTags(tool.name, tool.description, tool.slug, tool.categoryId),
       url: tool.href,
       toolType: "marketing",
@@ -231,8 +236,13 @@ function scoreEntry(q: string, e: SiteSearchEntry): number {
   const cat = normalize(e.category);
   const tagStr = normalize(e.tags.join(" "));
   const url = normalize(e.url);
+  const urlPath = url.replace(/^https?:\/\/[^/]+/i, "");
+  const pathTail = urlPath.includes("/") ? urlPath.slice(urlPath.lastIndexOf("/") + 1) : urlPath;
 
   if (title === n || url === `/${n}` || url.endsWith(`/${n}`)) return 120;
+  if (pathTail.includes(n) && n.length >= 3) return 102;
+  if (urlPath.includes(`/${n}/`) || urlPath.includes(`/${n}?`)) return 100;
+  if (n.length >= 3 && url.includes(n.replace(/\s+/g, ""))) return 88;
   if (title.startsWith(n)) return 105;
   if (title.includes(n)) return 95;
   if (desc.includes(n)) return 80;

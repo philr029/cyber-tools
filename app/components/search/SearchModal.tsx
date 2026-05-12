@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -23,6 +24,7 @@ import {
   type SearchToolType,
   type SiteSearchEntry,
 } from "@/lib/search/site-search";
+import { withBasePath } from "@/lib/base-path";
 
 function highlightText(text: string, query: string): ReactNode {
   const q = query.trim();
@@ -60,12 +62,16 @@ interface SearchModalProps {
 }
 
 export default function SearchModal({ open, onClose }: SearchModalProps) {
+  const router = useRouter();
   const dialogId = useId();
+  const titleId = `${dialogId}-heading`;
+  const inputId = `${dialogId}-input`;
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<SearchCategoryFilter>("all");
   const [toolType, setToolType] = useState<SearchToolType | "all">("all");
+  const [activeIndex, setActiveIndex] = useState(-1);
   const recentUrls = useMemo(() => (open ? readRecentSearches() : []), [open]);
 
   useEffect(() => {
@@ -81,29 +87,10 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      }
+    if (!open) {
+      setActiveIndex(-1);
     }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  useEffect(() => {
-    if (!open) return;
-    function onPointerDown(e: PointerEvent) {
-      const t = e.target;
-      if (!t || !(t instanceof Node)) return;
-      if (panelRef.current && !panelRef.current.contains(t)) {
-        onClose();
-      }
-    }
-    document.addEventListener("pointerdown", onPointerDown, true);
-    return () => document.removeEventListener("pointerdown", onPointerDown, true);
-  }, [open, onClose]);
+  }, [open]);
 
   const results = useMemo(
     () => searchSite({ query, category, toolType, limit: 50 }),
@@ -124,10 +111,87 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     return searchSite({ query: "", category, toolType, limit: 50 });
   }, [query, category, toolType, filtersActive]);
 
+  const keyboardTargets = useMemo(() => {
+    if (query.trim()) return results;
+    if (filtersActive) return filterBrowse;
+    return spotlight;
+  }, [query, results, spotlight, filterBrowse, filtersActive]);
+
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [query, category, toolType, filtersActive, keyboardTargets]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: PointerEvent) {
+      const t = e.target;
+      if (!t || !(t instanceof Node)) return;
+      if (panelRef.current && !panelRef.current.contains(t)) {
+        onClose();
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [open, onClose]);
+
+  const goToEntry = useCallback(
+    (entry: SiteSearchEntry) => {
+      rememberSearchVisit(entry.url);
+      onClose();
+      router.push(withBasePath(entry.url));
+    },
+    [onClose, router],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+
+      const max = keyboardTargets.length - 1;
+      if (max < 0) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveIndex((i) => (i < max ? i + 1 : 0));
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveIndex((i) => (i > 0 ? i - 1 : max));
+        return;
+      }
+      if (e.key === "Enter") {
+        const target = e.target as HTMLElement | null;
+        if (target && target.closest("select")) return;
+        const pick =
+          activeIndex >= 0 && activeIndex <= max
+            ? keyboardTargets[activeIndex]
+            : (keyboardTargets[0] ?? null);
+        if (!pick) return;
+        e.preventDefault();
+        goToEntry(pick);
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose, keyboardTargets, activeIndex, goToEntry]);
+
+  useEffect(() => {
+    if (activeIndex < 0 || !panelRef.current) return;
+    const row = panelRef.current.querySelector<HTMLElement>(`[data-search-hit="${activeIndex}"]`);
+    row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeIndex]);
+
   const reset = useCallback(() => {
     setQuery("");
     setCategory("all");
     setToolType("all");
+    setActiveIndex(-1);
     inputRef.current?.focus();
   }, []);
 
@@ -142,18 +206,26 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center sm:pt-[8vh] pt-4 px-3">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden />
+    <div className="fixed inset-0 z-[100] flex items-start justify-center sm:pt-[8vh] pt-4 px-3 motion-safe:animate-search-backdrop">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm motion-safe:transition-opacity motion-safe:duration-200" aria-hidden />
 
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={`${dialogId}-title`}
-        className="relative w-full max-w-2xl max-h-[min(640px,88dvh)] flex flex-col rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 shadow-[0_24px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl overflow-hidden"
+        aria-labelledby={titleId}
+        className="relative w-full max-w-2xl max-h-[min(640px,88dvh)] flex flex-col rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 shadow-[0_24px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl overflow-hidden motion-safe:animate-search-panel"
       >
+        <h2 id={titleId} className="sr-only">
+          Site search
+        </h2>
         <div className="border-b border-[#1e2d4a] px-4 py-3 flex items-center gap-3">
-          <svg className="w-5 h-5 text-cyan-400 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+          <svg
+            className="w-5 h-5 text-cyan-400 shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-105"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden
+          >
             <path
               fillRule="evenodd"
               d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.517 3.516a1 1 0 01-1.414 1.414l-3.516-3.517A7 7 0 012 9z"
@@ -162,14 +234,14 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           </svg>
           <input
             ref={inputRef}
-            id={`${dialogId}-title`}
+            id={inputId}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search tools, pages, dashboards…"
+            placeholder="Search pages, tools, categories, routes…"
             autoComplete="off"
             className="flex-1 min-w-0 bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
-            aria-label="Search site"
+            aria-label="Search query"
           />
           <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-500 shrink-0">
             <kbd className="px-1.5 py-0.5 rounded border border-[#1e2d4a] bg-white/5 font-mono">⌘</kbd>
@@ -178,14 +250,14 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           <button
             type="button"
             onClick={reset}
-            className="text-xs font-medium text-slate-400 hover:text-cyan-300 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors"
+            className="text-xs font-medium text-slate-400 hover:text-cyan-300 px-2 py-1 rounded-lg hover:bg-white/5 motion-safe:transition-colors"
           >
             Clear
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="text-xs font-medium text-slate-400 hover:text-slate-100 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors"
+            className="text-xs font-medium text-slate-400 hover:text-slate-100 px-2 py-1 rounded-lg hover:bg-white/5 motion-safe:transition-colors"
           >
             Close
           </button>
@@ -224,15 +296,23 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           </select>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 py-2">
+        <div className="flex-1 overflow-y-auto px-2 py-2 motion-safe:transition-[opacity] motion-safe:duration-150">
           {!query.trim() && !filtersActive && spotlight.length > 0 && (
             <div className="mb-3 px-2">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
                 {recentUrls.length ? "Recent" : "Popular"}
               </p>
               <ul className="flex flex-col gap-0.5">
-                {spotlight.map((e) => (
-                  <ResultRow key={`spot-${e.url}`} entry={e} query={query} onPick={handlePick} subtle />
+                {spotlight.map((e, i) => (
+                  <ResultRow
+                    key={`spot-${e.url}`}
+                    entry={e}
+                    query={query}
+                    onPick={handlePick}
+                    subtle
+                    selected={activeIndex === i}
+                    hitIndex={i}
+                  />
                 ))}
               </ul>
             </div>
@@ -244,8 +324,16 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
                 Matches current filters
               </p>
               <ul className="flex flex-col gap-0.5">
-                {filterBrowse.map((e) => (
-                  <ResultRow key={`fb-${e.url}`} entry={e} query={query} onPick={handlePick} subtle />
+                {filterBrowse.map((e, i) => (
+                  <ResultRow
+                    key={`fb-${e.url}`}
+                    entry={e}
+                    query={query}
+                    onPick={handlePick}
+                    subtle
+                    selected={activeIndex === i}
+                    hitIndex={i}
+                  />
                 ))}
               </ul>
             </div>
@@ -262,29 +350,36 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           )}
 
           <ul className="flex flex-col gap-0.5">
-            {(query.trim() ? results : []).map((e) => (
-              <ResultRow key={e.url} entry={e} query={query} onPick={handlePick} />
+            {(query.trim() ? results : []).map((e, i) => (
+              <ResultRow
+                key={e.url}
+                entry={e}
+                query={query}
+                onPick={handlePick}
+                selected={activeIndex === i}
+                hitIndex={i}
+              />
             ))}
           </ul>
 
           {query.trim() && results.length === 0 && (
             <div className="px-3 py-10 text-center space-y-3">
-              <p className="text-sm text-slate-300">No matches for that search.</p>
+              <p className="text-sm text-slate-300">No results found.</p>
               <p className="text-xs text-slate-500">
                 Try a shorter keyword, switch category, or browse the full toolkit.
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 <Link
-                  href="/tools"
+                  href={withBasePath("/tools")}
                   onClick={() => handlePick("/tools")}
-                  className="text-xs font-medium rounded-lg bg-cyan-600/90 hover:bg-cyan-500 text-white px-3 py-2 transition-colors"
+                  className="text-xs font-medium rounded-lg bg-cyan-600/90 hover:bg-cyan-500 text-white px-3 py-2 motion-safe:transition-colors"
                 >
                   Open all tools
                 </Link>
                 <button
                   type="button"
                   onClick={reset}
-                  className="text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-300 hover:bg-white/5 px-3 py-2 transition-colors"
+                  className="text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-300 hover:bg-white/5 px-3 py-2 motion-safe:transition-colors"
                 >
                   Reset filters
                 </button>
@@ -302,21 +397,28 @@ function ResultRow({
   query,
   onPick,
   subtle,
+  selected,
+  hitIndex,
 }: {
   entry: SiteSearchEntry;
   query: string;
   onPick: (url: string) => void;
   subtle?: boolean;
+  selected?: boolean;
+  hitIndex?: number;
 }) {
+  const href = withBasePath(entry.url);
   return (
-    <li>
+    <li data-search-hit={hitIndex}>
       <Link
-        href={entry.url}
+        href={href}
         onClick={() => onPick(entry.url)}
-        className={`flex flex-col gap-0.5 rounded-xl px-3 py-2.5 transition-colors border border-transparent ${
-          subtle
-            ? "hover:bg-white/[0.04] hover:border-[#1e2d4a]"
-            : "hover:bg-white/[0.06] hover:border-cyan-500/15"
+        className={`flex flex-col gap-0.5 rounded-xl px-3 py-2.5 border motion-safe:transition-[background-color,border-color,transform] motion-safe:duration-150 ${
+          selected
+            ? "bg-cyan-500/10 border-cyan-500/30 ring-1 ring-cyan-500/20"
+            : subtle
+              ? "border-transparent hover:bg-white/[0.04] hover:border-[#1e2d4a] motion-safe:hover:-translate-y-px"
+              : "border-transparent hover:bg-white/[0.06] hover:border-cyan-500/15 motion-safe:hover:-translate-y-px"
         }`}
       >
         <div className="flex items-start justify-between gap-2">

@@ -16,7 +16,7 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import { useTheme } from "@/lib/theme-context";
 import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
 import MegaMenu from "@/app/components/nav/MegaMenu";
-import MobileNav from "@/app/components/nav/MobileNav";
+import MobileNav, { PRIMARY_MOBILE_NAV_ID } from "@/app/components/nav/MobileNav";
 import SearchModal, { useSearchHotkey } from "@/app/components/search/SearchModal";
 import { TOP_BAR_LINKS } from "@/app/components/nav/nav-data";
 
@@ -37,6 +37,12 @@ export default function Header() {
     if (pathname.startsWith("/tools")) return true;
     if (pathname.endsWith("-tools")) return true;
     if (pathname === "/marketing-tools") return true;
+    if (pathname === "/web-tools") return true;
+    if (pathname === "/it-admin-tools" || pathname === "/m365-tools" || pathname === "/cyber-tools") return true;
+    if (pathname === "/domain-ip-tools" || pathname === "/lead-tools" || pathname === "/business-tools") return true;
+    if (pathname === "/reporting-tools" || pathname === "/coding-tools") return true;
+    if (pathname === "/about" || pathname === "/contact" || pathname === "/projects") return true;
+    if (pathname === "/pricing" || pathname === "/enterprise" || pathname === "/settings") return true;
     return false;
   }, [pathname]);
 
@@ -125,7 +131,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#1e2d4a] bg-white/[0.03] text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#1e2d4a] bg-white/[0.03] text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 hover:bg-cyan-500/5 motion-safe:transition-[color,background-color,border-color,transform] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5"
               aria-label="Open search"
             >
               <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -259,7 +265,7 @@ export default function Header() {
               className="xl:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-cyan-500/25 bg-cyan-500/10 text-cyan-300 shadow-[0_0_14px_rgba(6,182,212,0.16)] hover:bg-cyan-500/15 hover:text-cyan-100 transition-colors"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
-              aria-controls="primary-mobile-nav"
+              aria-controls={PRIMARY_MOBILE_NAV_ID}
             >
               {mobileOpen ? (
                 <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -279,7 +285,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div id="primary-mobile-nav">
+      <div className="xl:hidden">
         <MobileNav
           open={mobileOpen}
           onClose={() => setMobileOpen(false)}

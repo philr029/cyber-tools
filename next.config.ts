@@ -38,6 +38,8 @@ const securityHeaders = [
 // Vercel deployment: standard Next.js server-side rendering.
 // API routes in app/api/ run as Vercel serverless functions.
 // Environment variables (API keys) are set in the Vercel project dashboard.
+// For GitHub Pages (or any subpath host), set `basePath` here and the same value in
+// `NEXT_PUBLIC_BASE_PATH` so global search links match the deployed URL prefix.
 const nextConfig: NextConfig = {
   experimental: {
     sri: {
