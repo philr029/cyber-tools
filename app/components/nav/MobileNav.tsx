@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
-import { NAV_GROUPS } from "./nav-data";
+import { NAV_GROUPS, TOP_BAR_LINKS } from "./nav-data";
 
 interface MobileNavProps {
   open: boolean;
@@ -26,9 +26,11 @@ interface MobileNavProps {
   authSlot?: React.ReactNode;
   /** Extra utility links (Settings, Dashboard, etc.) rendered at the bottom. */
   utilitySlot?: React.ReactNode;
+  /** Opens the global search modal (header lifts state). */
+  onOpenSearch?: () => void;
 }
 
-export default function MobileNav({ open, onClose, authSlot, utilitySlot }: MobileNavProps) {
+export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpenSearch }: MobileNavProps) {
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -142,36 +144,50 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
         </div>
 
         <nav className="px-4 pb-6 pt-3" aria-label="Mobile navigation">
-          {/* Top-level shortcuts */}
-          <ul className="flex flex-col gap-0.5 mb-3">
-            <MobileLink href="/" pathname={pathname} onNav={onClose}>
-              Home
-            </MobileLink>
-            <MobileLink href="/tools" pathname={pathname} onNav={onClose}>
-              All Tools
-            </MobileLink>
-            <MobileLink
-              href="/marketing-tools"
-              pathname={pathname}
-              onNav={onClose}
-              active={pathname === "/marketing-tools" || pathname.startsWith("/tools/marketing")}
+          {onOpenSearch && (
+            <button
+              type="button"
+              onClick={() => {
+                onOpenSearch();
+                onClose();
+              }}
+              className="mb-3 w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-cyan-500/25 bg-cyan-500/10 text-sm font-medium text-cyan-100 hover:bg-cyan-500/15 transition-colors"
             >
-              Marketing Tools
-            </MobileLink>
-            <MobileLink href="/pricing" pathname={pathname} onNav={onClose}>
-              Pricing
-            </MobileLink>
-            <MobileLink href="/enterprise" pathname={pathname} onNav={onClose}>
-              Enterprise
-            </MobileLink>
-            <MobileLink href="/about" pathname={pathname} onNav={onClose}>
-              About
-            </MobileLink>
+              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                <path
+                  fillRule="evenodd"
+                  d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.517 3.516a1 1 0 01-1.414 1.414l-3.516-3.517A7 7 0 012 9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Search site
+              <span className="ml-auto text-[10px] text-cyan-200/60 font-normal">⌘K</span>
+            </button>
+          )}
+
+          {/* Top-level routes */}
+          <ul className="flex flex-col gap-0.5 mb-3">
+            {TOP_BAR_LINKS.map((link) => (
+              <MobileLink
+                key={link.href}
+                href={link.href}
+                pathname={pathname}
+                onNav={onClose}
+                active={
+                  link.href === "/dashboard"
+                    ? pathname.startsWith("/dashboard")
+                    : link.href === "/automation-tools"
+                      ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
+                      : undefined
+                }
+              >
+                {link.label}
+              </MobileLink>
+            ))}
           </ul>
 
-          {/* Accordion sections — one expanded at a time */}
           <p className="px-2 py-1 mt-2 mb-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-            Tool categories
+            Tools & categories
           </p>
           <ul className="flex flex-col gap-1">
             {NAV_GROUPS.map((group) => {
@@ -213,7 +229,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
                         const linkActive = pathname === link.href;
                         if (link.comingSoon) {
                           return (
-                            <li key={link.href}>
+                            <li key={`${link.href}-soon`}>
                               <span
                                 className="flex items-center justify-between px-3 py-2 text-sm text-slate-500 cursor-not-allowed"
                                 aria-disabled="true"
@@ -227,7 +243,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
                           );
                         }
                         return (
-                          <li key={link.href}>
+                          <li key={`${link.href}-${link.label}`}>
                             <Link
                               href={link.href}
                               onClick={onClose}
@@ -238,7 +254,10 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
                               }`}
                               aria-current={linkActive ? "page" : undefined}
                             >
-                              {link.label}
+                              <span className="font-medium text-slate-200">{link.label}</span>
+                              {link.description ? (
+                                <span className="block text-xs text-slate-500 mt-0.5">{link.description}</span>
+                              ) : null}
                             </Link>
                           </li>
                         );

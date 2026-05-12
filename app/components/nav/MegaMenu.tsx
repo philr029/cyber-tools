@@ -1,18 +1,11 @@
 "use client";
 
 // =============================================================================
-// MegaMenu (desktop)
+// MegaMenu (desktop, xl+)
 // -----------------------------------------------------------------------------
-// A single header-attached panel that lists every tool category in columns.
-// Opens and closes via click/tap on the trigger, or via keyboard (Enter,
-// Space, ArrowDown). Closes on Escape, outside pointer/touch, or when focus
-// leaves the menu (blur). Mobile uses `MobileNav` instead — this component is
-// hidden below the `xl` breakpoint.
-//
-// Note: We intentionally do not open on :hover / mouseenter. Combining hover
-// open with a click toggle caused the menu to open on pointer enter and then
-// immediately close on the following click (common on touch and many desktop
-// browsers), which looked like a dead control on production.
+// Category panel for all tools. Opens on click, fine-pointer hover (with short
+// delays), and ArrowDown / Enter on the trigger. Closes on Escape, outside
+// pointer, or focus leaving the menu surface.
 // =============================================================================
 
 import Link from "next/link";
@@ -24,39 +17,71 @@ import { NAV_GROUPS, type NavGroup } from "./nav-data";
 // pulling in an icon library. Using Tailwind arbitrary classes inline so each
 // colour stays in source for tree-shaking.
 const GROUP_ACCENTS: Record<string, string> = {
-  Coding: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
-  "IT Admin": "bg-sky-500/10 text-sky-300 ring-sky-500/20",
-  "Web Tools": "bg-indigo-500/10 text-indigo-300 ring-indigo-500/20",
-  Cyber: "bg-rose-500/10 text-rose-300 ring-rose-500/20",
-  "Microsoft 365": "bg-blue-500/10 text-blue-300 ring-blue-500/20",
-  "Domain / IP": "bg-purple-500/10 text-purple-300 ring-purple-500/20",
-  Automation: "bg-amber-500/10 text-amber-300 ring-amber-500/20",
-  Business: "bg-teal-500/10 text-teal-300 ring-teal-500/20",
-  Reporting: "bg-fuchsia-500/10 text-fuchsia-300 ring-fuchsia-500/20",
-  "Phone / Lead": "bg-orange-500/10 text-orange-300 ring-orange-500/20",
+  "Website Tools": "bg-indigo-500/10 text-indigo-300 ring-indigo-500/20",
+  "IT & Security Tools": "bg-rose-500/10 text-rose-300 ring-rose-500/20",
+  "Automation Tools": "bg-amber-500/10 text-amber-300 ring-amber-500/20",
+  "Marketing Tools": "bg-pink-500/10 text-pink-300 ring-pink-500/20",
+  "Lead & CRM Tools": "bg-teal-500/10 text-teal-300 ring-teal-500/20",
+  "Phone & Form Testing": "bg-orange-500/10 text-orange-300 ring-orange-500/20",
+  "Domain & Reputation Tools": "bg-purple-500/10 text-purple-300 ring-purple-500/20",
+  "AI Tools": "bg-violet-500/10 text-violet-300 ring-violet-500/20",
+  Dashboards: "bg-cyan-500/10 text-cyan-300 ring-cyan-500/20",
+  "Settings / Utilities": "bg-slate-500/10 text-slate-200 ring-slate-500/25",
 };
 
-// Cap the number of links per column so the panel stays a comfortable height.
-// Categories with more tools surface a "View all" link to the index page.
-const MAX_LINKS_PER_GROUP = 6;
+const DEFAULT_MAX_LINKS = 6;
 
 export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const openTimer = useRef<number | null>(null);
+  const closeTimer = useRef<number | null>(null);
+  const [finePointer, setFinePointer] = useState(false);
   const panelId = useId();
   const triggerId = useId();
 
-  const isAnyGroupActive = NAV_GROUPS.some(
-    (g) => pathname === g.index || g.links.some((l) => pathname === l.href),
-  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    function sync() {
+      setFinePointer(mq.matches);
+    }
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const clearTimers = useCallback(() => {
+    if (openTimer.current) window.clearTimeout(openTimer.current);
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    openTimer.current = null;
+    closeTimer.current = null;
+  }, []);
+
+  const isAnyGroupActive =
+    NAV_GROUPS.some((g) => pathname === g.index || g.links.some((l) => pathname === l.href)) ||
+    pathname.startsWith("/marketing-tools");
 
   const handleLinkClick = useCallback(() => setOpen(false), []);
 
+  const scheduleOpen = useCallback(() => {
+    if (!finePointer) return;
+    clearTimers();
+    openTimer.current = window.setTimeout(() => setOpen(true), 90);
+  }, [clearTimers, finePointer]);
+
+  const scheduleClose = useCallback(() => {
+    if (!finePointer) return;
+    clearTimers();
+    closeTimer.current = window.setTimeout(() => setOpen(false), 140);
+  }, [clearTimers, finePointer]);
+
   const toggle = useCallback(() => {
+    clearTimers();
     setOpen((v) => !v);
-  }, []);
+  }, [clearTimers]);
 
   // Close on Escape, returning focus to the trigger so keyboard users keep
   // their place in the tab order.
@@ -111,15 +136,22 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   }, [open]);
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div
+      ref={wrapperRef}
+      className="relative"
+      onMouseEnter={scheduleOpen}
+      onMouseLeave={scheduleClose}
+    >
       <button
         ref={triggerRef}
         id={triggerId}
         type="button"
         onClick={toggle}
+        onMouseDown={clearTimers}
         onKeyDown={(e) => {
           if (e.key !== "ArrowDown" && e.key !== " " && e.key !== "Enter") return;
           e.preventDefault();
+          clearTimers();
           setOpen(true);
           requestAnimationFrame(() => {
             const root = wrapperRef.current;
@@ -152,23 +184,20 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         </svg>
       </button>
 
-      {/* Mega panel — fixed in viewport so it can be full-width without
-          pushing the trigger. z-[70] keeps it above sticky header (z-50) and
-          typical page overlays. pointer-events-none while closed keeps hit
-          targets accurate. */}
+      {/* Mega panel — fixed under header; hover bridge via parent wrapper + top alignment */}
       <div
         id={panelId}
         role="menu"
         aria-label={`${label} categories`}
         aria-labelledby={triggerId}
-        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-2rem))] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-all duration-150 ease-out ${
+        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-1.25rem))] max-h-[calc(100vh-4.5rem)] overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-[opacity,transform] duration-200 ease-out ${
           open
             ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 -translate-y-1 pointer-events-none"
+            : "opacity-0 -translate-y-1.5 pointer-events-none"
         }`}
         hidden={!open}
       >
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-5 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-5 gap-y-5 p-6">
           {NAV_GROUPS.map((group) => (
             <MegaColumn
               key={group.label}
@@ -178,16 +207,34 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
             />
           ))}
         </div>
-        <div className="border-t border-[#1e2d4a] px-6 py-3 flex items-center justify-between text-xs">
-          <span className="text-slate-500">Looking for something specific?</span>
-          <Link
-            href="/tools"
-            data-mega-link
-            onClick={handleLinkClick}
-            className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-          >
-            Browse all tools →
-          </Link>
+        <div className="border-t border-[#1e2d4a] px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-xs">
+          <span className="text-slate-500">Press ⌘K / Ctrl+K for instant search across the site.</span>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/pricing"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/enterprise"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+            >
+              Enterprise
+            </Link>
+            <Link
+              href="/tools"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+            >
+              Browse all tools →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -204,12 +251,9 @@ function MegaColumn({
   onLinkClick: () => void;
 }) {
   const accent = GROUP_ACCENTS[group.label] ?? "bg-slate-500/10 text-slate-300 ring-slate-500/20";
-  // Skip the "All <category> tools" entry — we already link to it via the
-  // group heading and the "View all" footer link.
-  const featuredLinks = group.links
-    .filter((l) => l.href !== group.index)
-    .slice(0, MAX_LINKS_PER_GROUP);
-  const hasMore = group.links.filter((l) => l.href !== group.index).length > MAX_LINKS_PER_GROUP;
+  const max = group.maxFeaturedLinks ?? DEFAULT_MAX_LINKS;
+  const featuredLinks = group.links.filter((l) => l.href !== group.index).slice(0, max);
+  const hasMore = group.links.filter((l) => l.href !== group.index).length > max;
 
   return (
     <div>
@@ -217,7 +261,7 @@ function MegaColumn({
         href={group.index}
         data-mega-link
         onClick={onLinkClick}
-        className={`group flex items-start gap-2 mb-2.5 rounded-lg px-2 py-1.5 -mx-2 hover:bg-white/5 transition-colors`}
+        className="group flex items-start gap-2 mb-2.5 rounded-lg px-2 py-1.5 -mx-2 hover:bg-white/5 transition-colors"
       >
         <span
           aria-hidden="true"
@@ -234,40 +278,43 @@ function MegaColumn({
           )}
         </span>
       </Link>
-      <ul className="flex flex-col gap-0.5">
+      <ul className="flex flex-col gap-1">
         {featuredLinks.map((link) => {
           const active = pathname === link.href;
           if (link.comingSoon) {
             return (
               <li key={link.href}>
                 <span
-                  className="flex items-center justify-between gap-2 px-2 py-1.5 text-xs rounded-md text-slate-500 cursor-not-allowed"
+                  className="flex flex-col gap-0.5 px-2 py-1.5 text-xs rounded-md text-slate-500 cursor-not-allowed"
                   aria-disabled="true"
                   title="Coming soon"
                 >
-                  <span>{link.label}</span>
-                  <span className="text-[9px] uppercase tracking-wider rounded bg-slate-700/40 px-1.5 py-0.5 text-slate-400">
-                    Soon
+                  <span className="flex items-center justify-between gap-2">
+                    <span>{link.label}</span>
+                    <span className="text-[9px] uppercase tracking-wider rounded bg-slate-700/40 px-1.5 py-0.5 text-slate-400">
+                      Soon
+                    </span>
                   </span>
                 </span>
               </li>
             );
           }
           return (
-            <li key={link.href}>
+            <li key={`${link.href}-${link.label}`}>
               <Link
                 href={link.href}
                 data-mega-link
                 role="menuitem"
                 onClick={onLinkClick}
                 className={`block px-2 py-1.5 text-xs rounded-md transition-colors ${
-                  active
-                    ? "text-cyan-400 bg-cyan-400/10"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
                 }`}
                 aria-current={active ? "page" : undefined}
               >
-                {link.label}
+                <span className="font-medium text-slate-200/95">{link.label}</span>
+                {link.description ? (
+                  <span className="block text-[11px] text-slate-500 leading-snug mt-0.5">{link.description}</span>
+                ) : null}
               </Link>
             </li>
           );
@@ -280,7 +327,7 @@ function MegaColumn({
               onClick={onLinkClick}
               className="block px-2 py-1.5 text-[11px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
             >
-              View all {group.label.toLowerCase()} tools →
+              View all in {group.label} →
             </Link>
           </li>
         )}
