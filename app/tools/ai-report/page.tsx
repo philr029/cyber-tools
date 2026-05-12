@@ -7,6 +7,7 @@ import {
   sanitizeMultilineInput,
   sanitizeSingleLineInput,
 } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -299,7 +300,7 @@ export default function AIReportPage() {
     setReport(null);
 
     try {
-      const res = await fetch("/api/tools/ai-report", {
+      const res = await fetch(withBasePath("/api/tools/ai-report"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ context: trimmedContext, title: safeTitle }),

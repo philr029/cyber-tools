@@ -8,6 +8,7 @@ import {
   sanitizeMultilineInput,
   sanitizeSingleLineInput,
 } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -246,7 +247,7 @@ export default function APITesterPage() {
     const safeBody = sanitizedBody.trim() ? sanitizedBody : undefined;
 
     try {
-      const res = await fetch("/api/tools/api-test", {
+      const res = await fetch(withBasePath("/api/tools/api-test"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

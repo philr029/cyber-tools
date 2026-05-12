@@ -77,6 +77,7 @@ export default function MegaMenu({
   }, []);
 
   const clearTimers = useCallback(() => {
+    if (typeof window === "undefined") return;
     if (openTimer.current) window.clearTimeout(openTimer.current);
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
     openTimer.current = null;

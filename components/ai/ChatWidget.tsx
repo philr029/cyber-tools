@@ -6,6 +6,7 @@ import { sanitizeMultilineInput } from "@/lib/input-sanitization";
 import type { ChatMessage } from "@/types/chat";
 import type { ChatRequest, ChatResponse, ChatErrorResponse } from "@/types/chat";
 import { loadLastScan, buildScanContext } from "@/lib/core/stateManager";
+import { withBasePath } from "@/lib/base-path";
 
 const SUGGESTED_PROMPTS = [
   "Explain this result",
@@ -111,7 +112,7 @@ export default function ChatWidget() {
 
     try {
       const payload: ChatRequest = { message: messageWithContext, history };
-      const res = await fetch("/api/chat", {
+      const res = await fetch(withBasePath("/api/chat"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

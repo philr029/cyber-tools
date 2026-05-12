@@ -75,10 +75,11 @@ export default function Header() {
   useEffect(() => {
     function onResize() {
       if (window.innerWidth >= 1024 && mobileOpen) setMobileOpen(false);
+      if (window.innerWidth < 1024 && toolsMenuOpen) setToolsMenuOpen(false);
     }
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [mobileOpen]);
+  }, [mobileOpen, toolsMenuOpen]);
 
   useEffect(() => {
     setSearchOpen(false);

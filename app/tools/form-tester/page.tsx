@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 import { FREE_DAILY_LIMIT, useDailyScans } from "@/lib/use-daily-scans";
 import ReviewTargetModal from "@/app/components/tools/ReviewTargetModal";
 import { ACTIVE_TOOL_COOLDOWN_SECONDS } from "@/lib/tool-limits";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -331,7 +332,7 @@ export default function FormTesterPage() {
       .filter((f) => f.key);
 
     try {
-      const res = await fetch("/api/tools/form-test", {
+      const res = await fetch(withBasePath("/api/tools/form-test"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

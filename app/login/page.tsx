@@ -9,6 +9,7 @@ import {
 } from "@/lib/input-sanitization";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
+import { withBasePath } from "@/lib/base-path";
 
 function LoginForm() {
   const router = useRouter();
@@ -27,7 +28,7 @@ function LoginForm() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(withBasePath("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: safeEmail, password: safePassword }),

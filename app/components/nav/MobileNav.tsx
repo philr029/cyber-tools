@@ -101,6 +101,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
 
   if (!mounted) return null;
   if (!open) return null;
+  if (typeof document === "undefined" || !document.body) return null;
 
   return createPortal(
     <>

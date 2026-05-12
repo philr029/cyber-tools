@@ -5,6 +5,7 @@ import type { AgentScanResult } from "@/lib/ai-agents/agentTypes";
 import { sanitizeMultilineInput } from "@/lib/input-sanitization";
 import type { ChatMessage } from "@/types/chat";
 import { buildScanContext } from "@/lib/core/stateManager";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Suggested prompts required by Phase 4
@@ -288,7 +289,7 @@ export default function AIAssistantPanel({ result }: AIAssistantPanelProps) {
         : text;
 
       try {
-        const res = await fetch("/api/chat", {
+        const res = await fetch(withBasePath("/api/chat"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: messageWithContext, history }),

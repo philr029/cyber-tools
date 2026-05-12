@@ -259,7 +259,9 @@ export function rememberSearchVisit(url: string) {
 
 export function popularEntries(): SiteSearchEntry[] {
   const map = new Map(SITE_SEARCH_INDEX.map((e) => [e.url, e]));
-  return POPULAR_HREFS.map((h) => map.get(h)).filter(Boolean) as SiteSearchEntry[];
+  const curated = POPULAR_HREFS.map((h) => map.get(h)).filter(Boolean) as SiteSearchEntry[];
+  if (curated.length > 0) return curated;
+  return SITE_SEARCH_INDEX.slice(0, 10);
 }
 
 export function entriesForUrls(urls: string[]): SiteSearchEntry[] {
@@ -330,33 +332,37 @@ export interface SearchOptions {
 }
 
 export function searchSite(opts: SearchOptions): SiteSearchEntry[] {
-  const limit = opts.limit ?? 40;
-  const q = opts.query.trim();
-  const cat = opts.category;
-  const tt = opts.toolType;
-  const area = opts.toolkitArea ?? "all";
+  try {
+    const limit = opts.limit ?? 40;
+    const q = opts.query.trim();
+    const cat = opts.category;
+    const tt = opts.toolType;
+    const area = opts.toolkitArea ?? "all";
 
-  let pool = SITE_SEARCH_INDEX;
-  if (cat !== "all") {
-    pool = pool.filter((e) => e.category === cat);
-  }
-  if (tt !== "all") {
-    pool = pool.filter((e) => e.toolType === tt);
-  }
-  if (area !== "all") {
-    pool = pool.filter((e) => e.toolkitAreas.includes(area));
-  }
+    let pool = SITE_SEARCH_INDEX;
+    if (cat !== "all") {
+      pool = pool.filter((e) => e.category === cat);
+    }
+    if (tt !== "all") {
+      pool = pool.filter((e) => e.toolType === tt);
+    }
+    if (area !== "all") {
+      pool = pool.filter((e) => e.toolkitAreas.includes(area));
+    }
 
-  if (!q) {
-    return pool.slice(0, limit);
+    if (!q) {
+      return pool.slice(0, limit);
+    }
+
+    const scored = pool
+      .map((e) => ({ e, s: scoreEntry(q, e) }))
+      .filter((x) => x.s > 0)
+      .sort((a, b) => b.s - a.s || a.e.title.localeCompare(b.e.title));
+
+    return scored.slice(0, limit).map((x) => x.e);
+  } catch {
+    return [];
   }
-
-  const scored = pool
-    .map((e) => ({ e, s: scoreEntry(q, e) }))
-    .filter((x) => x.s > 0)
-    .sort((a, b) => b.s - a.s || a.e.title.localeCompare(b.e.title));
-
-  return scored.slice(0, limit).map((x) => x.e);
 }
 
 export function escapeRegExp(s: string) {

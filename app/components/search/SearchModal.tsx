@@ -60,23 +60,27 @@ const SEARCH_ENTRY_ICONS: Record<string, ComponentType<IconProps>> = {
 };
 
 function highlightText(text: string, query: string): ReactNode {
-  const q = query.trim();
-  if (!q) return text;
-  const parts = q.split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return text;
-  const pattern = new RegExp(`(${parts.map(escapeRegExp).join("|")})`, "gi");
-  const segments = text.split(pattern);
-  return segments.map((seg, i) => {
-    const isHit = parts.some((p) => seg.toLowerCase() === p.toLowerCase());
-    if (isHit && seg) {
-      return (
-        <mark key={i} className="rounded-md bg-[var(--ss-accent-soft)] text-[var(--ss-accent)] px-0.5">
-          {seg}
-        </mark>
-      );
-    }
-    return <span key={i}>{seg}</span>;
-  });
+  try {
+    const q = query.trim();
+    if (!q) return text;
+    const parts = q.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return text;
+    const pattern = new RegExp(`(${parts.map(escapeRegExp).join("|")})`, "gi");
+    const segments = text.split(pattern);
+    return segments.map((seg, i) => {
+      const isHit = parts.some((p) => seg.toLowerCase() === p.toLowerCase());
+      if (isHit && seg) {
+        return (
+          <mark key={i} className="rounded-md bg-[var(--ss-accent-soft)] text-[var(--ss-accent)] px-0.5">
+            {seg}
+          </mark>
+        );
+      }
+      return <span key={i}>{seg}</span>;
+    });
+  } catch {
+    return text;
+  }
 }
 
 const TYPE_LABELS: Record<SearchToolType | "all", string> = {
@@ -257,7 +261,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     [onClose],
   );
 
-  if (!open || !portalReady) return null;
+  if (!open || !portalReady || typeof document === "undefined" || !document.body) return null;
 
   const modal = (
     <div className="fixed inset-0 z-[200] flex items-start justify-center sm:pt-[10vh] pt-6 px-4 sm:px-5 motion-safe:animate-search-backdrop pointer-events-auto">

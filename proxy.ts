@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
+import { withBasePath } from "@/lib/base-path";
 
 const SESSION_COOKIE = "ss_session";
 
@@ -48,14 +49,14 @@ export async function proxy(request: NextRequest) {
   const isAuthenticated = !!session;
 
   if (isProtected && !isAuthenticated) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL(withBasePath("/login"), request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return withSecurityHeaders(NextResponse.redirect(loginUrl), contentSecurityPolicy);
   }
 
   if (isAuthPage && isAuthenticated) {
     return withSecurityHeaders(
-      NextResponse.redirect(new URL("/dashboard", request.url)),
+      NextResponse.redirect(new URL(withBasePath("/dashboard"), request.url)),
       contentSecurityPolicy,
     );
   }
