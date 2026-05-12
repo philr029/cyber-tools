@@ -150,6 +150,14 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot }: Mobi
             <MobileLink href="/tools" pathname={pathname} onNav={onClose}>
               All Tools
             </MobileLink>
+            <MobileLink
+              href="/marketing-tools"
+              pathname={pathname}
+              onNav={onClose}
+              active={pathname === "/marketing-tools" || pathname.startsWith("/tools/marketing")}
+            >
+              Marketing Tools
+            </MobileLink>
             <MobileLink href="/pricing" pathname={pathname} onNav={onClose}>
               Pricing
             </MobileLink>
@@ -260,13 +268,16 @@ function MobileLink({
   pathname,
   onNav,
   children,
+  active: activeOverride,
 }: {
   href: string;
   pathname: string;
   onNav: () => void;
   children: React.ReactNode;
+  /** When set, overrides the default `pathname === href` active check. */
+  active?: boolean;
 }) {
-  const active = pathname === href;
+  const active = activeOverride ?? pathname === href;
   return (
     <li>
       <Link

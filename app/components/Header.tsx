@@ -58,6 +58,13 @@ export default function Header() {
     }`;
   }
 
+  function marketingToolsLinkClass() {
+    const active = pathname === "/marketing-tools" || pathname.startsWith("/tools/marketing");
+    return `px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+      active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+    }`;
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-[#0b0f1a]/80 backdrop-blur-xl border-b border-[#1e2d4a] shadow-[0_1px_0_rgba(6,182,212,0.08)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,6 +98,13 @@ export default function Header() {
               aria-current={pathname === "/tools" ? "page" : undefined}
             >
               All Tools
+            </Link>
+            <Link
+              href="/marketing-tools"
+              className={marketingToolsLinkClass()}
+              aria-current={pathname === "/marketing-tools" || pathname.startsWith("/tools/marketing") ? "page" : undefined}
+            >
+              Marketing Tools
             </Link>
             {/* Unified mega menu for the 10 tool categories */}
             <MegaMenu label="Tools" />
