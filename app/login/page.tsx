@@ -9,7 +9,7 @@ import {
 } from "@/lib/input-sanitization";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
-import { withBasePath } from "@/lib/base-path";
+import { safeAppRedirectPath, withBasePath } from "@/lib/base-path";
 
 function LoginForm() {
   const router = useRouter();
@@ -39,7 +39,7 @@ function LoginForm() {
       } else {
         await refresh();
         toast(`Welcome back, ${data.user.name}!`, "success");
-        const redirect = params.get("redirect") ?? "/dashboard";
+        const redirect = safeAppRedirectPath(params.get("redirect"), "/dashboard");
         router.push(redirect);
       }
     } catch {

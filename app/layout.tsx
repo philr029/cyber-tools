@@ -9,6 +9,7 @@ import { ToastProvider } from "@/lib/toast-context";
 import { WorkspaceProvider } from "@/lib/workspace-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import { ThemeProvider } from "@/lib/theme-context";
+import { getAppBasePath } from "@/lib/base-path";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -16,7 +17,36 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
 });
 
+function siteMetadataBase(): URL | undefined {
+  const basePath = getAppBasePath();
+  const custom = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const vercelHost = process.env.VERCEL_URL?.trim();
+
+  let origin: URL | null = null;
+  if (custom) {
+    try {
+      origin = new URL(custom.includes("://") ? custom : `https://${custom}`);
+    } catch {
+      origin = null;
+    }
+  } else if (vercelHost) {
+    try {
+      origin = new URL(`https://${vercelHost}`);
+    } catch {
+      origin = null;
+    }
+  }
+  if (!origin) return undefined;
+  if (!basePath) return origin;
+  try {
+    return new URL(`${basePath}/`, origin);
+  } catch {
+    return origin;
+  }
+}
+
 export const metadata: Metadata = {
+  metadataBase: siteMetadataBase(),
   title: "SecureScope – IT & Security Automation Hub",
   description:
     "A polished toolkit for IT admins, security analysts, and marketers: domain intelligence, web QA, automation planners, and monitoring — in one fast workspace.",
