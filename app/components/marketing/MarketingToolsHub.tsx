@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   MARKETING_CATEGORIES,
   MARKETING_TOOLS,
@@ -13,6 +13,14 @@ import type { MarketingCategoryId } from "@/lib/marketing-tools/types";
 import { MarketingCategoryIcon } from "./MarketingCategoryIcon";
 
 type FilterKey = "all" | MarketingCategoryId;
+
+const CATEGORY_LABEL_BY_ID = new Map<MarketingCategoryId, string>(
+  MARKETING_CATEGORIES.map((c) => [c.id, c.label]),
+);
+
+function categoryLabel(id: MarketingCategoryId) {
+  return CATEGORY_LABEL_BY_ID.get(id) ?? id;
+}
 
 function statusStyles(status: string) {
   if (status === "live") return "bg-emerald-500/15 text-emerald-200 ring-emerald-500/25";
@@ -41,24 +49,17 @@ export default function MarketingToolsHub() {
   const stats = marketingHubStats();
   const featured = featuredMarketingTools();
 
-  const categoryLabel = useMemo(() => {
-    const m = new Map(MARKETING_CATEGORIES.map((c) => [c.id, c.label]));
-    return (id: MarketingCategoryId) => m.get(id) ?? id;
-  }, []);
-
-  const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return MARKETING_TOOLS.filter((tool) => {
-      if (cat !== "all" && tool.categoryId !== cat) return false;
-      if (!needle) return true;
-      const c = categoryLabel(tool.categoryId).toLowerCase();
-      return (
-        tool.name.toLowerCase().includes(needle) ||
-        tool.description.toLowerCase().includes(needle) ||
-        c.includes(needle)
-      );
-    });
-  }, [q, cat, categoryLabel]);
+  const needle = q.trim().toLowerCase();
+  const filtered = MARKETING_TOOLS.filter((tool) => {
+    if (cat !== "all" && tool.categoryId !== cat) return false;
+    if (!needle) return true;
+    const c = categoryLabel(tool.categoryId).toLowerCase();
+    return (
+      tool.name.toLowerCase().includes(needle) ||
+      tool.description.toLowerCase().includes(needle) ||
+      c.includes(needle)
+    );
+  });
 
   return (
     <div className="min-h-[60vh] bg-[#030508]">
