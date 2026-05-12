@@ -1,0 +1,371 @@
+"use client";
+
+import Link from "next/link";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  SEARCH_CATEGORIES,
+  SEARCH_TOOL_TYPES,
+  escapeRegExp,
+  entriesForUrls,
+  popularEntries,
+  readRecentSearches,
+  rememberSearchVisit,
+  searchSite,
+  type SearchCategoryFilter,
+  type SearchToolType,
+  type SiteSearchEntry,
+} from "@/lib/search/site-search";
+
+function highlightText(text: string, query: string): ReactNode {
+  const q = query.trim();
+  if (!q) return text;
+  const parts = q.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return text;
+  const pattern = new RegExp(`(${parts.map(escapeRegExp).join("|")})`, "gi");
+  const segments = text.split(pattern);
+  return segments.map((seg, i) => {
+    const isHit = parts.some((p) => seg.toLowerCase() === p.toLowerCase());
+    if (isHit && seg) {
+      return (
+        <mark key={i} className="rounded bg-cyan-500/25 text-cyan-100 px-0.5">
+          {seg}
+        </mark>
+      );
+    }
+    return <span key={i}>{seg}</span>;
+  });
+}
+
+const TYPE_LABELS: Record<SearchToolType | "all", string> = {
+  all: "All types",
+  hub: "Hub / landing",
+  tool: "Tool",
+  page: "Page",
+  dashboard: "Dashboard",
+  marketing: "Marketing",
+  auth: "Auth",
+};
+
+interface SearchModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function SearchModal({ open, onClose }: SearchModalProps) {
+  const dialogId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<SearchCategoryFilter>("all");
+  const [toolType, setToolType] = useState<SearchToolType | "all">("all");
+  const [recentUrls, setRecentUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (open) {
+      setRecentUrls(readRecentSearches());
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => inputRef.current?.focus());
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+    return undefined;
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: PointerEvent) {
+      const t = e.target;
+      if (!t || !(t instanceof Node)) return;
+      if (panelRef.current && !panelRef.current.contains(t)) {
+        onClose();
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [open, onClose]);
+
+  const results = useMemo(
+    () => searchSite({ query, category, toolType, limit: 50 }),
+    [query, category, toolType],
+  );
+
+  const spotlight = useMemo(() => {
+    if (query.trim()) return [];
+    const recent = entriesForUrls(recentUrls);
+    if (recent.length) return recent;
+    return popularEntries();
+  }, [query, recentUrls]);
+
+  const filtersActive = category !== "all" || toolType !== "all";
+  const filterBrowse = useMemo(() => {
+    if (query.trim()) return [];
+    if (!filtersActive) return [];
+    return searchSite({ query: "", category, toolType, limit: 50 });
+  }, [query, category, toolType, filtersActive]);
+
+  const reset = useCallback(() => {
+    setQuery("");
+    setCategory("all");
+    setToolType("all");
+    inputRef.current?.focus();
+  }, []);
+
+  const handlePick = useCallback(
+    (url: string) => {
+      rememberSearchVisit(url);
+      onClose();
+    },
+    [onClose],
+  );
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-start justify-center sm:pt-[8vh] pt-4 px-3">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden />
+
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`${dialogId}-title`}
+        className="relative w-full max-w-2xl max-h-[min(640px,88dvh)] flex flex-col rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 shadow-[0_24px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl overflow-hidden"
+      >
+        <div className="border-b border-[#1e2d4a] px-4 py-3 flex items-center gap-3">
+          <svg className="w-5 h-5 text-cyan-400 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+            <path
+              fillRule="evenodd"
+              d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.517 3.516a1 1 0 01-1.414 1.414l-3.516-3.517A7 7 0 012 9z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <input
+            ref={inputRef}
+            id={`${dialogId}-title`}
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search tools, pages, dashboards…"
+            autoComplete="off"
+            className="flex-1 min-w-0 bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
+            aria-label="Search site"
+          />
+          <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-500 shrink-0">
+            <kbd className="px-1.5 py-0.5 rounded border border-[#1e2d4a] bg-white/5 font-mono">⌘</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-[#1e2d4a] bg-white/5 font-mono">K</kbd>
+          </div>
+          <button
+            type="button"
+            onClick={reset}
+            className="text-xs font-medium text-slate-400 hover:text-cyan-300 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-xs font-medium text-slate-400 hover:text-slate-100 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="px-4 py-2 flex flex-wrap gap-2 border-b border-[#1e2d4a] bg-[#070b14]/80">
+          <label className="sr-only" htmlFor={`${dialogId}-cat`}>
+            Category
+          </label>
+          <select
+            id={`${dialogId}-cat`}
+            value={category}
+            onChange={(e) => setCategory(e.target.value as SearchCategoryFilter)}
+            className="text-xs rounded-lg border border-[#1e2d4a] bg-[#0d1321] text-slate-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+          >
+            {SEARCH_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c === "all" ? "All categories" : c}
+              </option>
+            ))}
+          </select>
+          <label className="sr-only" htmlFor={`${dialogId}-type`}>
+            Type
+          </label>
+          <select
+            id={`${dialogId}-type`}
+            value={toolType}
+            onChange={(e) => setToolType(e.target.value as SearchToolType | "all")}
+            className="text-xs rounded-lg border border-[#1e2d4a] bg-[#0d1321] text-slate-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+          >
+            {(["all", ...SEARCH_TOOL_TYPES] as const).map((t) => (
+              <option key={t} value={t}>
+                {TYPE_LABELS[t]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-2 py-2">
+          {!query.trim() && !filtersActive && spotlight.length > 0 && (
+            <div className="mb-3 px-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                {recentUrls.length ? "Recent" : "Popular"}
+              </p>
+              <ul className="flex flex-col gap-0.5">
+                {spotlight.map((e) => (
+                  <ResultRow key={`spot-${e.url}`} entry={e} query={query} onPick={handlePick} subtle />
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {!query.trim() && filterBrowse.length > 0 && (
+            <div className="mb-3 px-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                Matches current filters
+              </p>
+              <ul className="flex flex-col gap-0.5">
+                {filterBrowse.map((e) => (
+                  <ResultRow key={`fb-${e.url}`} entry={e} query={query} onPick={handlePick} subtle />
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {!query.trim() && filtersActive && filterBrowse.length === 0 && (
+            <p className="px-3 py-6 text-center text-sm text-slate-500">Nothing matches these filters.</p>
+          )}
+
+          {query.trim() && (
+            <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              {results.length} result{results.length === 1 ? "" : "s"}
+            </p>
+          )}
+
+          <ul className="flex flex-col gap-0.5">
+            {(query.trim() ? results : []).map((e) => (
+              <ResultRow key={e.url} entry={e} query={query} onPick={handlePick} />
+            ))}
+          </ul>
+
+          {query.trim() && results.length === 0 && (
+            <div className="px-3 py-10 text-center space-y-3">
+              <p className="text-sm text-slate-300">No matches for that search.</p>
+              <p className="text-xs text-slate-500">
+                Try a shorter keyword, switch category, or browse the full toolkit.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Link
+                  href="/tools"
+                  onClick={() => handlePick("/tools")}
+                  className="text-xs font-medium rounded-lg bg-cyan-600/90 hover:bg-cyan-500 text-white px-3 py-2 transition-colors"
+                >
+                  Open all tools
+                </Link>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-300 hover:bg-white/5 px-3 py-2 transition-colors"
+                >
+                  Reset filters
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResultRow({
+  entry,
+  query,
+  onPick,
+  subtle,
+}: {
+  entry: SiteSearchEntry;
+  query: string;
+  onPick: (url: string) => void;
+  subtle?: boolean;
+}) {
+  return (
+    <li>
+      <Link
+        href={entry.url}
+        onClick={() => onPick(entry.url)}
+        className={`flex flex-col gap-0.5 rounded-xl px-3 py-2.5 transition-colors border border-transparent ${
+          subtle
+            ? "hover:bg-white/[0.04] hover:border-[#1e2d4a]"
+            : "hover:bg-white/[0.06] hover:border-cyan-500/15"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="text-sm font-medium text-slate-100 leading-snug">
+            {highlightText(entry.title, query)}
+          </span>
+          <span className="shrink-0 text-[10px] uppercase tracking-wide text-slate-500">
+            {entry.toolType}
+          </span>
+        </div>
+        <span className="text-[11px] text-slate-500">{entry.category}</span>
+        {entry.description ? (
+          <span className="text-xs text-slate-400 line-clamp-2">{highlightText(entry.description, query)}</span>
+        ) : null}
+        {entry.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {entry.tags.slice(0, 6).map((tag) => (
+              <span
+                key={tag}
+                className="text-[10px] rounded-md bg-white/5 text-slate-400 px-1.5 py-0.5 ring-1 ring-white/10"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </Link>
+    </li>
+  );
+}
+
+export function useSearchHotkey(handler: () => void, enabled = true) {
+  useEffect(() => {
+    if (!enabled) return;
+    function onKey(e: KeyboardEvent) {
+      const isK = e.key === "k" || e.key === "K";
+      if (!isK) return;
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const tag = target.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) return;
+      }
+      e.preventDefault();
+      handler();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [handler, enabled]);
+}

@@ -3,18 +3,13 @@
 // =============================================================================
 // Header
 // -----------------------------------------------------------------------------
-// Sticky top navigation. Composes:
-//   - Logo + simple top-level routes (Home, All Tools, Pricing, Enterprise, About)
-//   - `MegaMenu` — single "Tools" panel grouping all 10 tool categories.
-//   - `MobileNav` — full-height drawer with accordion sections.
-//   - Right-rail utilities: usage meter, theme toggle, notifications, auth.
-//
-// The mega menu and mobile drawer share nav-data so links stay in sync.
+// Sticky navigation: compact primary links, mega menu for all tool categories,
+// global search (⌘/Ctrl+K), mobile drawer, and account utilities.
 // =============================================================================
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -22,19 +17,29 @@ import { useTheme } from "@/lib/theme-context";
 import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
 import MegaMenu from "@/app/components/nav/MegaMenu";
 import MobileNav from "@/app/components/nav/MobileNav";
+import SearchModal, { useSearchHotkey } from "@/app/components/search/SearchModal";
+import { TOP_BAR_LINKS } from "@/app/components/nav/nav-data";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { user, loading, logout } = useAuth();
   const { toast } = useToast();
   const { theme, toggle: toggleTheme } = useTheme();
   const { scansToday } = useDailyScans(user?.plan ?? null);
 
-  // Close the mobile drawer if the viewport grows past the desktop breakpoint
-  // (e.g. rotating an iPad). Without this, the drawer state can desync from
-  // what's actually visible to the user.
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+  useSearchHotkey(openSearch, !searchOpen);
+
+  const isToolsActive = useMemo(() => {
+    if (pathname.startsWith("/tools")) return true;
+    if (pathname.endsWith("-tools")) return true;
+    if (pathname === "/marketing-tools") return true;
+    return false;
+  }, [pathname]);
+
   useEffect(() => {
     function onResize() {
       if (window.innerWidth >= 1280 && mobileOpen) setMobileOpen(false);
@@ -49,30 +54,29 @@ export default function Header() {
     router.push("/");
   }
 
-  // Reusable top-link styling helper.
-  function topLinkClass(href: string) {
+  function topLinkClass(href: string, active?: boolean) {
+    const isActive =
+      active ??
+      (href === "/"
+        ? pathname === "/"
+        : href === "/dashboard"
+          ? pathname.startsWith("/dashboard")
+          : href === "/automation-tools"
+            ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
+            : pathname === href);
     return `px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-      pathname === href
-        ? "text-cyan-400 bg-cyan-400/10"
-        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-    }`;
-  }
-
-  function marketingToolsLinkClass() {
-    const active = pathname === "/marketing-tools" || pathname.startsWith("/tools/marketing");
-    return `px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-      active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+      isActive ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
     }`;
   }
 
   return (
     <header className="sticky top-0 z-50 bg-[#0b0f1a]/80 backdrop-blur-xl border-b border-[#1e2d4a] shadow-[0_1px_0_rgba(6,182,212,0.08)]">
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_12px_rgba(6,182,212,0.4)] transition-shadow group-hover:shadow-[0_0_20px_rgba(6,182,212,0.6)]">
-              <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <div className="flex items-center justify-between h-14 gap-2">
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 min-w-0 group">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_14px_rgba(6,182,212,0.45)] transition-shadow group-hover:shadow-[0_0_22px_rgba(6,182,212,0.65)]">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fillRule="evenodd"
                   d="M9.661 2.237a.531.531 0 01.678 0 11.947 11.947 0 007.078 2.749.5.5 0 01.479.425c.069.52.104 1.05.104 1.589 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 01-.332 0C5.26 16.563 2 12.162 2 7a10.66 10.66 0 01.104-1.589.5.5 0 01.48-.425 11.947 11.947 0 007.077-2.749z"
@@ -80,62 +84,66 @@ export default function Header() {
                 />
               </svg>
             </div>
-            <span className="text-base font-bold text-slate-100 tracking-tight">SecureScope</span>
+            <span className="text-base sm:text-lg font-bold text-slate-100 tracking-tight truncate">
+              SecureScope
+            </span>
           </Link>
 
-          {/* Desktop nav — simple top-level links + single mega menu */}
-          <nav className="hidden xl:flex items-center gap-0.5" aria-label="Main navigation">
-            <Link
-              href="/"
-              className={topLinkClass("/")}
-              aria-current={pathname === "/" ? "page" : undefined}
-            >
-              Home
-            </Link>
-            <Link
-              href="/tools"
-              className={topLinkClass("/tools")}
-              aria-current={pathname === "/tools" ? "page" : undefined}
-            >
-              All Tools
-            </Link>
-            <Link
-              href="/marketing-tools"
-              className={marketingToolsLinkClass()}
-              aria-current={pathname === "/marketing-tools" || pathname.startsWith("/tools/marketing") ? "page" : undefined}
-            >
-              Marketing Tools
-            </Link>
-            {/* Unified mega menu for the 10 tool categories */}
-            <MegaMenu label="Tools" />
-            <Link
-              href="/pricing"
-              className={topLinkClass("/pricing")}
-              aria-current={pathname === "/pricing" ? "page" : undefined}
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/enterprise"
-              className={topLinkClass("/enterprise")}
-              aria-current={pathname === "/enterprise" ? "page" : undefined}
-            >
-              Enterprise
-            </Link>
-            <Link
-              href="/about"
-              className={topLinkClass("/about")}
-              aria-current={pathname === "/about" ? "page" : undefined}
-            >
-              About
-            </Link>
+          <nav className="hidden xl:flex items-center gap-0.5 flex-1 justify-center min-w-0" aria-label="Main navigation">
+            {TOP_BAR_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={topLinkClass(link.href)}
+                aria-current={
+                  link.href === "/"
+                    ? pathname === "/"
+                      ? "page"
+                      : undefined
+                    : link.href === "/dashboard"
+                      ? pathname.startsWith("/dashboard")
+                        ? "page"
+                        : undefined
+                      : link.href === "/automation-tools"
+                        ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
+                          ? "page"
+                          : undefined
+                        : pathname === link.href
+                          ? "page"
+                          : undefined
+                }
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className={`flex items-center ml-1 rounded-lg ${isToolsActive ? "bg-cyan-400/10" : ""}`}>
+              <MegaMenu label="Tools" />
+            </div>
           </nav>
 
-          {/* Right actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#1e2d4a] bg-white/[0.03] text-slate-300 hover:text-slate-100 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-colors"
+              aria-label="Open search"
+            >
+              <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  fillRule="evenodd"
+                  d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.517 3.516a1 1 0 01-1.414 1.414l-3.516-3.517A7 7 0 012 9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="hidden md:inline text-xs font-medium">Search</span>
+              <kbd className="hidden lg:inline text-[10px] text-slate-500 font-mono border border-[#1e2d4a] rounded px-1 py-0.5 bg-black/20">
+                ⌘K
+              </kbd>
+            </button>
+
             <Link
               href="/settings"
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                 pathname === "/settings"
                   ? "text-cyan-400 bg-cyan-400/10"
                   : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
@@ -148,10 +156,9 @@ export default function Header() {
                   clipRule="evenodd"
                 />
               </svg>
-              Settings
+              <span className="hidden lg:inline">Settings</span>
             </Link>
 
-            {/* Daily scan usage meter — free-plan users only */}
             {!loading && user && user.plan === "free" && (
               <Link
                 href="/pricing"
@@ -159,7 +166,11 @@ export default function Header() {
                 title={`${scansToday}/${FREE_DAILY_LIMIT} scans used today — upgrade for unlimited`}
               >
                 <svg className="w-3 h-3 text-amber-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span className="text-xs font-medium text-amber-300">
                   {scansToday}/{FREE_DAILY_LIMIT}
@@ -173,7 +184,6 @@ export default function Header() {
               </Link>
             )}
 
-            {/* Theme toggle */}
             <button
               type="button"
               onClick={toggleTheme}
@@ -187,17 +197,19 @@ export default function Header() {
                 </svg>
               ) : (
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fillRule="evenodd" d="M7.455 2.004a.75.75 0 01.26.77 7 7 0 009.958 7.967.75.75 0 011.067.853A8.5 8.5 0 116.647 1.921a.75.75 0 01.808.083z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M7.455 2.004a.75.75 0 01.26.77 7 7 0 009.958 7.967.75.75 0 011.067.853A8.5 8.5 0 116.647 1.921a.75.75 0 01.808.083z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               )}
             </button>
 
-            {/* Notification bell — only shown when logged in */}
             {!loading && user && <NotificationBell />}
 
-            {/* Auth buttons */}
-            {!loading && (
-              user ? (
+            {!loading &&
+              (user ? (
                 <div className="hidden sm:flex items-center gap-2">
                   <Link
                     href="/dashboard"
@@ -208,7 +220,11 @@ export default function Header() {
                     }`}
                   >
                     <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     Dashboard
                   </Link>
@@ -235,10 +251,8 @@ export default function Header() {
                     Get started
                   </Link>
                 </div>
-              )
-            )}
+              ))}
 
-            {/* Mobile menu trigger */}
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
@@ -265,20 +279,17 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile drawer — rendered outside the inner max-width container so it
-          can span the full viewport. */}
       <div id="primary-mobile-nav">
         <MobileNav
           open={mobileOpen}
           onClose={() => setMobileOpen(false)}
+          onOpenSearch={openSearch}
           utilitySlot={
             <Link
               href="/settings"
               onClick={() => setMobileOpen(false)}
               className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/settings"
-                  ? "text-cyan-400 bg-cyan-400/10"
-                  : "text-slate-300 hover:text-slate-100 hover:bg-white/5"
+                pathname === "/settings" ? "text-cyan-400 bg-cyan-400/10" : "text-slate-300 hover:text-slate-100 hover:bg-white/5"
               }`}
             >
               Settings
