@@ -3,28 +3,23 @@
 // =============================================================================
 // MegaMenu (desktop)
 // -----------------------------------------------------------------------------
-// Lists every tool category in a full-width panel under the header.
+// Full-width tool category panel. Rendered through `createPortal` to
+// `document.body` while open — same escape hatch as `MobileNav`, so the panel
+// is not trapped under the sticky header / backdrop-filter stacking context and
+// fixed siblings (e.g. the chat FAB) cannot swallow taps.
 //
-// Uses the native Popover API (`popover` + `popoverTarget`) so the panel is
-// promoted to the browser top layer — same class of fix as `MobileNav`, which
-// portals away from the header to escape z-index / backdrop-filter stacking.
-// That avoids the dropdown painting behind fixed siblings (e.g. chat FAB) or
-// failing to receive taps on production.
-//
-// Light dismiss, Escape, and outside clicks are handled by `popover="auto"`.
-// Link navigations call `hidePopover()` so the panel closes before routing.
+// Interaction is plain React state + click handlers (no Popover API), so
+// behaviour does not depend on browser Popover support or `popoverTarget`
+// surviving hydration.
 //
 // Hidden below the `xl` breakpoint; mobile uses `MobileNav` instead.
 // =============================================================================
 
 import Link from "next/link";
-import type { ToggleEvent } from "react";
-import { useCallback, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS, type NavGroup } from "./nav-data";
-
-// Stable id for popoverTarget / aria-controls (must not use useId() colons).
-const MEGA_POPOVER_ID = "ss-desktop-tools-mega";
 
 const GROUP_ACCENTS: Record<string, string> = {
   Coding: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
@@ -41,45 +36,112 @@ const GROUP_ACCENTS: Record<string, string> = {
 
 const MAX_LINKS_PER_GROUP = 6;
 
-function safeHidePopover(el: HTMLDivElement | null) {
-  if (!el) return;
-  try {
-    if (typeof el.hidePopover === "function" && el.matches(":popover-open")) {
-      el.hidePopover();
-    }
-  } catch {
-    /* :popover-open unsupported or not open */
-  }
-}
-
 export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   const pathname = usePathname();
-  const panelRef = useRef<HTMLDivElement>(null);
-  const triggerId = useId();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const triggerWrapRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const panelId = useId();
+  const triggerId = useId();
 
   const isAnyGroupActive = NAV_GROUPS.some(
     (g) => pathname === g.index || g.links.some((l) => pathname === l.href),
   );
 
-  const handleToggle = useCallback((e: ToggleEvent<HTMLDivElement>) => {
-    setOpen(e.newState === "open");
-  }, []);
-
-  const closePanel = useCallback(() => {
-    safeHidePopover(panelRef.current);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- mount gate for SSR-safe portals
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   const handleLinkClick = useCallback(() => {
-    closePanel();
-  }, [closePanel]);
+    setOpen(false);
+  }, []);
+
+  const isInsideMenu = useCallback((node: Node | null) => {
+    if (!node) return false;
+    const wrap = triggerWrapRef.current;
+    const panel = panelRef.current;
+    return !!(wrap?.contains(node) || panel?.contains(node));
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: PointerEvent) {
+      const t = e.target;
+      if (!(t instanceof Node)) return;
+      if (!isInsideMenu(t)) setOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [open, isInsideMenu]);
+
+  const toggle = useCallback(() => setOpen((v) => !v), []);
+
+  const panel = (
+    <div
+      ref={panelRef}
+      id={panelId}
+      role="menu"
+      aria-label={`${label} categories`}
+      aria-labelledby={triggerId}
+      className="fixed left-1/2 top-[3.5rem] z-[200] max-h-[calc(100vh-5rem)] w-[min(1200px,calc(100vw-2rem))] -translate-x-1/2 overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 p-0 shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+    >
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-5 p-6">
+        {NAV_GROUPS.map((group) => (
+          <MegaColumn
+            key={group.label}
+            group={group}
+            pathname={pathname}
+            onLinkClick={handleLinkClick}
+          />
+        ))}
+      </div>
+      <div className="border-t border-[#1e2d4a] px-6 py-3 flex items-center justify-between text-xs">
+        <span className="text-slate-500">Looking for something specific?</span>
+        <Link
+          href="/tools"
+          data-mega-link
+          onClick={handleLinkClick}
+          className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+        >
+          Browse all tools →
+        </Link>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="relative">
+    <div ref={triggerWrapRef} className="relative">
       <button
+        ref={triggerRef}
         id={triggerId}
         type="button"
-        popoverTarget={MEGA_POPOVER_ID}
+        onClick={toggle}
+        onKeyDown={(e) => {
+          if (e.key !== "ArrowDown" && e.key !== " " && e.key !== "Enter") return;
+          e.preventDefault();
+          setOpen(true);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const p = panelRef.current;
+              if (!p) return;
+              p.querySelector<HTMLAnchorElement>("[data-mega-link]")?.focus();
+            });
+          });
+        }}
         className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
           isAnyGroupActive || open
             ? "text-cyan-400 bg-cyan-400/10"
@@ -87,22 +149,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         }`}
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-controls={MEGA_POPOVER_ID}
-        onKeyDown={(e) => {
-          if (e.key !== "ArrowDown") return;
-          e.preventDefault();
-          const panel = panelRef.current;
-          if (!panel || typeof panel.showPopover !== "function") return;
-          try {
-            panel.showPopover();
-          } catch {
-            /* already open or popover unsupported */
-          }
-          requestAnimationFrame(() => {
-            const first = panel.querySelector<HTMLAnchorElement>("[data-mega-link]");
-            first?.focus();
-          });
-        }}
+        aria-controls={panelId}
       >
         {label}
         <svg
@@ -119,38 +166,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         </svg>
       </button>
 
-      <div
-        ref={panelRef}
-        id={MEGA_POPOVER_ID}
-        popover="auto"
-        onToggle={handleToggle}
-        role="menu"
-        aria-label={`${label} categories`}
-        aria-labelledby={triggerId}
-        className="fixed left-1/2 top-[3.5rem] z-[200] m-0 max-h-[calc(100vh-5rem)] w-[min(1200px,calc(100vw-2rem))] -translate-x-1/2 overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 p-0 shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur-xl"
-      >
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-5 p-6">
-          {NAV_GROUPS.map((group) => (
-            <MegaColumn
-              key={group.label}
-              group={group}
-              pathname={pathname}
-              onLinkClick={handleLinkClick}
-            />
-          ))}
-        </div>
-        <div className="border-t border-[#1e2d4a] px-6 py-3 flex items-center justify-between text-xs">
-          <span className="text-slate-500">Looking for something specific?</span>
-          <Link
-            href="/tools"
-            data-mega-link
-            onClick={handleLinkClick}
-            className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-          >
-            Browse all tools →
-          </Link>
-        </div>
-      </div>
+      {mounted && open && createPortal(panel, document.body)}
     </div>
   );
 }
