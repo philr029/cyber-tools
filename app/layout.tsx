@@ -44,7 +44,9 @@ export default async function RootLayout({
               <NotificationsProvider>
                 <ThemeProvider>
                   <Header />
-                  {children}
+                  <main id="main-content" className="flex-1 flex flex-col motion-safe:animate-page-enter">
+                    {children}
+                  </main>
                   <ChatWidget />
                 </ThemeProvider>
               </NotificationsProvider>

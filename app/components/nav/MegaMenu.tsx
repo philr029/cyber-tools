@@ -17,16 +17,14 @@ import { NAV_GROUPS, type NavGroup } from "./nav-data";
 // pulling in an icon library. Using Tailwind arbitrary classes inline so each
 // colour stays in source for tree-shaking.
 const GROUP_ACCENTS: Record<string, string> = {
-  "Website Tools": "bg-indigo-500/10 text-indigo-300 ring-indigo-500/20",
-  "IT & Security Tools": "bg-rose-500/10 text-rose-300 ring-rose-500/20",
+  "Website Testing Tools": "bg-indigo-500/10 text-indigo-300 ring-indigo-500/20",
+  "IT Tools": "bg-sky-500/10 text-sky-300 ring-sky-500/20",
+  "Cybersecurity Tools": "bg-rose-500/10 text-rose-300 ring-rose-500/20",
   "Automation Tools": "bg-amber-500/10 text-amber-300 ring-amber-500/20",
   "Marketing Tools": "bg-pink-500/10 text-pink-300 ring-pink-500/20",
-  "Lead & CRM Tools": "bg-teal-500/10 text-teal-300 ring-teal-500/20",
-  "Phone & Form Testing": "bg-orange-500/10 text-orange-300 ring-orange-500/20",
-  "Domain & Reputation Tools": "bg-purple-500/10 text-purple-300 ring-purple-500/20",
   "AI Tools": "bg-violet-500/10 text-violet-300 ring-violet-500/20",
-  Dashboards: "bg-cyan-500/10 text-cyan-300 ring-cyan-500/20",
-  "Settings / Utilities": "bg-slate-500/10 text-slate-200 ring-slate-500/25",
+  "Finance Tools": "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
+  "Admin Tools": "bg-slate-500/10 text-slate-200 ring-slate-500/25",
 };
 
 const DEFAULT_MAX_LINKS = 6;
@@ -75,8 +73,13 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   const scheduleClose = useCallback(() => {
     if (!finePointer) return;
     clearTimers();
-    closeTimer.current = window.setTimeout(() => setOpen(false), 140);
+    closeTimer.current = window.setTimeout(() => setOpen(false), 220);
   }, [clearTimers, finePointer]);
+
+  const cancelCloseAndKeepOpen = useCallback(() => {
+    clearTimers();
+    setOpen(true);
+  }, [clearTimers]);
 
   const toggle = useCallback(() => {
     clearTimers();
@@ -136,18 +139,15 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   }, [open]);
 
   return (
-    <div
-      ref={wrapperRef}
-      className="relative"
-      onMouseEnter={scheduleOpen}
-      onMouseLeave={scheduleClose}
-    >
+    <div ref={wrapperRef} className="relative">
       <button
         ref={triggerRef}
         id={triggerId}
         type="button"
         onClick={toggle}
         onMouseDown={clearTimers}
+        onMouseEnter={scheduleOpen}
+        onMouseLeave={scheduleClose}
         onKeyDown={(e) => {
           if (e.key !== "ArrowDown" && e.key !== " " && e.key !== "Enter") return;
           e.preventDefault();
@@ -184,16 +184,30 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         </svg>
       </button>
 
-      {/* Mega panel — fixed under header; hover bridge via parent wrapper + top alignment */}
+      {/* Invisible hover bridge: the Tools trigger is narrow while the panel is wide; without
+          this strip, moving the pointer from the button toward the panel leaves the trigger
+          hit area and fires a delayed close before the cursor reaches the menu. */}
+      {open && finePointer ? (
+        <div
+          aria-hidden
+          className="fixed left-1/2 -translate-x-1/2 top-14 z-[69] h-5 w-[min(1200px,calc(100vw-1.25rem))]"
+          onMouseEnter={cancelCloseAndKeepOpen}
+          onMouseLeave={scheduleClose}
+        />
+      ) : null}
+
+      {/* Mega panel — fixed under header */}
       <div
         id={panelId}
         role="menu"
         aria-label={`${label} categories`}
         aria-labelledby={triggerId}
-        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-1.25rem))] max-h-[calc(100vh-4.5rem)] overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-[opacity,transform] duration-200 ease-out ${
+        onMouseEnter={cancelCloseAndKeepOpen}
+        onMouseLeave={scheduleClose}
+        className={`fixed left-1/2 -translate-x-1/2 top-[3.5rem] z-[70] w-[min(1200px,calc(100vw-1.25rem))] max-h-[calc(100vh-4.5rem)] overflow-y-auto rounded-2xl border border-[#1e2d4a] bg-[#0b0f1a]/95 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-safe:ease-out ${
           open
             ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 -translate-y-1.5 pointer-events-none"
+            : "opacity-0 -translate-y-1.5 pointer-events-none motion-reduce:translate-y-0 motion-reduce:opacity-0"
         }`}
         hidden={!open}
       >
@@ -210,6 +224,30 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         <div className="border-t border-[#1e2d4a] px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-xs">
           <span className="text-slate-500">Press ⌘K / Ctrl+K for instant search across the site.</span>
           <div className="flex flex-wrap gap-3">
+            <Link
+              href="/projects"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+            >
+              Projects
+            </Link>
+            <Link
+              href="/about"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-slate-400 hover:text-cyan-300 font-medium transition-colors"
+            >
+              Contact
+            </Link>
             <Link
               href="/pricing"
               data-mega-link

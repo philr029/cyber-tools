@@ -14,10 +14,12 @@
 // =============================================================================
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS, TOP_BAR_LINKS } from "./nav-data";
+
+export const PRIMARY_MOBILE_NAV_ID = "primary-mobile-nav";
 
 interface MobileNavProps {
   open: boolean;
@@ -35,7 +37,6 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const panelId = useId();
 
   // We render through a portal at document.body to escape the header's
   // stacking context. Without this the dim overlay gets trapped behind
@@ -107,7 +108,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
           than getting absorbed by floating widgets. The drawer itself uses
           z-[60] to stay above the overlay. */}
       <div
-        className={`xl:hidden fixed inset-0 z-[55] bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${
+        className={`xl:hidden fixed inset-0 z-[55] bg-black/60 backdrop-blur-sm motion-safe:transition-opacity motion-safe:duration-200 ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
@@ -120,11 +121,11 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
           internally if its content overflows. */}
       <div
         ref={panelRef}
-        id={panelId}
+        id={PRIMARY_MOBILE_NAV_ID}
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
-        className={`xl:hidden fixed inset-x-0 top-14 z-[60] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-2xl border-x border-b border-[#1e2d4a] bg-[#0b0f1a]/98 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] transition-transform duration-200 ease-out ${
+        className={`xl:hidden fixed inset-x-0 top-14 z-[72] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-2xl border-x border-b border-[#1e2d4a] bg-[#0b0f1a]/98 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] motion-safe:transition-[transform,opacity] motion-safe:duration-200 motion-safe:ease-out ${
           open ? "translate-y-0" : "-translate-y-2 pointer-events-none opacity-0"
         }`}
       >
