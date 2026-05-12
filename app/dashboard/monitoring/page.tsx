@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { loadHistory, loadMonitors } from "@/lib/mockData";
 import { loadCases, loadActivity, loadPlaybooks } from "@/lib/enterprise-mock";
@@ -294,9 +295,9 @@ export default function MonitoringPage() {
           {monitors.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-xs text-slate-500">No monitored assets.</p>
-              <a href="/dashboard/alerts" className="text-xs text-cyan-400 hover:text-cyan-300 mt-1 inline-block transition-colors">
+              <Link href="/dashboard/alerts" className="text-xs text-cyan-400 hover:text-cyan-300 mt-1 inline-block transition-colors">
                 Add monitors →
-              </a>
+              </Link>
             </div>
           ) : (
             <div className="space-y-2">

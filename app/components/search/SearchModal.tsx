@@ -171,6 +171,11 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       if (e.key === "Enter") {
         const target = e.target as HTMLElement | null;
         if (target && target.closest("select")) return;
+        // While typing in the search field, Enter should not jump to the first hit unless
+        // the user explicitly moved highlight with arrow keys (avoids surprise navigation).
+        if (target?.closest("input")) {
+          if (activeIndex < 0) return;
+        }
         const pick =
           activeIndex >= 0 && activeIndex <= max
             ? keyboardTargets[activeIndex]

@@ -16,10 +16,16 @@ export default function NotFound() {
           Open search
         </Link>
         <Link
+          href="/tools/browse"
+          className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/85 hover:bg-white/10"
+        >
+          Toolkit index
+        </Link>
+        <Link
           href="/tools"
           className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/85 hover:bg-white/10"
         >
-          Browse tools
+          Security suite
         </Link>
         <Link href="/" className="text-sm text-cyan-300 hover:text-cyan-200 underline-offset-2 hover:underline">
           Home
