@@ -15,7 +15,7 @@ import {
 import type { ComponentType } from "react";
 import UniversalToolCard from "@/app/components/UniversalToolCard";
 import SectionReveal from "@/app/components/ui/SectionReveal";
-import { featuredToolsList, mostUsefulToolsList, type SiteTool } from "@/lib/tools/site-catalog";
+import { DASHBOARD_SECTION_META, featuredToolsList, mostUsefulToolsList, type SiteTool } from "@/lib/tools/site-catalog";
 
 const TAG_ICONS: Record<string, ComponentType<IconProps>> = {
   "Web QA": Browser,
@@ -55,9 +55,11 @@ export default function ToolCards() {
               title={tool.label}
               description={tool.description}
               categoryTag={tool.categoryTag}
+              dashboardLabel={DASHBOARD_SECTION_META[tool.dashboardSection].label}
               icon={iconForTool(tool)}
               status={tool.status}
               tags={tool.displayTags}
+              comingSoon={tool.comingSoon}
             />
           ))}
         </div>

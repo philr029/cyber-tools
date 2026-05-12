@@ -10,12 +10,16 @@ export interface UniversalToolCardProps {
   title: string;
   description: string;
   categoryTag: string;
+  /** Portfolio dashboard column (shown under the mega-group chip). */
+  dashboardLabel?: string;
   icon?: ComponentType<IconProps>;
   /** Shown as a small chip (e.g. vendor or “Live”). */
   badge?: string;
   ctaLabel?: string;
   status?: ToolStatus;
   tags?: string[];
+  /** Non-interactive card — no navigation (catalogue placeholders). */
+  comingSoon?: boolean;
 }
 
 const STATUS_STYLES: Record<ToolStatus, string> = {
@@ -41,11 +45,13 @@ export default function UniversalToolCard({
   title,
   description,
   categoryTag,
+  dashboardLabel,
   icon: Icon,
   badge,
   ctaLabel = "Open tool",
   status = "live",
   tags = [],
+  comingSoon = false,
 }: UniversalToolCardProps) {
   const showTags = tags.filter(Boolean).slice(0, 4);
 
@@ -66,9 +72,16 @@ export default function UniversalToolCard({
         <StatusBadge status={status} />
       </div>
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-full ring-1 ring-[#1e2d4a]">
-          {categoryTag}
-        </span>
+        <div className="flex flex-wrap gap-1.5 min-w-0">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-full ring-1 ring-[#1e2d4a]">
+            {categoryTag}
+          </span>
+          {dashboardLabel ? (
+            <span className="text-[10px] font-medium text-slate-500 bg-slate-900/50 px-2 py-0.5 rounded-full ring-1 ring-white/10 truncate max-w-[11rem]">
+              {dashboardLabel}
+            </span>
+          ) : null}
+        </div>
         <div className="flex flex-wrap items-center gap-1.5 justify-end">
           {badge ? (
             <span className="text-[10px] font-medium text-slate-500 bg-slate-800/40 px-2 py-0.5 rounded-full">{badge}</span>
@@ -88,11 +101,26 @@ export default function UniversalToolCard({
         </div>
       ) : null}
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 group-hover:text-cyan-300">
-        {ctaLabel}
-        <ArrowRight className="h-3.5 w-3.5 motion-safe:transition-transform group-hover:translate-x-0.5" aria-hidden weight="bold" />
+        {comingSoon ? "Coming soon" : ctaLabel}
+        {!comingSoon ? (
+          <ArrowRight className="h-3.5 w-3.5 motion-safe:transition-transform group-hover:translate-x-0.5" aria-hidden weight="bold" />
+        ) : null}
       </span>
     </>
   );
+
+  if (comingSoon) {
+    return (
+      <div
+        className="group flex h-full flex-col gap-3 rounded-2xl border border-dashed border-[#1e2d4a] bg-[#0a0f1a]/80 p-4 opacity-85 cursor-not-allowed"
+        aria-disabled="true"
+        role="group"
+        aria-label={`${title} — coming soon`}
+      >
+        {inner}
+      </div>
+    );
+  }
 
   return (
     <Link

@@ -5,8 +5,10 @@ export const PREVIEW_SLUGS = [
   "phone-line-test-logger",
   "security-audit-checklist",
   "dynamics-365-checklist",
+  "dynamics-365-lead-checklist",
   "finance-automation-checklist",
   "spf-dkim-dmarc-lab",
+  "m365-user-checklist-generator",
 ] as const;
 
 export type PreviewSlug = (typeof PREVIEW_SLUGS)[number];
@@ -99,11 +101,30 @@ export const PREVIEW_MODULES: Record<PreviewSlug, PreviewModule> = {
       { href: "/m365-tools", label: "Microsoft 365 hub" },
     ],
   },
+  "dynamics-365-lead-checklist": {
+    slug: "dynamics-365-lead-checklist",
+    title: "Dynamics 365 lead checklist",
+    description:
+      "Sales operations framing for lead assignment, scoring hygiene, duplicate detection, and marketing-to-sales handoffs in CE-style orgs.",
+    megaGroup: "Business/Productivity Tools",
+    categoryChip: "Dynamics 365",
+    status: "planned",
+    bullets: [
+      "Validate lead sources, UTM capture, and consent flags before routing rules go live.",
+      "Document assignment queues, SLAs, and escalation paths for inbound spikes.",
+      "Pair duplicate detection rules with marketing lists to avoid nurture collisions.",
+    ],
+    primaryAction: { href: "/lead-tools", label: "Open lead & pipeline hub" },
+    related: [
+      { href: "/tools/marketing-campaign-planner", label: "Marketing campaign planner" },
+      { href: "/tools/preview/dynamics-365-checklist", label: "Dynamics readiness checklist" },
+    ],
+  },
   "finance-automation-checklist": {
     slug: "finance-automation-checklist",
     title: "Finance automation checklist",
     description:
-      "Controls-friendly prompts for month-end close automation, reconciliations, and segregation of duties when wiring low-code flows.",
+      "Controls-friendly prompts for month-end close automation, reconciliations, segregation of duties, and a finance automation tracker narrative when wiring low-code flows.",
     megaGroup: "Business/Productivity Tools",
     categoryChip: "Finance",
     status: "demo",
@@ -116,6 +137,25 @@ export const PREVIEW_MODULES: Record<PreviewSlug, PreviewModule> = {
     related: [
       { href: "/tools/business/risk-register", label: "Risk register builder" },
       { href: "/automation-tools", label: "Automation hub" },
+    ],
+  },
+  "m365-user-checklist-generator": {
+    slug: "m365-user-checklist-generator",
+    title: "Microsoft 365 user checklist generator",
+    description:
+      "Portfolio demo that frames Entra ID, Exchange Online, Teams, and Intune tasks into one printable starter matrix — pairs with the live M365 checklist routes.",
+    megaGroup: "Business/Productivity Tools",
+    categoryChip: "Microsoft 365",
+    status: "demo",
+    bullets: [
+      "Group tasks by persona (remote vs desk, VIP vs standard) before exporting.",
+      "Include licence SKU, MFA method, and device compliance profile on one row per user.",
+      "Surface Safe Links / Defender baselines as optional add-on columns.",
+    ],
+    primaryAction: { href: "/tools/m365/new-starter", label: "Open new starter checklist" },
+    related: [
+      { href: "/tools/m365/leaver", label: "Leaver / offboarding checklist" },
+      { href: "/m365-tools", label: "Microsoft 365 hub" },
     ],
   },
   "spf-dkim-dmarc-lab": {
