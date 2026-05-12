@@ -198,12 +198,14 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
             {NAV_GROUPS.map((group) => {
               const isOpen = expanded === group.label;
               const isActive = navGroupContainsPath(group, pathname);
+              const sectionId = `${PRIMARY_MOBILE_NAV_ID}-cat-${group.label.replace(/\s+/g, "-").toLowerCase()}`;
               return (
                 <li key={group.label}>
                   <button
                     type="button"
                     onClick={() => setExpanded(isOpen ? null : group.label)}
                     aria-expanded={isOpen}
+                    aria-controls={sectionId}
                     className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold rounded-xl transition-colors ${
                       isActive
                         ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]"
@@ -227,7 +229,12 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                     </svg>
                   </button>
                   {isOpen && (
-                    <ul className="mt-0.5 ml-2 pl-3 border-l border-[var(--ss-border)] flex flex-col gap-0.5">
+                    <ul
+                      id={sectionId}
+                      role="region"
+                      aria-label={group.label}
+                      className="mt-0.5 ml-2 pl-3 border-l border-[var(--ss-border)] flex flex-col gap-0.5"
+                    >
                       {group.links.map((link) => {
                         const linkActive = navLinkMatchesPath(pathname, link.href);
                         if (link.comingSoon) {

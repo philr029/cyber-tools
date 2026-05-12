@@ -34,8 +34,12 @@ function readStoredTheme(): Theme {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // Lazy init: read from localStorage on the client; use "dark" during SSR
-  const [theme, setTheme] = useState<Theme>(readStoredTheme);
+  // SSR-safe default; sync from localStorage after mount (avoids hydration mismatch).
+  const [theme, setTheme] = useState<Theme>("dark");
+
+  useEffect(() => {
+    setTheme(readStoredTheme());
+  }, []);
 
   // Sync the data-theme attribute on <html> whenever theme changes
   useEffect(() => {
