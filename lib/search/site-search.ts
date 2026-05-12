@@ -2,6 +2,7 @@ import {
   TOP_BAR_LINKS,
   uniqueSiteTools,
   SITE_SEARCH_TOOLKIT_FILTERS,
+  DASHBOARD_SECTION_META,
   type SiteTool,
   type ToolkitSearchFilter,
 } from "@/lib/tools/site-catalog";
@@ -21,6 +22,24 @@ export interface SiteSearchEntry {
 }
 
 const SUPPLEMENT: SiteSearchEntry[] = [
+  {
+    title: "Homepage toolkit dashboard",
+    description: "Category columns, featured modules, and stats on the SecureScope landing page.",
+    category: "Page sections",
+    tags: ["home", "portfolio", "toolkit", "categories", "landing"],
+    url: "/#portfolio-toolkit",
+    toolType: "page",
+    toolkitAreas: [],
+  },
+  {
+    title: "Threat lookup hero",
+    description: "Jump to the IP, domain, and URL lookup bar on the home page.",
+    category: "Page sections",
+    tags: ["lookup", "search", "hero", "virustotal"],
+    url: "/#search-section",
+    toolType: "page",
+    toolkitAreas: ["Cybersecurity"],
+  },
   {
     title: "Sign in",
     description: "Access dashboards, saved scans and alerts.",
@@ -124,11 +143,15 @@ function pushDeduped(map: Map<string, SiteSearchEntry>, entry: SiteSearchEntry) 
 }
 
 function fromSiteTool(t: SiteTool): SiteSearchEntry {
+  const sectionLabel = DASHBOARD_SECTION_META[t.dashboardSection]?.label ?? "";
   return {
     title: t.label,
     description: t.description,
     category: t.megaGroup,
-    tags: [...t.keywords, ...slugifyTags(t.label, t.description, t.href.replace(/^\//, ""))],
+    tags: [
+      ...t.keywords,
+      ...slugifyTags(t.label, t.description, t.href.replace(/^\//, ""), sectionLabel, t.dashboardSection),
+    ],
     url: t.href,
     toolType: inferToolType(t.href),
     toolkitAreas: [...t.toolkitFilters],

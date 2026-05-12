@@ -100,6 +100,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
   // effect cascades renders (react-hooks/set-state-in-effect).
 
   if (!mounted) return null;
+  if (!open) return null;
 
   return createPortal(
     <>

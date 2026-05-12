@@ -191,6 +191,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-controls={panelId}
+        aria-label={open ? "Close tools menu" : "Open tools menu"}
       >
         {label}
         <svg

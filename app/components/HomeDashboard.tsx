@@ -17,7 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import UniversalToolCard from "@/app/components/UniversalToolCard";
 import SectionReveal from "@/app/components/ui/SectionReveal";
-import { featuredToolsList, mostUsefulToolsList, recentlyAddedToolsList, type SiteTool } from "@/lib/tools/site-catalog";
+import { DASHBOARD_SECTION_META, featuredToolsList, mostUsefulToolsList, recentlyAddedToolsList, type SiteTool } from "@/lib/tools/site-catalog";
 
 const TAG_ICONS: Record<string, ComponentType<IconProps>> = {
   "Web QA": Browser,
@@ -124,7 +124,7 @@ const CATEGORIES = [
 
 export default function HomeDashboard() {
   return (
-    <>
+    <div id="portfolio-toolkit">
       <section className="mb-10">
         <div className="relative overflow-hidden rounded-3xl border border-[#1e2d4a] bg-gradient-to-br from-[#0b1224] via-[#0a0f1e] to-[#0b1422] p-8 lg:p-12">
           <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" aria-hidden="true" />
@@ -234,9 +234,11 @@ export default function HomeDashboard() {
                 title={t.label}
                 description={t.description}
                 categoryTag={t.categoryTag}
+                dashboardLabel={DASHBOARD_SECTION_META[t.dashboardSection].label}
                 icon={iconForTool(t)}
                 status={t.status}
                 tags={t.displayTags}
+                comingSoon={t.comingSoon}
               />
             ))}
           </div>
@@ -254,9 +256,11 @@ export default function HomeDashboard() {
                 title={t.label}
                 description={t.description}
                 categoryTag={t.categoryTag}
+                dashboardLabel={DASHBOARD_SECTION_META[t.dashboardSection].label}
                 icon={iconForTool(t)}
                 status={t.status}
                 tags={t.displayTags}
+                comingSoon={t.comingSoon}
               />
             ))}
           </div>
@@ -274,9 +278,11 @@ export default function HomeDashboard() {
                 title={t.label}
                 description={t.description}
                 categoryTag={t.categoryTag}
+                dashboardLabel={DASHBOARD_SECTION_META[t.dashboardSection].label}
                 icon={iconForTool(t)}
                 status={t.status}
                 tags={t.displayTags}
+                comingSoon={t.comingSoon}
               />
             ))}
           </div>
@@ -313,7 +319,7 @@ export default function HomeDashboard() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
 

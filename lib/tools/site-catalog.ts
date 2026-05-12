@@ -40,6 +40,109 @@ export const MEGA_GROUP_LABELS = [
 
 export type MegaGroupLabel = (typeof MEGA_GROUP_LABELS)[number];
 
+/**
+ * Portfolio dashboard sections (toolkit browser + search keywords).
+ * Distinct from mega-menu groups so the browse page can mirror IT/Cyber/SEO splits.
+ */
+export const DASHBOARD_SECTION_IDS = [
+  "it-admin",
+  "cybersecurity",
+  "website-testing",
+  "domain-ip",
+  "phone-testing",
+  "form-testing",
+  "marketing",
+  "seo",
+  "automation",
+  "coding",
+  "microsoft-365",
+  "dynamics-365",
+  "finance-automation",
+  "platform",
+] as const;
+
+export type DashboardSectionId = (typeof DASHBOARD_SECTION_IDS)[number];
+
+export const DASHBOARD_SECTION_META: Record<
+  DashboardSectionId,
+  { label: string; description: string }
+> = {
+  "it-admin": {
+    label: "IT Admin Tools",
+    description: "Service desk, onboarding, devices, and tenant-adjacent runbooks.",
+  },
+  cybersecurity: {
+    label: "Cybersecurity Tools",
+    description: "Hardening, phishing, SSL, headers, threat context, and IR helpers.",
+  },
+  "website-testing": {
+    label: "Website Testing Tools",
+    description: "Reachability, redirects, performance, accessibility, and UX passes.",
+  },
+  "domain-ip": {
+    label: "Domain / IP Reputation Tools",
+    description: "WHOIS, DNS, MX, blacklists, geolocation, and mail-path diagnostics.",
+  },
+  "phone-testing": {
+    label: "Phone Testing Tools",
+    description: "PSTN validation, IVR scripts, and escalation-friendly test logs.",
+  },
+  "form-testing": {
+    label: "Form Testing Tools",
+    description: "Field coverage, validation, analytics hooks, and lead-flow QA.",
+  },
+  marketing: {
+    label: "Marketing Tools",
+    description: "Campaigns, UTMs, social drafts, subject lines, and attribution.",
+  },
+  seo: {
+    label: "SEO Tools",
+    description: "Metadata, sitemaps, robots, keywords, and SERP-oriented checks.",
+  },
+  automation: {
+    label: "Automation Tools",
+    description: "CI/CD, monitoring hubs, API safety, and integration planners.",
+  },
+  coding: {
+    label: "Coding Tools",
+    description: "Snippets, formatters, repo hygiene, and shipping checklists.",
+  },
+  "microsoft-365": {
+    label: "Microsoft 365 Tools",
+    description: "Entra, Exchange, Defender, Intune, and collaboration guardrails.",
+  },
+  "dynamics-365": {
+    label: "Dynamics 365 Tools",
+    description: "CRM / CE-style readiness, lead ops, and partner handoff prompts.",
+  },
+  "finance-automation": {
+    label: "Finance Automation Tools",
+    description: "Controls-aware automation, ROI narratives, and reporting hygiene.",
+  },
+  platform: {
+    label: "Site & workspace",
+    description: "Navigation targets, pricing, dashboards, and account pages.",
+  },
+};
+
+/** Column order on `/tools/browse` (platform bucket last). */
+export const DASHBOARD_SECTIONS_ORDER: DashboardSectionId[] = [
+  "it-admin",
+  "cybersecurity",
+  "website-testing",
+  "domain-ip",
+  "phone-testing",
+  "form-testing",
+  "marketing",
+  "seo",
+  "automation",
+  "coding",
+  "microsoft-365",
+  "dynamics-365",
+  "finance-automation",
+  "platform",
+];
+
 /** Shown on cards and in search — maps to interview-friendly language. */
 export type ToolStatus = "live" | "demo" | "planned" | "beta";
 
@@ -82,6 +185,8 @@ export interface SiteTool {
   status?: ToolStatus;
   /** Curated chips for the toolkit browser (max ~4 recommended). */
   displayTags?: string[];
+  /** Primary section for the `/tools/browse` dashboard grouping. */
+  dashboardSection: DashboardSectionId;
   /** Portfolio-area filters (excludes literal `all`). */
   toolkitFilters: ToolkitSearchFilter[];
   /** Homepage / sidebar highlights */
@@ -291,6 +396,13 @@ function megaGroupForHref(href: string): MegaGroupLabel {
     return "Automation Tools";
   }
 
+  if (
+    href.startsWith("/tools/preview/m365-user-checklist") ||
+    href.startsWith("/tools/preview/dynamics-365-lead")
+  ) {
+    return "Business/Productivity Tools";
+  }
+
   return "Business/Productivity Tools";
 }
 
@@ -325,7 +437,7 @@ function inferToolkitFilters(input: {
   const filters = new Set<ToolkitSearchFilter>();
   const blob = `${label} ${description}`.toLowerCase();
 
-  if (href === "/m365-tools" || href.startsWith("/tools/m365")) filters.add("Microsoft 365");
+  if (href === "/m365-tools" || href.startsWith("/tools/m365") || href.includes("m365-user-checklist")) filters.add("Microsoft 365");
   if (href === "/it-admin-tools" || href.startsWith("/tools/it-admin")) filters.add("IT tools");
   if (href === "/cyber-tools" || megaGroup === "Security Tools") filters.add("Cybersecurity");
   if (megaGroup === "Website Testing Tools") filters.add("Website testing");
@@ -386,12 +498,162 @@ function inferToolStatus(
   return "live";
 }
 
+/** Portfolio dashboard column — inferred from route unless overridden on a row. */
+function inferDashboardSection(href: string): DashboardSectionId {
+  const h = href.toLowerCase();
+
+  if (
+    h === "/pricing" ||
+    h === "/enterprise" ||
+    h === "/projects" ||
+    h === "/about" ||
+    h === "/contact" ||
+    h === "/settings" ||
+    h === "/search" ||
+    h.startsWith("/dashboard") ||
+    h === "/login" ||
+    h === "/signup"
+  ) {
+    return "platform";
+  }
+
+  if (h === "/m365-tools" || h.startsWith("/tools/m365")) return "microsoft-365";
+  if (h === "/it-admin-tools" || h.startsWith("/tools/it-admin")) return "it-admin";
+  if (h.includes("dynamics-365") || h.includes("/preview/dynamics")) return "dynamics-365";
+  if (h.includes("finance-automation") || h === "/tools/reporting/automation-roi" || h.includes("/vendor-comparison")) {
+    return "finance-automation";
+  }
+  if (h.includes("phone-line") || h.includes("phone-lookup")) return "phone-testing";
+  if (h.includes("/form") || h.includes("lead-form-qa")) return "form-testing";
+  if (
+    h.includes("/seo-") ||
+    h.includes("/sitemap") ||
+    h.includes("robots-txt") ||
+    h.includes("/tools/keyword") ||
+    h.includes("/meta-preview") ||
+    h.includes("/qa/seo")
+  ) {
+    return "seo";
+  }
+  if (
+    h === "/marketing-tools" ||
+    h.startsWith("/tools/marketing/") ||
+    h.includes("campaign-planner") ||
+    h.includes("social-post") ||
+    h.includes("subject-line")
+  ) {
+    return "marketing";
+  }
+  if (
+    h === "/coding-tools" ||
+    h.startsWith("/tools/coding/") ||
+    h === "/tools/api-tester" ||
+    h === "/tools/keyforge" ||
+    h === "/tools/github-repo-health" ||
+    h === "/tools/code-snippet-library" ||
+    h === "/tools/ai-prompt-generator"
+  ) {
+    return "coding";
+  }
+  if (
+    h === "/automation-tools" ||
+    h.startsWith("/tools/automation/") ||
+    h === "/tools/automated-monitoring" ||
+    h === "/tools/api-env-checklist" ||
+    h === "/tools/browse" ||
+    h === "/tools/ai-assistant" ||
+    h === "/tools/ai-report" ||
+    h === "/tools/agent-scan"
+  ) {
+    return "automation";
+  }
+  if (
+    h === "/domain-ip-tools" ||
+    h.includes("/tools/whois") ||
+    h.includes("/tools/dns-lookup") ||
+    h.includes("/tools/subdomains") ||
+    h.includes("/tools/geo-lookup") ||
+    h.includes("/tools/email-deliverability") ||
+    h.includes("/tools/domain-protection") ||
+    h.includes("/tools/email-headers") ||
+    h.includes("/tools/email-header-analyser") ||
+    h.includes("/tools/mx-dns") ||
+    h.includes("domain-reputation") ||
+    h.includes("/tools/domain-lookup") ||
+    h.includes("/tools/security/domain-reputation") ||
+    h.includes("/tools/blacklist") ||
+    h.includes("/tools/ip-") ||
+    h.includes("spf-dkim-dmarc")
+  ) {
+    return "domain-ip";
+  }
+  if (
+    h === "/web-tools" ||
+    h.includes("/tools/launch") ||
+    h === "/tools/website-status" ||
+    h === "/tools/redirect-trace" ||
+    h === "/tools/broken-links" ||
+    h.includes("/tools/qa/accessibility") ||
+    h.includes("/tools/page-speed") ||
+    h === "/tools/mobile-responsiveness" ||
+    h === "/tools/uptime-checker" ||
+    h === "/tools/url-safety-checker" ||
+    h === "/tools/website-form-tester"
+  ) {
+    return "website-testing";
+  }
+  if (
+    h === "/cyber-tools" ||
+    h === "/tools" ||
+    h.startsWith("/tools/security/") ||
+    h.includes("phishing") ||
+    h.includes("/tools/password-strength") ||
+    h.includes("email-security-checklist") ||
+    h.includes("phishing-url") ||
+    h === "/tools/suspicious-url" ||
+    h.includes("/tools/security-headers") ||
+    h.includes("/tools/ssl") ||
+    h.includes("/tools/dns-security-checklist") ||
+    h.includes("/tools/incident-response") ||
+    h.includes("/tools/port-scanner") ||
+    h.includes("/tools/url-analysis") ||
+    h.includes("/tools/threat-score") ||
+    h.includes("security-audit")
+  ) {
+    return "cybersecurity";
+  }
+  if (
+    h.startsWith("/tools/business/") ||
+    h.startsWith("/tools/reporting/") ||
+    h.startsWith("/tools/lead") ||
+    h === "/business-tools" ||
+    h === "/reporting-tools" ||
+    h === "/lead-tools"
+  ) {
+    if (h.includes("security-report")) return "cybersecurity";
+    if (h.includes("automation-roi") || h.includes("vendor-comparison")) return "finance-automation";
+    return "it-admin";
+  }
+  if (h.startsWith("/tools/preview/")) {
+    if (h.includes("finance")) return "finance-automation";
+    if (h.includes("dynamics")) return "dynamics-365";
+    if (h.includes("m365")) return "microsoft-365";
+    if (h.includes("security-audit")) return "cybersecurity";
+    if (h.includes("phone")) return "phone-testing";
+    if (h.includes("spf") || h.includes("robots")) return "seo";
+    return "website-testing";
+  }
+
+  return "platform";
+}
+
 /** Curated rows (order = default mega-menu order within inferred group). */
 const RAW_TOOLS: Array<
-  Omit<SiteTool, "megaGroup" | "megaOrder" | "keywords" | "categoryTag" | "toolkitFilters"> & {
+  Omit<SiteTool, "megaGroup" | "megaOrder" | "keywords" | "categoryTag" | "toolkitFilters" | "dashboardSection"> & {
     megaGroup?: MegaGroupLabel;
     displayTags?: string[];
     status?: ToolStatus;
+    dashboardSection?: DashboardSectionId;
   }
 > = [
   // —— Website testing ——
@@ -519,7 +781,7 @@ const RAW_TOOLS: Array<
   {
     href: "/tools/preview/finance-automation-checklist",
     label: "Finance automation checklist",
-    description: "Controls-aware prompts for close automation, reconciliations, and segregation of duties.",
+    description: "Controls-aware prompts for close automation, reconciliations, segregation of duties, and finance automation tracker checkpoints.",
     megaGroup: "Business/Productivity Tools",
     status: "demo",
     displayTags: ["finance", "controls", "automation"],
@@ -531,6 +793,22 @@ const RAW_TOOLS: Array<
     megaGroup: "Domain & DNS Tools",
     status: "demo",
     displayTags: ["spf", "dkim", "dmarc"],
+  },
+  {
+    href: "/tools/preview/m365-user-checklist-generator",
+    label: "Microsoft 365 user checklist generator",
+    description: "Stitch Entra, Exchange, Teams, and Intune readiness prompts into a single exportable starter pack.",
+    megaGroup: "Business/Productivity Tools",
+    status: "demo",
+    displayTags: ["m365", "onboarding", "checklist"],
+  },
+  {
+    href: "/tools/preview/dynamics-365-lead-checklist",
+    label: "Dynamics 365 lead checklist",
+    description: "Lead sources, assignment rules, duplicate detection, and hypercare handoffs for CE-style pipelines.",
+    megaGroup: "Business/Productivity Tools",
+    status: "planned",
+    displayTags: ["dynamics", "sales", "leads"],
   },
 
   // —— AI ——
@@ -629,6 +907,7 @@ function buildSiteTools(): SiteTool[] {
       description: row.description,
     });
     const status = inferToolStatus(row);
+    const dashboardSection = row.dashboardSection ?? inferDashboardSection(row.href);
     const displayTags =
       row.displayTags?.slice(0, 6) ??
       [...new Set([categoryTag, ...toolkitFilters])].filter(Boolean).slice(0, 4);
@@ -639,6 +918,7 @@ function buildSiteTools(): SiteTool[] {
       keywords,
       categoryTag,
       toolkitFilters,
+      dashboardSection,
       displayTags,
       status,
     };
