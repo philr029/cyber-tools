@@ -14,6 +14,7 @@ import {
 import {
   SEARCH_CATEGORIES,
   SEARCH_TOOL_TYPES,
+  SEARCH_TOOLKIT_AREA_FILTERS,
   escapeRegExp,
   entriesForUrls,
   popularEntries,
@@ -21,6 +22,7 @@ import {
   rememberSearchVisit,
   searchSite,
   type SearchCategoryFilter,
+  type SearchToolkitAreaFilter,
   type SearchToolType,
   type SiteSearchEntry,
 } from "@/lib/search/site-search";
@@ -71,6 +73,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<SearchCategoryFilter>("all");
   const [toolType, setToolType] = useState<SearchToolType | "all">("all");
+  const [toolkitArea, setToolkitArea] = useState<SearchToolkitAreaFilter>("all");
   const [activeIndex, setActiveIndex] = useState(-1);
   const recentUrls = useMemo(() => (open ? readRecentSearches() : []), [open]);
 
@@ -93,8 +96,8 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   }, [open]);
 
   const results = useMemo(
-    () => searchSite({ query, category, toolType, limit: 50 }),
-    [query, category, toolType],
+    () => searchSite({ query, category, toolType, toolkitArea, limit: 50 }),
+    [query, category, toolType, toolkitArea],
   );
 
   const spotlight = useMemo(() => {
@@ -104,12 +107,12 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     return popularEntries();
   }, [query, recentUrls]);
 
-  const filtersActive = category !== "all" || toolType !== "all";
+  const filtersActive = category !== "all" || toolType !== "all" || toolkitArea !== "all";
   const filterBrowse = useMemo(() => {
     if (query.trim()) return [];
     if (!filtersActive) return [];
-    return searchSite({ query: "", category, toolType, limit: 50 });
-  }, [query, category, toolType, filtersActive]);
+    return searchSite({ query: "", category, toolType, toolkitArea, limit: 50 });
+  }, [query, category, toolType, toolkitArea, filtersActive]);
 
   const keyboardTargets = useMemo(() => {
     if (query.trim()) return results;
@@ -119,7 +122,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
   useEffect(() => {
     setActiveIndex(-1);
-  }, [query, category, toolType, filtersActive, keyboardTargets]);
+  }, [query, category, toolType, toolkitArea, filtersActive, keyboardTargets]);
 
   useEffect(() => {
     if (!open) return;
@@ -168,6 +171,11 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       if (e.key === "Enter") {
         const target = e.target as HTMLElement | null;
         if (target && target.closest("select")) return;
+        // While typing in the search field, Enter should not jump to the first hit unless
+        // the user explicitly moved highlight with arrow keys (avoids surprise navigation).
+        if (target?.closest("input")) {
+          if (activeIndex < 0) return;
+        }
         const pick =
           activeIndex >= 0 && activeIndex <= max
             ? keyboardTargets[activeIndex]
@@ -191,6 +199,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     setQuery("");
     setCategory("all");
     setToolType("all");
+    setToolkitArea("all");
     setActiveIndex(-1);
     inputRef.current?.focus();
   }, []);
@@ -275,6 +284,21 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             {SEARCH_CATEGORIES.map((c) => (
               <option key={c} value={c}>
                 {c === "all" ? "All categories" : c}
+              </option>
+            ))}
+          </select>
+          <label className="sr-only" htmlFor={`${dialogId}-area`}>
+            Portfolio area
+          </label>
+          <select
+            id={`${dialogId}-area`}
+            value={toolkitArea}
+            onChange={(e) => setToolkitArea(e.target.value as SearchToolkitAreaFilter)}
+            className="text-xs rounded-lg border border-[#1e2d4a] bg-[#0d1321] text-slate-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+          >
+            {SEARCH_TOOLKIT_AREA_FILTERS.map((a) => (
+              <option key={a} value={a}>
+                {a === "all" ? "All portfolio areas" : a}
               </option>
             ))}
           </select>
@@ -369,11 +393,18 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 <Link
-                  href="/tools"
-                  onClick={() => handlePick("/tools")}
+                  href="/tools/browse"
+                  onClick={() => handlePick("/tools/browse")}
                   className="text-xs font-medium rounded-lg bg-cyan-600/90 hover:bg-cyan-500 text-white px-3 py-2 motion-safe:transition-colors"
                 >
-                  Open all tools
+                  Open toolkit index
+                </Link>
+                <Link
+                  href="/tools"
+                  onClick={() => handlePick("/tools")}
+                  className="text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-200 hover:bg-white/5 px-3 py-2 motion-safe:transition-colors"
+                >
+                  Security suite
                 </Link>
                 <button
                   type="button"
@@ -429,6 +460,11 @@ function ResultRow({
           </span>
         </div>
         <span className="text-[11px] text-slate-500">{entry.category}</span>
+        {entry.toolkitAreas.length > 0 ? (
+          <span className="text-[10px] text-slate-600 line-clamp-1">
+            {entry.toolkitAreas.slice(0, 3).join(" · ")}
+          </span>
+        ) : null}
         {entry.description ? (
           <span className="text-xs text-slate-400 line-clamp-2">{highlightText(entry.description, query)}</span>
         ) : null}

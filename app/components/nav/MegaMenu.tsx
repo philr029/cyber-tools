@@ -81,6 +81,8 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
   const isAnyGroupActive =
     NAV_GROUPS.some((g) => pathname === g.index || g.links.some((l) => pathname === l.href)) ||
     pathname.startsWith("/marketing-tools") ||
+    pathname.startsWith("/tools/browse") ||
+    pathname.startsWith("/tools/preview") ||
     pathname.startsWith("/search");
 
   const handleLinkClick = useCallback(() => setOpen(false), []);
@@ -187,7 +189,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
             : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
         }`}
         aria-expanded={open}
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         aria-controls={panelId}
       >
         {label}
@@ -220,7 +222,7 @@ export default function MegaMenu({ label = "Tools" }: { label?: string }) {
       {/* Mega panel — fixed under header */}
       <div
         id={panelId}
-        role="menu"
+        role="navigation"
         aria-label={`${label} categories`}
         aria-labelledby={triggerId}
         onMouseEnter={cancelCloseAndKeepOpen}
@@ -371,7 +373,6 @@ function MegaColumn({
               <Link
                 href={link.href}
                 data-mega-link
-                role="menuitem"
                 onClick={onLinkClick}
                 className={`block px-2 py-1.5 text-xs rounded-md transition-colors ${
                   active ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"

@@ -80,7 +80,7 @@ export default function DomainReputationPage() {
               </div>
               <p className="text-xs leading-5 text-white/70">{s.description}</p>
               <p className="mt-2 text-[11px] leading-5 text-white/45">
-                Docs: <a className="text-cyan-300 hover:underline" href={s.apiDoc} target="_blank" rel="noreferrer">{s.apiDoc}</a>
+                Docs: <a className="text-cyan-300 hover:underline" href={s.apiDoc} target="_blank" rel="noopener noreferrer">{s.apiDoc}</a>
               </p>
               <p className="mt-1 text-[11px] leading-5 text-white/55">{s.note}</p>
             </div>

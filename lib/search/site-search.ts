@@ -1,4 +1,10 @@
-import { TOP_BAR_LINKS, uniqueSiteTools, type SiteTool } from "@/lib/tools/site-catalog";
+import {
+  TOP_BAR_LINKS,
+  uniqueSiteTools,
+  SITE_SEARCH_TOOLKIT_FILTERS,
+  type SiteTool,
+  type ToolkitSearchFilter,
+} from "@/lib/tools/site-catalog";
 import { MARKETING_TOOLS } from "@/lib/marketing-tools/catalog";
 
 export type SearchToolType = "hub" | "tool" | "page" | "dashboard" | "marketing" | "auth";
@@ -10,6 +16,8 @@ export interface SiteSearchEntry {
   tags: string[];
   url: string;
   toolType: SearchToolType;
+  /** Portfolio-area filters (subset of `ToolkitSearchFilter`, never includes `all`). */
+  toolkitAreas: ToolkitSearchFilter[];
 }
 
 const SUPPLEMENT: SiteSearchEntry[] = [
@@ -20,6 +28,7 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     tags: ["login", "account", "session"],
     url: "/login",
     toolType: "auth",
+    toolkitAreas: [],
   },
   {
     title: "Create account",
@@ -28,6 +37,7 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     tags: ["signup", "register", "account"],
     url: "/signup",
     toolType: "auth",
+    toolkitAreas: [],
   },
   {
     title: "Site search",
@@ -36,11 +46,13 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     tags: ["search", "find", "filter", "browse"],
     url: "/search",
     toolType: "page",
+    toolkitAreas: ["IT tools"],
   },
 ];
 
 const POPULAR_HREFS = [
   "/tools",
+  "/tools/browse",
   "/tools/domain-lookup",
   "/tools/automated-monitoring",
   "/marketing-tools",
@@ -70,6 +82,7 @@ function inferToolType(href: string): SearchToolType {
   if (
     href.endsWith("-tools") ||
     href === "/tools" ||
+    href === "/tools/browse" ||
     href === "/pricing" ||
     href === "/enterprise" ||
     href === "/projects" ||
@@ -93,14 +106,20 @@ function inferToolType(href: string): SearchToolType {
 function pushDeduped(map: Map<string, SiteSearchEntry>, entry: SiteSearchEntry) {
   const prev = map.get(entry.url);
   if (!prev) {
-    map.set(entry.url, { ...entry, tags: [...new Set(entry.tags)] });
+    map.set(entry.url, {
+      ...entry,
+      tags: [...new Set(entry.tags)],
+      toolkitAreas: [...new Set(entry.toolkitAreas)],
+    });
     return;
   }
   const tags = new Set([...prev.tags, ...entry.tags]);
+  const toolkitAreas = new Set([...prev.toolkitAreas, ...entry.toolkitAreas]);
   map.set(entry.url, {
     ...prev,
     description: prev.description.length >= entry.description.length ? prev.description : entry.description,
     tags: [...tags],
+    toolkitAreas: [...toolkitAreas],
   });
 }
 
@@ -112,6 +131,7 @@ function fromSiteTool(t: SiteTool): SiteSearchEntry {
     tags: [...t.keywords, ...slugifyTags(t.label, t.description, t.href.replace(/^\//, ""))],
     url: t.href,
     toolType: inferToolType(t.href),
+    toolkitAreas: [...t.toolkitFilters],
   };
 }
 
@@ -126,6 +146,7 @@ function buildIndex(): SiteSearchEntry[] {
       tags: slugifyTags(link.label, link.description ?? "", "navigation"),
       url: link.href,
       toolType: inferToolType(link.href),
+      toolkitAreas: link.href === "/automation-tools" ? (["Automation"] as ToolkitSearchFilter[]) : [],
     });
   }
 
@@ -141,6 +162,7 @@ function buildIndex(): SiteSearchEntry[] {
       tags: slugifyTags(tool.name, tool.description, tool.slug, tool.categoryId),
       url: tool.href,
       toolType: "marketing",
+      toolkitAreas: ["Marketing"],
     });
   }
 
@@ -162,6 +184,10 @@ export const SEARCH_CATEGORIES = ["all", ...UNIQUE_CATEGORIES];
 export type SearchCategoryFilter = (typeof SEARCH_CATEGORIES)[number];
 
 export const SEARCH_TOOL_TYPES: SearchToolType[] = ["hub", "tool", "page", "dashboard", "marketing", "auth"];
+
+export const SEARCH_TOOLKIT_AREA_FILTERS = [...SITE_SEARCH_TOOLKIT_FILTERS] as const;
+
+export type SearchToolkitAreaFilter = (typeof SEARCH_TOOLKIT_AREA_FILTERS)[number];
 
 const RECENT_KEY = "ss_search_recent_v1";
 
@@ -222,6 +248,7 @@ function scoreEntry(q: string, e: SiteSearchEntry): number {
   const title = normalize(e.title);
   const desc = normalize(e.description);
   const cat = normalize(e.category);
+  const areaStr = normalize(e.toolkitAreas.join(" "));
   const tagStr = normalize(e.tags.join(" "));
   const url = normalize(e.url);
   const urlPath = url.replace(/^https?:\/\/[^/]+/i, "");
@@ -235,13 +262,14 @@ function scoreEntry(q: string, e: SiteSearchEntry): number {
   if (title.includes(n)) return 95;
   if (desc.includes(n)) return 80;
   if (cat.includes(n)) return 72;
+  if (areaStr.includes(n)) return 70;
   if (tagStr.includes(n)) return 68;
 
   const tokens = n.split(/\s+/).filter(Boolean);
   if (tokens.length > 1) {
     let tScore = 0;
     for (const t of tokens) {
-      if (title.includes(t) || desc.includes(t) || tagStr.includes(t)) tScore += 18;
+      if (title.includes(t) || desc.includes(t) || tagStr.includes(t) || areaStr.includes(t)) tScore += 18;
     }
     if (tScore > 0) return Math.min(88, tScore);
   }
@@ -255,6 +283,7 @@ export interface SearchOptions {
   query: string;
   category: SearchCategoryFilter;
   toolType: SearchToolType | "all";
+  toolkitArea?: SearchToolkitAreaFilter;
   limit?: number;
 }
 
@@ -263,6 +292,7 @@ export function searchSite(opts: SearchOptions): SiteSearchEntry[] {
   const q = opts.query.trim();
   const cat = opts.category;
   const tt = opts.toolType;
+  const area = opts.toolkitArea ?? "all";
 
   let pool = SITE_SEARCH_INDEX;
   if (cat !== "all") {
@@ -270,6 +300,9 @@ export function searchSite(opts: SearchOptions): SiteSearchEntry[] {
   }
   if (tt !== "all") {
     pool = pool.filter((e) => e.toolType === tt);
+  }
+  if (area !== "all") {
+    pool = pool.filter((e) => e.toolkitAreas.includes(area));
   }
 
   if (!q) {
