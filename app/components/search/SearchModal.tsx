@@ -66,11 +66,10 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<SearchCategoryFilter>("all");
   const [toolType, setToolType] = useState<SearchToolType | "all">("all");
-  const [recentUrls, setRecentUrls] = useState<string[]>([]);
+  const recentUrls = useMemo(() => (open ? readRecentSearches() : []), [open]);
 
   useEffect(() => {
     if (open) {
-      setRecentUrls(readRecentSearches());
       const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       requestAnimationFrame(() => inputRef.current?.focus());
