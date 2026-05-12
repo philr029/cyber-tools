@@ -7,10 +7,12 @@ import SectionReveal from "@/app/components/ui/SectionReveal";
 import {
   SEARCH_CATEGORIES,
   SEARCH_TOOL_TYPES,
+  SEARCH_TOOLKIT_AREA_FILTERS,
   escapeRegExp,
   rememberSearchVisit,
   searchSite,
   type SearchCategoryFilter,
+  type SearchToolkitAreaFilter,
   type SearchToolType,
   type SiteSearchEntry,
 } from "@/lib/search/site-search";
@@ -51,6 +53,7 @@ export default function SearchPage() {
   const [query, setQuery] = useState(() => sp.get("q") ?? "");
   const [category, setCategory] = useState<SearchCategoryFilter>("all");
   const [toolType, setToolType] = useState<SearchToolType | "all">("all");
+  const [toolkitArea, setToolkitArea] = useState<SearchToolkitAreaFilter>("all");
 
   useEffect(() => {
     const q = sp.get("q");
@@ -58,8 +61,8 @@ export default function SearchPage() {
   }, [sp]);
 
   const results = useMemo(
-    () => searchSite({ query, category, toolType, limit: 80 }),
-    [query, category, toolType],
+    () => searchSite({ query, category, toolType, toolkitArea, limit: 80 }),
+    [query, category, toolType, toolkitArea],
   );
 
   const go = useCallback(
@@ -111,6 +114,20 @@ export default function SearchPage() {
                 </select>
               </div>
               <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Portfolio area</span>
+                <select
+                  value={toolkitArea}
+                  onChange={(e) => setToolkitArea(e.target.value as SearchToolkitAreaFilter)}
+                  className="text-xs rounded-lg border border-[#1e2d4a] bg-[#0d1321] text-slate-200 px-2 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+                >
+                  {SEARCH_TOOLKIT_AREA_FILTERS.map((a) => (
+                    <option key={a} value={a}>
+                      {a === "all" ? "All portfolio areas" : a}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Type</span>
                 <select
                   value={toolType}
@@ -132,8 +149,8 @@ export default function SearchPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 {query.trim() ? `${results.length} result${results.length === 1 ? "" : "s"}` : "Browse matches"}
               </p>
-              <Link href="/tools" className="text-xs font-medium text-cyan-400 hover:text-cyan-300">
-                Open all tools →
+              <Link href="/tools/browse" className="text-xs font-medium text-cyan-400 hover:text-cyan-300">
+                Toolkit index →
               </Link>
             </div>
 
@@ -147,6 +164,7 @@ export default function SearchPage() {
                     setQuery("");
                     setCategory("all");
                     setToolType("all");
+                    setToolkitArea("all");
                   }}
                   className="text-xs font-medium rounded-lg border border-[#1e2d4a] text-slate-300 hover:bg-white/5 px-4 py-2"
                 >

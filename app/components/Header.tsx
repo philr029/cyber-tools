@@ -42,9 +42,6 @@ export default function Header() {
     if (pathname === "/it-admin-tools" || pathname === "/m365-tools" || pathname === "/cyber-tools") return true;
     if (pathname === "/domain-ip-tools" || pathname === "/lead-tools" || pathname === "/business-tools") return true;
     if (pathname === "/reporting-tools" || pathname === "/coding-tools") return true;
-    if (pathname === "/about" || pathname === "/contact" || pathname === "/projects") return true;
-    if (pathname === "/pricing" || pathname === "/enterprise" || pathname === "/settings") return true;
-    if (pathname === "/search") return true;
     return false;
   }, [pathname]);
 

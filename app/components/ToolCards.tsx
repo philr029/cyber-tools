@@ -56,6 +56,8 @@ export default function ToolCards() {
               description={tool.description}
               categoryTag={tool.categoryTag}
               icon={iconForTool(tool)}
+              status={tool.status}
+              tags={tool.displayTags}
             />
           ))}
         </div>

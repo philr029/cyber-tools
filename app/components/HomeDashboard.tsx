@@ -142,10 +142,16 @@ export default function HomeDashboard() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/tools"
+                href="/tools/browse"
                 className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_0_24px_rgba(6,182,212,0.35)] hover:from-cyan-400 hover:to-blue-500 transition-colors"
               >
-                Browse all tools
+                Browse toolkit
+              </Link>
+              <Link
+                href="/tools"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-white/10 transition-colors"
+              >
+                Security lookup suite
               </Link>
               <Link
                 href="/coding-tools"
@@ -229,6 +235,8 @@ export default function HomeDashboard() {
                 description={t.description}
                 categoryTag={t.categoryTag}
                 icon={iconForTool(t)}
+                status={t.status}
+                tags={t.displayTags}
               />
             ))}
           </div>
@@ -247,6 +255,8 @@ export default function HomeDashboard() {
                 description={t.description}
                 categoryTag={t.categoryTag}
                 icon={iconForTool(t)}
+                status={t.status}
+                tags={t.displayTags}
               />
             ))}
           </div>
@@ -265,6 +275,8 @@ export default function HomeDashboard() {
                 description={t.description}
                 categoryTag={t.categoryTag}
                 icon={iconForTool(t)}
+                status={t.status}
+                tags={t.displayTags}
               />
             ))}
           </div>

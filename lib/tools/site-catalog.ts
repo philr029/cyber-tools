@@ -40,6 +40,30 @@ export const MEGA_GROUP_LABELS = [
 
 export type MegaGroupLabel = (typeof MEGA_GROUP_LABELS)[number];
 
+/** Shown on cards and in search — maps to interview-friendly language. */
+export type ToolStatus = "live" | "demo" | "planned" | "beta";
+
+/**
+ * Portfolio filters for advanced search + `/tools/browse`.
+ * Keep in sync with `lib/search/site-search.ts` bucket matching.
+ */
+export const SITE_SEARCH_TOOLKIT_FILTERS = [
+  "all",
+  "IT tools",
+  "Microsoft 365",
+  "Dynamics 365",
+  "Cybersecurity",
+  "Website testing",
+  "Domain & IP",
+  "Marketing",
+  "Automation",
+  "Coding",
+  "Finance",
+  "AI & assistants",
+] as const;
+
+export type ToolkitSearchFilter = (typeof SITE_SEARCH_TOOLKIT_FILTERS)[number];
+
 export interface SiteTool {
   href: string;
   label: string;
@@ -54,6 +78,12 @@ export interface SiteTool {
   /** Optional vendor / mode badge. */
   badge?: string;
   comingSoon?: boolean;
+  /** Card / search status — inferred when omitted. */
+  status?: ToolStatus;
+  /** Curated chips for the toolkit browser (max ~4 recommended). */
+  displayTags?: string[];
+  /** Portfolio-area filters (excludes literal `all`). */
+  toolkitFilters: ToolkitSearchFilter[];
   /** Homepage / sidebar highlights */
   featured?: boolean;
   recentlyAdded?: boolean;
@@ -257,6 +287,10 @@ function megaGroupForHref(href: string): MegaGroupLabel {
     return "AI Tools";
   }
 
+  if (href === "/tools/browse") {
+    return "Automation Tools";
+  }
+
   return "Business/Productivity Tools";
 }
 
@@ -281,9 +315,84 @@ function categoryTagForGroup(g: MegaGroupLabel): string {
   }
 }
 
+function inferToolkitFilters(input: {
+  href: string;
+  megaGroup: MegaGroupLabel;
+  label: string;
+  description: string;
+}): ToolkitSearchFilter[] {
+  const { href, megaGroup, label, description } = input;
+  const filters = new Set<ToolkitSearchFilter>();
+  const blob = `${label} ${description}`.toLowerCase();
+
+  if (href === "/m365-tools" || href.startsWith("/tools/m365")) filters.add("Microsoft 365");
+  if (href === "/it-admin-tools" || href.startsWith("/tools/it-admin")) filters.add("IT tools");
+  if (href === "/cyber-tools" || megaGroup === "Security Tools") filters.add("Cybersecurity");
+  if (megaGroup === "Website Testing Tools") filters.add("Website testing");
+  if (href === "/domain-ip-tools" || megaGroup === "Domain & DNS Tools") filters.add("Domain & IP");
+  if (megaGroup === "Marketing Tools" || href === "/marketing-tools") filters.add("Marketing");
+  if (href === "/automation-tools" || megaGroup === "Automation Tools") filters.add("Automation");
+  if (href === "/coding-tools" || megaGroup === "Coding/Developer Tools") filters.add("Coding");
+  if (megaGroup === "AI Tools") filters.add("AI & assistants");
+
+  if (
+    blob.includes("finance") ||
+    blob.includes("financial") ||
+    href.includes("/reporting/automation-roi") ||
+    href.includes("finance-automation") ||
+    href.includes("/vendor-comparison")
+  ) {
+    filters.add("Finance");
+  }
+
+  if (blob.includes("dynamics") || href.includes("dynamics-365") || href.includes("/preview/dynamics")) {
+    filters.add("Dynamics 365");
+  }
+
+  if (href === "/tools/browse") {
+    filters.add("Automation");
+    filters.add("IT tools");
+  }
+
+  if (href === "/lead-tools" || href.startsWith("/tools/lead")) {
+    filters.add("IT tools");
+    filters.add("Domain & IP");
+  }
+
+  if (filters.size === 0) {
+    const primary: Partial<Record<MegaGroupLabel, ToolkitSearchFilter>> = {
+      "Business/Productivity Tools": "IT tools",
+      "Website Testing Tools": "Website testing",
+      "Domain & DNS Tools": "Domain & IP",
+      "Security Tools": "Cybersecurity",
+      "Marketing Tools": "Marketing",
+      "Automation Tools": "Automation",
+      "Coding/Developer Tools": "Coding",
+      "AI Tools": "AI & assistants",
+    };
+    const p = primary[megaGroup];
+    if (p) filters.add(p);
+  }
+
+  return [...filters];
+}
+
+function inferToolStatus(
+  row: Pick<SiteTool, "href" | "comingSoon" | "status">,
+): ToolStatus {
+  if (row.status) return row.status;
+  if (row.comingSoon) return "planned";
+  if (row.href.startsWith("/tools/preview/")) return "demo";
+  return "live";
+}
+
 /** Curated rows (order = default mega-menu order within inferred group). */
 const RAW_TOOLS: Array<
-  Omit<SiteTool, "megaGroup" | "megaOrder" | "keywords" | "categoryTag"> & { megaGroup?: MegaGroupLabel }
+  Omit<SiteTool, "megaGroup" | "megaOrder" | "keywords" | "categoryTag" | "toolkitFilters"> & {
+    megaGroup?: MegaGroupLabel;
+    displayTags?: string[];
+    status?: ToolStatus;
+  }
 > = [
   // —— Website testing ——
   { href: "/web-tools", label: "Website testing hub", description: "Launch, QA, performance, and forms.", featured: true },
@@ -374,6 +483,56 @@ const RAW_TOOLS: Array<
   { href: "/tools/automation/api-integration-planner", label: "API Integration Planner", description: "Contracts and failure modes." },
   { href: "/tools/api-env-checklist", label: "API Key & Env Checklist", description: "Rotation, scopes, and CI/CD hygiene.", recentlyAdded: true },
 
+  { href: "/tools/browse", label: "Browse full toolkit", description: "Dashboard-style grid of every catalogue entry with portfolio-area filters.", featured: true, displayTags: ["catalogue", "filters", "dashboard"] },
+  {
+    href: "/tools/preview/robots-txt-checker",
+    label: "Robots.txt checker",
+    description: "Structured review of crawl rules, host directives, and sitemap pointers — portfolio demo with live companion tools.",
+    megaGroup: "Website Testing Tools",
+    status: "demo",
+    displayTags: ["seo", "crawling", "robots"],
+  },
+  {
+    href: "/tools/preview/phone-line-test-logger",
+    label: "Phone line test logger",
+    description: "Ops-friendly logging template for PSTN/IVR smoke tests with escalation metadata.",
+    megaGroup: "Domain & DNS Tools",
+    status: "demo",
+    displayTags: ["pstn", "ivr", "qa"],
+  },
+  {
+    href: "/tools/preview/security-audit-checklist",
+    label: "Security audit checklist",
+    description: "Cross-domain audit framing for identity, email authentication, endpoints, and SaaS posture.",
+    megaGroup: "Security Tools",
+    status: "demo",
+    displayTags: ["audit", "governance", "ir"],
+  },
+  {
+    href: "/tools/preview/dynamics-365-checklist",
+    label: "Dynamics 365 readiness checklist",
+    description: "Environment, role, and integration prompts for CE / Business Central style programmes.",
+    megaGroup: "Business/Productivity Tools",
+    status: "planned",
+    displayTags: ["dynamics", "erp", "readiness"],
+  },
+  {
+    href: "/tools/preview/finance-automation-checklist",
+    label: "Finance automation checklist",
+    description: "Controls-aware prompts for close automation, reconciliations, and segregation of duties.",
+    megaGroup: "Business/Productivity Tools",
+    status: "demo",
+    displayTags: ["finance", "controls", "automation"],
+  },
+  {
+    href: "/tools/preview/spf-dkim-dmarc-lab",
+    label: "SPF / DKIM / DMARC lab",
+    description: "Guided authentication pass that stitches MX, TXT, and header tooling into one narrative.",
+    megaGroup: "Domain & DNS Tools",
+    status: "demo",
+    displayTags: ["spf", "dkim", "dmarc"],
+  },
+
   // —— AI ——
   { href: "/tools/ai-assistant", label: "AI Assistant", description: "Guided analysis chat for investigations.", featured: true },
   { href: "/tools/ai-report", label: "AI Report", description: "Narrative summaries from scan context." },
@@ -463,12 +622,25 @@ function buildSiteTools(): SiteTool[] {
     const megaGroup = row.megaGroup ?? megaGroupForHref(row.href);
     const categoryTag = categoryTagForGroup(megaGroup);
     const keywords = slugKeywords(row.label, row.description, megaGroup, categoryTag, row.href.replace(/^\//, "").replace(/\//g, " "));
+    const toolkitFilters = inferToolkitFilters({
+      href: row.href,
+      megaGroup,
+      label: row.label,
+      description: row.description,
+    });
+    const status = inferToolStatus(row);
+    const displayTags =
+      row.displayTags?.slice(0, 6) ??
+      [...new Set([categoryTag, ...toolkitFilters])].filter(Boolean).slice(0, 4);
     return {
       ...row,
       megaGroup,
       megaOrder: idx,
       keywords,
       categoryTag,
+      toolkitFilters,
+      displayTags,
+      status,
     };
   });
 }
@@ -539,6 +711,8 @@ export function categoryIndexTools(label: MegaGroupLabel) {
     badge: t.badge ?? t.categoryTag,
     why: t.why,
     skill: t.skill,
+    status: t.status,
+    tags: t.displayTags,
   }));
 }
 
@@ -554,6 +728,8 @@ export function categoryCardsWhere(pred: (t: SiteTool) => boolean) {
       badge: t.badge ?? t.categoryTag,
       why: t.why,
       skill: t.skill,
+      status: t.status,
+      tags: t.displayTags,
     }));
 }
 

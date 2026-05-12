@@ -15,6 +15,8 @@ export interface CategoryToolCard {
   /** Optional emoji or icon. */
   icon?: ReactNode;
   external?: boolean;
+  status?: "live" | "demo" | "planned" | "beta";
+  tags?: string[];
 }
 
 export interface CategoryIndexProps {
@@ -60,10 +62,10 @@ export default function CategoryIndex({ eyebrow, title, intro, tools, callout }:
           </Link>
           <span>/</span>
           <Link
-            href="/tools"
+            href="/tools/browse"
             className="transition-colors hover:text-cyan-200"
           >
-            All tools
+            Toolkit index
           </Link>
           <span>/</span>
           <span className="font-medium text-white/70">{title}</span>
@@ -89,13 +91,32 @@ export default function CategoryIndex({ eyebrow, title, intro, tools, callout }:
                     )}
                     <h2 className="text-base font-semibold text-white">{tool.title}</h2>
                   </div>
-                  {tool.badge && (
-                    <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
-                      {tool.badge}
-                    </span>
-                  )}
+                  <div className="flex flex-wrap items-center gap-1.5 justify-end">
+                    {tool.status && tool.status !== "live" ? (
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/55">
+                        {tool.status}
+                      </span>
+                    ) : null}
+                    {tool.badge && (
+                      <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                        {tool.badge}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-white/70">{tool.description}</p>
+                {tool.tags && tool.tags.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {tool.tags.slice(0, 4).map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[9px] rounded-md bg-white/[0.04] text-white/45 px-1.5 py-0.5 ring-1 ring-white/10"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
                 {(tool.why || tool.skill) && (
                   <div className="mt-3 space-y-1.5 text-[11px] text-white/55">
                     {tool.why && (
@@ -134,10 +155,16 @@ export default function CategoryIndex({ eyebrow, title, intro, tools, callout }:
 
         <div className="mt-10 flex flex-wrap items-center gap-3">
           <Link
+            href="/tools/browse"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/75 hover:text-white hover:border-white/30 transition-colors"
+          >
+            {BackIcon} Toolkit index
+          </Link>
+          <Link
             href="/tools"
             className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/75 hover:text-white hover:border-white/30 transition-colors"
           >
-            {BackIcon} Back to all tools
+            Security lookup suite
           </Link>
           <Link
             href="/"
