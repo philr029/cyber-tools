@@ -1,4 +1,9 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
+
+/** Pin Turbopack to this app when another lockfile exists higher in the tree (avoids wrong-root warnings on Vercel/CI). */
+const turbopackProjectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -47,6 +52,9 @@ const basePath = rawBase.length > 0 ? rawBase : undefined;
 
 const nextConfig: NextConfig = {
   basePath,
+  turbopack: {
+    root: turbopackProjectRoot,
+  },
   experimental: {
     sri: {
       algorithm: "sha256",
