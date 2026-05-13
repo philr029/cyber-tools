@@ -2,8 +2,8 @@
 
 /* ── SecureScope design tokens (Apple-inspired: calm surfaces, soft depth) ── */
 :root {
-  --ss-page: #09090b;
-  --ss-page-2: #0c0c10;
+  --ss-page: #0a0a0c;
+  --ss-page-2: #0d0d11;
   --ss-elevated: rgba(255, 255, 255, 0.04);
   --ss-elevated-solid: #12121a;
   --ss-elevated-solid-2: #18181f;
@@ -112,8 +112,7 @@ html[data-theme="light"] .text-slate-600 {
 }
 
 html[data-theme="light"] header {
-  background-color: rgba(240, 244, 248, 0.9) !important;
-  border-bottom-color: #cbd5e1 !important;
+  border-bottom-color: var(--ss-border) !important;
 }
 
 html[data-theme="light"] .hover\:text-slate-100:hover,
@@ -204,31 +203,39 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  line-height: 1.5;
+  letter-spacing: -0.012em;
 }
 
 /* Frosted surfaces (header, modals, mega menu) */
 .glass-surface {
-  background: color-mix(in srgb, var(--ss-elevated-solid) 78%, transparent);
+  background: color-mix(in srgb, var(--ss-elevated-solid) 76%, transparent);
   border-color: var(--ss-border);
-  -webkit-backdrop-filter: blur(22px) saturate(1.35);
-  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(26px) saturate(1.25);
+  backdrop-filter: blur(26px) saturate(1.25);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--ss-text) 5%, transparent) inset,
+    0 12px 40px rgba(0, 0, 0, 0.18);
 }
 
 html[data-theme="light"] .glass-surface {
-  background: color-mix(in srgb, #ffffff 82%, transparent);
+  background: color-mix(in srgb, #ffffff 86%, transparent);
+  box-shadow:
+    0 1px 0 #ffffff inset,
+    0 10px 36px rgba(15, 23, 42, 0.06);
 }
 
 .ss-card {
-  border-radius: 1.25rem;
+  border-radius: 1.375rem;
   border: 1px solid var(--ss-border);
   background: linear-gradient(
-    165deg,
-    color-mix(in srgb, var(--ss-elevated-solid) 92%, transparent) 0%,
+    168deg,
+    color-mix(in srgb, var(--ss-elevated-solid) 94%, transparent) 0%,
     color-mix(in srgb, var(--ss-elevated-solid-2) 88%, transparent) 100%
   );
   box-shadow:
-    0 1px 0 color-mix(in srgb, var(--ss-text) 6%, transparent) inset,
-    0 18px 48px rgba(0, 0, 0, 0.28);
+    0 1px 0 color-mix(in srgb, var(--ss-text) 5%, transparent) inset,
+    0 14px 44px rgba(0, 0, 0, 0.22);
 }
 
 html[data-theme="light"] .ss-card {
@@ -247,6 +254,13 @@ html[data-theme="light"] .ss-card {
     border-color 0.18s ease,
     box-shadow 0.22s ease,
     transform 0.18s ease;
+}
+
+.ss-pill:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--ss-page),
+    0 0 0 4px color-mix(in srgb, var(--ss-accent) 55%, transparent);
 }
 
 .ss-pill-primary {
@@ -339,15 +353,18 @@ html[data-theme="light"] .ss-ambient-glow {
 
 /* ── Card hover lift ────────────────────────────────────────────── */
 .card-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease;
 }
 
 .card-lift:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow:
-    0 0 0 1px rgba(6, 182, 212, 0.15),
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(6, 182, 212, 0.06);
+    0 0 0 1px color-mix(in srgb, var(--ss-accent) 18%, transparent),
+    0 10px 36px rgba(0, 0, 0, 0.28),
+    0 0 24px color-mix(in srgb, var(--ss-accent) 8%, transparent);
 }
 
 /* ── Shimmer skeleton ───────────────────────────────────────────── */
@@ -380,7 +397,7 @@ html[data-theme="light"] .ss-ambient-glow {
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -389,23 +406,23 @@ html[data-theme="light"] .ss-ambient-glow {
 }
 
 .animate-fade-in {
-  animation: fade-in-up 0.5s ease forwards;
+  animation: fade-in-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .animate-fade-in-delay {
-  animation: fade-in-up 0.5s ease 0.15s both;
+  animation: fade-in-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 
 .animate-fade-in-delay-2 {
-  animation: fade-in-up 0.5s ease 0.3s both;
+  animation: fade-in-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
 }
 
 .animate-fade-in-delay-3 {
-  animation: fade-in-up 0.5s ease 0.45s both;
+  animation: fade-in-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
 }
 
 .animate-fade-in-delay-4 {
-  animation: fade-in-up 0.5s ease 0.6s both;
+  animation: fade-in-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
 }
 
 /* ── Slide-in from left ─────────────────────────────────────── */
@@ -610,7 +627,7 @@ pre,
 @keyframes search-panel-in {
   from {
     opacity: 0;
-    transform: translateY(-10px) scale(0.98);
+    transform: translateY(-8px) scale(0.985);
   }
   to {
     opacity: 1;
@@ -629,6 +646,26 @@ pre,
   }
 }
 
+@keyframes ss-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ss-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .animate-search-backdrop {
   animation: search-backdrop-in 0.2s ease-out both;
 }
@@ -638,13 +675,23 @@ pre,
 }
 
 .animate-page-enter {
-  animation: page-enter 0.45s ease-out both;
+  animation: page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-ss-modal-backdrop {
+  animation: ss-modal-backdrop-in 0.2s ease-out both;
+}
+
+.animate-ss-modal-panel {
+  animation: ss-modal-panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-search-backdrop,
   .animate-search-panel,
   .animate-page-enter,
+  .animate-ss-modal-backdrop,
+  .animate-ss-modal-panel,
   .animate-fade-in,
   .animate-fade-in-delay,
   .animate-fade-in-delay-2,

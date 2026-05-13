@@ -17,6 +17,7 @@ import MonitoringAdvancedSearch from "@/app/components/monitoring/MonitoringAdva
 import MonitoringTestCard from "@/app/components/monitoring/MonitoringTestCard";
 import type { HubSearchFilters, HubSortOption, HubTestType, HubSchedule, TestResult } from "@/lib/monitoring-hub/types";
 import { buildPlaywrightMonitoringSnippet } from "@/lib/monitoring-hub/form-playwright-snippet";
+import { withBasePath } from "@/lib/base-path";
 
 interface SummaryCard {
   id: string;
@@ -85,7 +86,7 @@ export default function AutomatedMonitoringHubClient() {
 
   const refreshSummary = useCallback(async () => {
     try {
-      const res = await fetch("/api/monitoring/summary");
+      const res = await fetch(withBasePath("/api/monitoring/summary"));
       if (!res.ok) throw new Error("summary");
       const j = (await res.json()) as {
         data: { cards: SummaryCard[]; globalSchedule: HubSchedule };
@@ -100,7 +101,7 @@ export default function AutomatedMonitoringHubClient() {
 
   const refreshHistory = useCallback(async () => {
     try {
-      const res = await fetch("/api/monitoring/results?limit=60&sort=newest");
+      const res = await fetch(withBasePath("/api/monitoring/results?limit=60&sort=newest"));
       if (!res.ok) throw new Error("results");
       const j = (await res.json()) as { data: TestResult[] };
       setHistory(j.data);
@@ -116,7 +117,7 @@ export default function AutomatedMonitoringHubClient() {
 
     void (async () => {
       try {
-        const h = await fetch("/api/monitoring/health");
+        const h = await fetch(withBasePath("/api/monitoring/health"));
         setApiOk(h.ok);
       } catch {
         setApiOk(false);
@@ -129,7 +130,7 @@ export default function AutomatedMonitoringHubClient() {
   async function persistSchedule() {
     setBusy(true);
     try {
-      const res = await fetch("/api/monitoring/schedule", {
+      const res = await fetch(withBasePath("/api/monitoring/schedule"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ schedule: schedChoice }),
@@ -155,12 +156,12 @@ export default function AutomatedMonitoringHubClient() {
         },
         lastMockDispatchAt: null as string | null,
       };
-      const cur = await fetch("/api/monitoring/alerts");
+      const cur = await fetch(withBasePath("/api/monitoring/alerts"));
       if (cur.ok) {
         const j = (await cur.json()) as { data: { lastMockDispatchAt: string | null } };
         body.lastMockDispatchAt = j.data.lastMockDispatchAt;
       }
-      const res = await fetch("/api/monitoring/alerts", {
+      const res = await fetch(withBasePath("/api/monitoring/alerts"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -175,7 +176,7 @@ export default function AutomatedMonitoringHubClient() {
   async function mockAlertDispatch() {
     setBusy(true);
     try {
-      await fetch("/api/monitoring/alerts", {
+      await fetch(withBasePath("/api/monitoring/alerts"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "mock_dispatch" }),
@@ -189,7 +190,7 @@ export default function AutomatedMonitoringHubClient() {
   async function runPhone() {
     setCardLoading("phone");
     try {
-      const res = await fetch("/api/monitoring/run/phone", {
+      const res = await fetch(withBasePath("/api/monitoring/run/phone"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -209,7 +210,7 @@ export default function AutomatedMonitoringHubClient() {
   async function runWebsite() {
     setCardLoading("website");
     try {
-      await fetch("/api/monitoring/run/website", {
+      await fetch(withBasePath("/api/monitoring/run/website"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: webUrl }),
@@ -224,7 +225,7 @@ export default function AutomatedMonitoringHubClient() {
   async function runForm() {
     setCardLoading("form");
     try {
-      await fetch("/api/monitoring/run/form", {
+      await fetch(withBasePath("/api/monitoring/run/form"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -246,7 +247,7 @@ export default function AutomatedMonitoringHubClient() {
   async function runDomain() {
     setCardLoading("domain");
     try {
-      await fetch("/api/monitoring/run/domain", {
+      await fetch(withBasePath("/api/monitoring/run/domain"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ domain: dom }),
@@ -261,7 +262,7 @@ export default function AutomatedMonitoringHubClient() {
   async function runMxTool() {
     setCardLoading("mxtoolbox");
     try {
-      await fetch("/api/monitoring/run/mxtoolbox", {
+      await fetch(withBasePath("/api/monitoring/run/mxtoolbox"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ command: mxCommand, argument: dom }),
@@ -306,7 +307,7 @@ export default function AutomatedMonitoringHubClient() {
   async function advSearch(filters: HubSearchFilters, sort: HubSortOption) {
     setAdvBusy(true);
     try {
-      const res = await fetch("/api/monitoring/search", {
+      const res = await fetch(withBasePath("/api/monitoring/search"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...filters, sort, limit: 80 }),

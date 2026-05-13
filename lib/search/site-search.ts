@@ -53,6 +53,33 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     toolkitAreas: [],
   },
   {
+    title: "Forgot password",
+    description: "Request a secure password reset link (email in production, dev console locally).",
+    category: "Auth",
+    tags: ["password", "reset", "recovery", "login"],
+    url: "/forgot-password",
+    toolType: "auth",
+    toolkitAreas: [],
+  },
+  {
+    title: "Encrypted vault",
+    description: "Editors and admins: client-side encryption for browser scan history.",
+    category: "Dashboard",
+    tags: ["vault", "encryption", "localstorage", "aes", "pbkdf2"],
+    url: "/dashboard/vault",
+    toolType: "dashboard",
+    toolkitAreas: ["Cybersecurity"],
+  },
+  {
+    title: "User management",
+    description: "Admin-only directory, roles, and account status (demo in-memory store).",
+    category: "Administration",
+    tags: ["users", "rbac", "admin", "roles"],
+    url: "/dashboard/admin/users",
+    toolType: "dashboard",
+    toolkitAreas: [],
+  },
+  {
     title: "Create account",
     description: "Register for SecureScope workspace access.",
     category: "Auth",
@@ -62,6 +89,15 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     toolkitAreas: [],
   },
   {
+    title: "Security checklist",
+    description: "HTTPS, API secrets, optional client-side encrypted history, security headers, forms, and storage guidance.",
+    category: "Resources",
+    tags: ["security", "csp", "hsts", "encryption", "headers", "compliance", "checklist"],
+    url: "/security",
+    toolType: "page",
+    toolkitAreas: ["Cybersecurity"],
+  },
+  {
     title: "Site search",
     description: "Full-text search with category filters across every tool and hub.",
     category: "Top navigation",
@@ -69,6 +105,15 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     url: "/search",
     toolType: "page",
     toolkitAreas: ["IT tools"],
+  },
+  {
+    title: "Toolkit roadmap",
+    description: "Coming-soon and preview modules from the security suite grid.",
+    category: "Tools",
+    tags: ["roadmap", "coming soon", "preview", "planned"],
+    url: "/tools/coming-soon",
+    toolType: "tool",
+    toolkitAreas: ["Cybersecurity"],
   },
 ];
 
@@ -99,7 +144,10 @@ function slugifyTags(...parts: string[]): string[] {
 
 function inferToolType(href: string): SearchToolType {
   if (href.startsWith("/dashboard")) return "dashboard";
-  if (href.startsWith("/login") || href.startsWith("/signup")) return "auth";
+  if (href.startsWith("/login") || href.startsWith("/signup") || href.startsWith("/forgot-password") || href.startsWith("/reset-password")) {
+    return "auth";
+  }
+  if (href === "/security") return "page";
   if (href.startsWith("/resources") || href.startsWith("/projects/")) return "page";
   if (href === "/search") return "page";
   if (href.startsWith("/tools/marketing") || href === "/marketing-tools") return "marketing";
@@ -259,7 +307,9 @@ export function rememberSearchVisit(url: string) {
 
 export function popularEntries(): SiteSearchEntry[] {
   const map = new Map(SITE_SEARCH_INDEX.map((e) => [e.url, e]));
-  return POPULAR_HREFS.map((h) => map.get(h)).filter(Boolean) as SiteSearchEntry[];
+  const curated = POPULAR_HREFS.map((h) => map.get(h)).filter(Boolean) as SiteSearchEntry[];
+  if (curated.length > 0) return curated;
+  return SITE_SEARCH_INDEX.slice(0, 10);
 }
 
 export function entriesForUrls(urls: string[]): SiteSearchEntry[] {
@@ -330,33 +380,37 @@ export interface SearchOptions {
 }
 
 export function searchSite(opts: SearchOptions): SiteSearchEntry[] {
-  const limit = opts.limit ?? 40;
-  const q = opts.query.trim();
-  const cat = opts.category;
-  const tt = opts.toolType;
-  const area = opts.toolkitArea ?? "all";
+  try {
+    const limit = opts.limit ?? 40;
+    const q = opts.query.trim();
+    const cat = opts.category;
+    const tt = opts.toolType;
+    const area = opts.toolkitArea ?? "all";
 
-  let pool = SITE_SEARCH_INDEX;
-  if (cat !== "all") {
-    pool = pool.filter((e) => e.category === cat);
-  }
-  if (tt !== "all") {
-    pool = pool.filter((e) => e.toolType === tt);
-  }
-  if (area !== "all") {
-    pool = pool.filter((e) => e.toolkitAreas.includes(area));
-  }
+    let pool = SITE_SEARCH_INDEX;
+    if (cat !== "all") {
+      pool = pool.filter((e) => e.category === cat);
+    }
+    if (tt !== "all") {
+      pool = pool.filter((e) => e.toolType === tt);
+    }
+    if (area !== "all") {
+      pool = pool.filter((e) => e.toolkitAreas.includes(area));
+    }
 
-  if (!q) {
-    return pool.slice(0, limit);
+    if (!q) {
+      return pool.slice(0, limit);
+    }
+
+    const scored = pool
+      .map((e) => ({ e, s: scoreEntry(q, e) }))
+      .filter((x) => x.s > 0)
+      .sort((a, b) => b.s - a.s || a.e.title.localeCompare(b.e.title));
+
+    return scored.slice(0, limit).map((x) => x.e);
+  } catch {
+    return [];
   }
-
-  const scored = pool
-    .map((e) => ({ e, s: scoreEntry(q, e) }))
-    .filter((x) => x.s > 0)
-    .sort((a, b) => b.s - a.s || a.e.title.localeCompare(b.e.title));
-
-  return scored.slice(0, limit).map((x) => x.e);
 }
 
 export function escapeRegExp(s: string) {

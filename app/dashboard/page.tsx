@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { withBasePath } from "@/lib/base-path";
 import { loadHistory, loadSavedScans } from "@/lib/mockData";
 import type { HistoryEntry, SavedScan } from "@/lib/types";
 
@@ -269,7 +270,7 @@ export default function DashboardPage() {
   const riskMood = scoreTone(riskScore);
 
   useEffect(() => {
-    const worker = new Worker("/workers/advanced-tools-worker.js");
+    const worker = new Worker(withBasePath("/workers/advanced-tools-worker.js"));
     workerRef.current = worker;
 
     worker.onmessage = (event: MessageEvent<WorkerToolResponse>) => {

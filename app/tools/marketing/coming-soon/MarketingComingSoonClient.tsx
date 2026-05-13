@@ -42,13 +42,13 @@ export default function MarketingComingSoonClient() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/marketing-tools"
-              className="inline-flex items-center justify-center rounded-xl bg-cyan-500/90 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(6,182,212,0.22)] transition hover:bg-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
+              className="inline-flex items-center justify-center rounded-xl bg-cyan-500/90 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(6,182,212,0.22)] transition hover:bg-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
             >
               Back to Marketing Tools
             </Link>
             <Link
               href="/tools"
-              className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-white/85 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
+              className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-white/85 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
             >
               All tools
             </Link>

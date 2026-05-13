@@ -33,6 +33,7 @@ import {
   sanitizeSingleLineInput,
 } from "@/lib/input-sanitization";
 import { isValidIP } from "@/lib/validators";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Default result shapes used as fallbacks inside lookupAll when a promise
@@ -149,7 +150,7 @@ function defaultPorts(target: string): OpenPortsResult {
 // ---------------------------------------------------------------------------
 
 async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
-  const res = await fetch(url);
+  const res = await fetch(withBasePath(url));
   const json = await res.json();
   if (!res.ok) {
     throw new Error(json.error ?? `Lookup failed (${url}).`);
@@ -167,7 +168,7 @@ async function apiLookup<T>(url: string): Promise<{ data: T; mock: boolean }> {
 export async function lookupIP(ip: string): Promise<{ data: IPReputationResult; mock: boolean }> {
   const safeIP = sanitizeSingleLineInput(ip);
   const url = `/api/lookup/ip?ip=${encodeURIComponent(safeIP)}`;
-  const res = await fetch(url);
+  const res = await fetch(withBasePath(url));
   const json = await res.json();
   if (!res.ok) {
     throw new Error(json.error ?? `Lookup failed (${url}).`);
@@ -245,7 +246,7 @@ export function lookupThreatScore(target: string): Promise<{ data: DomainThreatS
 
 export async function analyseEmailHeaders(headers: string): Promise<{ data: EmailHeaderResult; mock: boolean }> {
   const safeHeaders = sanitizeMultilineInput(headers, { maxLength: 20000 });
-  const res = await fetch("/api/tools/email-headers", {
+  const res = await fetch(withBasePath("/api/tools/email-headers"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ headers: safeHeaders }),

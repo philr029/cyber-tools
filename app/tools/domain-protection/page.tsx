@@ -4,6 +4,7 @@ import { useState } from "react";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -246,7 +247,7 @@ export default function DomainProtectionPage() {
     setResult(null);
 
     try {
-      const res = await fetch("/api/tools/domain-protection", {
+      const res = await fetch(withBasePath("/api/tools/domain-protection"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ domain: trimmed }),

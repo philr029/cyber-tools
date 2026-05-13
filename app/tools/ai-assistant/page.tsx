@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import { sanitizeMultilineInput } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Types — mirror the shape returned by /api/ai
@@ -169,7 +170,7 @@ function AIAssistantContent() {
 
     try {
       // POST /api/ai — the API key never leaves the server
-      const res  = await fetch("/api/ai", {
+      const res  = await fetch(withBasePath("/api/ai"), {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ message: trimmed }),

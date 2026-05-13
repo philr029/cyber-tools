@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { VTURLResult } from "@/lib/types";
 import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 import Card from "@/app/components/ui/Card";
 import StatusBadge from "@/app/components/ui/StatusBadge";
 import { maliciousColor, AnalysisBar, StatItem, VTErrorMessage } from "@/app/components/ui/VTShared";
@@ -29,7 +30,7 @@ export default function VirusTotalURLCheck() {
     setResult(null);
 
     try {
-      const res = await fetch("/api/virustotal/url", {
+      const res = await fetch(withBasePath("/api/virustotal/url"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: safeUrl }),

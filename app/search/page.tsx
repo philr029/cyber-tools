@@ -28,23 +28,27 @@ const TYPE_LABELS: Record<SearchToolType | "all", string> = {
 };
 
 function highlight(text: string, query: string): ReactNode {
-  const q = query.trim();
-  if (!q) return text;
-  const parts = q.split(/\s+/).filter(Boolean);
-  if (!parts.length) return text;
-  const pattern = new RegExp(`(${parts.map(escapeRegExp).join("|")})`, "gi");
-  const segments = text.split(pattern);
-  return segments.map((seg, i) => {
-    const isHit = parts.some((p) => seg.toLowerCase() === p.toLowerCase());
-    if (isHit && seg) {
-      return (
-        <mark key={i} className="rounded bg-cyan-500/25 text-cyan-100 px-0.5">
-          {seg}
-        </mark>
-      );
-    }
-    return <span key={i}>{seg}</span>;
-  });
+  try {
+    const q = query.trim();
+    if (!q) return text;
+    const parts = q.split(/\s+/).filter(Boolean);
+    if (!parts.length) return text;
+    const pattern = new RegExp(`(${parts.map(escapeRegExp).join("|")})`, "gi");
+    const segments = text.split(pattern);
+    return segments.map((seg, i) => {
+      const isHit = parts.some((p) => seg.toLowerCase() === p.toLowerCase());
+      if (isHit && seg) {
+        return (
+          <mark key={i} className="rounded bg-cyan-500/25 text-cyan-100 px-0.5">
+            {seg}
+          </mark>
+        );
+      }
+      return <span key={i}>{seg}</span>;
+    });
+  } catch {
+    return text;
+  }
 }
 
 export default function SearchPage() {

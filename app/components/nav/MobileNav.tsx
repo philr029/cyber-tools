@@ -101,6 +101,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
 
   if (!mounted) return null;
   if (!open) return null;
+  if (typeof document === "undefined" || !document.body) return null;
 
   return createPortal(
     <>
@@ -110,7 +111,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
           than getting absorbed by floating widgets. The drawer itself uses
           z-[60] to stay above the overlay. */}
       <div
-        className={`lg:hidden fixed inset-0 z-[55] bg-black/55 backdrop-blur-md motion-safe:transition-opacity motion-safe:duration-200 motion-safe:ease-out ${
+        className={`lg:hidden fixed inset-0 z-[55] bg-[color-mix(in_srgb,var(--ss-page)_45%,#000)] backdrop-blur-md motion-safe:transition-opacity motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
@@ -127,8 +128,8 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
-        className={`lg:hidden fixed inset-x-0 top-14 z-[72] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-3xl border-x border-b border-[var(--ss-border)] glass-surface shadow-[0_24px_70px_rgba(0,0,0,0.45)] motion-safe:transition-[transform,opacity] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          open ? "translate-y-0 opacity-100" : "-translate-y-3 pointer-events-none opacity-0"
+        className={`lg:hidden fixed inset-x-0 top-14 z-[72] max-h-[calc(82dvh-3.5rem)] overflow-y-auto rounded-b-[1.35rem] border-x border-b border-[var(--ss-border)] glass-surface shadow-[0_20px_60px_rgba(0,0,0,0.38)] motion-safe:transition-[transform,opacity] motion-safe:duration-[220ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          open ? "translate-y-0 opacity-100" : "-translate-y-2 pointer-events-none opacity-0"
         }`}
       >
         <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--ss-border)]">

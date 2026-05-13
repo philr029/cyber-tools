@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { VTDomainResult } from "@/lib/types";
 import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 import Card from "@/app/components/ui/Card";
 import StatusBadge from "@/app/components/ui/StatusBadge";
 import { maliciousColor, AnalysisBar, StatItem, VTErrorMessage } from "@/app/components/ui/VTShared";
@@ -32,7 +33,7 @@ export default function VirusTotalDomainCheck() {
     setResult(null);
 
     try {
-      const res = await fetch(`/api/virustotal/domain?domain=${encodeURIComponent(safeDomain)}`);
+      const res = await fetch(withBasePath(`/api/virustotal/domain?domain=${encodeURIComponent(safeDomain)}`));
       const json = await res.json();
       if (!res.ok) {
         setError(json.error ?? "Request failed.");

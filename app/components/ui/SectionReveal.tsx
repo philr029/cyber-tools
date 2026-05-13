@@ -51,8 +51,8 @@ export default function SectionReveal({
   return (
     <div
       ref={ref}
-      className={`${className} motion-safe:transition-[opacity,transform] motion-safe:duration-500 motion-safe:ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 motion-reduce:translate-y-0 motion-reduce:opacity-100"
+      className={`${className} motion-safe:transition-[opacity,transform] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 motion-reduce:translate-y-0 motion-reduce:opacity-100"
       }`}
     >
       {children}

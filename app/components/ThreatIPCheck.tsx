@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ThreatIPResult, ThreatVerdict } from "@/lib/types";
 import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 import Card from "@/app/components/ui/Card";
 
 // ---------------------------------------------------------------------------
@@ -178,7 +179,7 @@ export default function ThreatIPCheck() {
     setResult(null);
 
     try {
-      const res = await fetch(`/api/threat/ip?ip=${encodeURIComponent(trimmed)}`);
+      const res = await fetch(withBasePath(`/api/threat/ip?ip=${encodeURIComponent(trimmed)}`));
       const json = await res.json();
       if (!res.ok) {
         setError((json as { error?: string }).error ?? "Request failed.");

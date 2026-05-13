@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -20,7 +21,7 @@ interface ToolResult {
 
 async function runDNS(query: string): Promise<ToolResult> {
   try {
-    const res = await fetch(`/api/lookup/dns?target=${encodeURIComponent(query)}`);
+    const res = await fetch(withBasePath(`/api/lookup/dns?target=${encodeURIComponent(query)}`));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json() as {
       records?: { type: string; value: string }[];
@@ -43,7 +44,7 @@ async function runHTTPStatus(query: string): Promise<ToolResult> {
   try {
     // Ensure it has a scheme
     const url = /^https?:\/\//i.test(query) ? query : `https://${query}`;
-    const res = await fetch(`/api/lookup/headers?target=${encodeURIComponent(url)}`);
+    const res = await fetch(withBasePath(`/api/lookup/headers?target=${encodeURIComponent(url)}`));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json() as {
       score?: number;
@@ -64,7 +65,7 @@ async function runHTTPStatus(query: string): Promise<ToolResult> {
 
 async function runGeo(query: string): Promise<ToolResult> {
   try {
-    const res = await fetch(`/api/lookup/geo?target=${encodeURIComponent(query)}`);
+    const res = await fetch(withBasePath(`/api/lookup/geo?target=${encodeURIComponent(query)}`));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json() as {
       country?: string;

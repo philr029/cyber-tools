@@ -5,6 +5,7 @@ import {
   sanitizeMultilineInput,
   sanitizeSingleLineInput,
 } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 
 interface AISummaryPanelProps {
   context: string;
@@ -35,7 +36,7 @@ export default function AISummaryPanel({ context, toolName }: AISummaryPanelProp
     const prompt = `You are a cybersecurity analyst. A user ran the "${safeToolName}" tool and got the following result:\n\n${safeContext}\n\nIn 3–5 short bullet points, explain:\n1. What the key findings mean in plain language\n2. The risk level and why\n3. What action (if any) the user should take\n\nBe direct and concise. Use "•" for bullets.`;
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch(withBasePath("/api/chat"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: prompt, history: [] }),

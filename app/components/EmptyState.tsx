@@ -13,9 +13,9 @@ interface Props {
 export default function EmptyState({ onExample }: Props) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in">
-      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 mb-5 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--ss-accent-soft)] border border-[color-mix(in_srgb,var(--ss-accent)_28%,transparent)] mb-6 shadow-[0_12px_40px_color-mix(in_srgb,var(--ss-accent)_12%,transparent)]">
         <svg
-          className="w-8 h-8 text-cyan-400"
+          className="w-8 h-8 text-[var(--ss-accent)]"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -29,8 +29,8 @@ export default function EmptyState({ onExample }: Props) {
           />
         </svg>
       </div>
-      <h2 className="text-base font-semibold text-slate-200 mb-1.5">Start a Lookup</h2>
-      <p className="text-sm text-slate-500 max-w-sm mb-7">
+      <h2 className="text-base font-semibold tracking-tight text-[var(--ss-text)] mb-1.5">Start a lookup</h2>
+      <p className="text-sm text-[var(--ss-text-secondary)] max-w-sm mb-8 leading-relaxed">
         Enter any IP address, domain, or URL above for a comprehensive security analysis.
       </p>
 
@@ -38,13 +38,14 @@ export default function EmptyState({ onExample }: Props) {
         {EXAMPLES.map((ex) => (
           <button
             key={ex.query}
+            type="button"
             onClick={() => onExample(ex.query)}
-            className="flex flex-col items-start gap-1 p-4 bg-[#0f1629] rounded-xl border border-[#1e2d4a] card-lift text-left group"
+            className="flex flex-col items-start gap-1 p-4 ss-card card-lift rounded-2xl text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]"
           >
-            <span className="text-sm font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">
+            <span className="text-sm font-semibold text-[var(--ss-text)] group-hover:text-[var(--ss-accent)] motion-safe:transition-colors">
               {ex.label}
             </span>
-            <span className="text-xs font-mono text-slate-500">{ex.query}</span>
+            <span className="text-xs font-mono text-[var(--ss-text-secondary)]">{ex.query}</span>
             <span className={`mt-1 text-xs font-medium px-2 py-0.5 rounded-full ${ex.badgeClass}`}>
               {ex.badge}
             </span>

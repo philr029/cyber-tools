@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { VTIPResult } from "@/lib/types";
 import { sanitizeSingleLineInput } from "@/lib/input-sanitization";
+import { withBasePath } from "@/lib/base-path";
 import Card from "@/app/components/ui/Card";
 import StatusBadge from "@/app/components/ui/StatusBadge";
 import { maliciousColor, AnalysisBar, StatItem, VTErrorMessage } from "@/app/components/ui/VTShared";
@@ -32,7 +33,7 @@ export default function VirusTotalIPCheck() {
     setResult(null);
 
     try {
-      const res = await fetch(`/api/virustotal/ip?ip=${encodeURIComponent(safeIP)}`);
+      const res = await fetch(withBasePath(`/api/virustotal/ip?ip=${encodeURIComponent(safeIP)}`));
       const json = await res.json();
       if (!res.ok) {
         setError(json.error ?? "Request failed.");

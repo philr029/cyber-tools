@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { LookupResult } from "@/lib/types";
+import { getAppBasePath } from "@/lib/base-path";
 
 function buildSummary(r: LookupResult): string {
   const lines: string[] = [
@@ -16,7 +17,11 @@ function buildSummary(r: LookupResult): string {
     `Security Headers: ${r.securityHeaders.grade} grade (${r.securityHeaders.score}/100)`,
     `Open Ports: ${r.openPorts.openCount} open`,
     ``,
-    `Run your own scan at: ${typeof window !== "undefined" ? window.location.origin : "https://securescope.io"}`,
+    `Run your own scan at: ${
+      typeof window !== "undefined"
+        ? `${window.location.origin}${getAppBasePath()}`
+        : (process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://securescope.io")
+    }`,
   ];
   return lines.join("\n");
 }

@@ -99,7 +99,7 @@ export default function HomeDashboard() {
     <div id="portfolio-toolkit" className="scroll-mt-28">
       <section className="mb-10">
         <SectionHeader eyebrow="Signal" title="Toolkit by the numbers" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {STATS.map((s) => (
             <article
               key={s.label}
@@ -118,12 +118,12 @@ export default function HomeDashboard() {
       <section className="mb-10">
         <SectionReveal>
           <SectionHeader eyebrow="Navigate" title="Organised hubs for every discipline" />
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {CATEGORIES.map((c) => (
               <Link
                 key={c.href}
                 href={c.href}
-                className="group ss-card card-lift relative overflow-hidden p-5 sm:p-6 motion-safe:transition-[transform,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-1"
+                className="group ss-card card-lift relative overflow-hidden p-5 sm:p-6 motion-safe:transition-[transform,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5"
               >
                 <div className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-br ${c.accent} opacity-55 blur-2xl pointer-events-none`} aria-hidden="true" />
                 <div className="relative">
@@ -152,7 +152,7 @@ export default function HomeDashboard() {
       <section className="mb-10">
         <SectionReveal>
           <SectionHeader eyebrow="Featured tools" title="Hand-picked modules to try first" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featuredToolsList(6).map((t) => (
               <UniversalToolCard
                 key={t.href}
@@ -174,7 +174,7 @@ export default function HomeDashboard() {
       <section className="mb-10">
         <SectionReveal>
           <SectionHeader eyebrow="Recently added" title="Fresh routes in the toolkit" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {recentlyAddedToolsList(6).map((t) => (
               <UniversalToolCard
                 key={t.href}
@@ -196,7 +196,7 @@ export default function HomeDashboard() {
       <section className="mb-10">
         <SectionReveal>
           <SectionHeader eyebrow="Most useful" title="High-frequency desk tools" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {mostUsefulToolsList(6).map((t) => (
               <UniversalToolCard
                 key={t.href}
