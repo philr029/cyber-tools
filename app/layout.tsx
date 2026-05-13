@@ -4,8 +4,10 @@ import { connection } from "next/server";
 import { headers } from "next/headers";
 import "./globals.css";
 import Header from "@/app/components/Header";
+import SiteFooter from "@/app/components/SiteFooter";
 import ChatWidget from "@/components/ai/ChatWidget";
 import { CookiebotHeadScript } from "@/components/consent/CookiebotHeadScript";
+import ConsentAwareAnalytics from "@/components/consent/ConsentAwareAnalytics";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/lib/toast-context";
 import { WorkspaceProvider } from "@/lib/workspace-context";
@@ -80,6 +82,8 @@ export default async function RootLayout({
                   <main id="main-content" className="flex flex-1 flex-col">
                     {children}
                   </main>
+                  <SiteFooter />
+                  <ConsentAwareAnalytics />
                   <ChatWidget />
                 </ThemeProvider>
               </NotificationsProvider>
