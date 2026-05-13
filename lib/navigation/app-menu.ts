@@ -30,6 +30,7 @@ export const PRIMARY_NAV_MENU: NavGroup[] = [
     maxFeaturedLinks: 8,
     links: [
       { href: "/", label: "Home", description: "Landing page, lookup hero, and highlights" },
+      { href: "/pricing", label: "Pricing", description: "Tiers, comparison table, and FAQ (demo)" },
       { href: "/dashboard", label: "Overview", description: "Signed-in workspace home" },
       { href: "/tools/browse", label: "Quick Launch", description: "Full toolkit grid with filters" },
       { href: "/dashboard/history", label: "Recent Tools", description: "Past scans and lookups" },

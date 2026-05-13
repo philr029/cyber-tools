@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { withBasePath } from "@/lib/base-path";
 import type { ReactNode } from "react";
 import type { ComponentType } from "react";
 import {
@@ -209,6 +210,12 @@ export default function HomeDashboard() {
               className="ss-pill ss-pill-primary btn-micro inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white"
             >
               Try the cyber tools
+            </Link>
+            <Link
+              href={withBasePath("/pricing")}
+              className="ss-pill ss-pill-ghost btn-micro inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
+            >
+              View pricing
             </Link>
             <Link
               href="/m365-tools"

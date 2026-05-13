@@ -10,6 +10,7 @@ import { SmartInsightsPanel } from "@/app/components/SmartInsightsPanel";
 import { useToast } from "@/lib/toast-context";
 import { useAuth } from "@/lib/auth-context";
 import { useDailyScans, FREE_DAILY_LIMIT } from "@/lib/use-daily-scans";
+import { withBasePath } from "@/lib/base-path";
 
 import SearchBar from "@/app/components/SearchBar";
 import EmptyState from "@/app/components/EmptyState";
@@ -25,6 +26,7 @@ import QuickToolsBar from "@/app/components/QuickToolsBar";
 import ToolPresets from "@/app/components/ToolPresets";
 import HomeDashboard from "@/app/components/HomeDashboard";
 import HomeFeatureStrip from "@/app/components/home/HomeFeatureStrip";
+import HomePricingSection from "@/app/components/home/HomePricingSection";
 import PremiumHero from "@/app/components/home/PremiumHero";
 import CommandCentreStats from "@/app/components/home/CommandCentreStats";
 import CertificatesShowcase from "@/app/components/trust/CertificatesShowcase";
@@ -206,6 +208,10 @@ export default function HomePage() {
 
       <HomeFeatureStrip />
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <HomePricingSection />
+      </div>
+
       {/* ── Trust strip ──────────────────────────────────────────── */}
       <section className="border-y border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_82%,transparent)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -246,11 +252,19 @@ export default function HomePage() {
         {/* VirusTotal Threat Checks */}
         <section className="mb-8">
           <div className="bg-[#0f1629] rounded-2xl border border-[#1e2d4a] px-6 py-6 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
-            <div className="mb-5">
-              <h2 className="text-base font-bold text-slate-200 mb-1">VirusTotal Threat Checks</h2>
-              <p className="text-sm text-slate-500">
-                Check IPs, domains, and URLs directly against VirusTotal&apos;s threat intelligence database.
-              </p>
+            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-200 mb-1">VirusTotal Threat Checks</h2>
+                <p className="text-sm text-slate-500">
+                  Check IPs, domains, and URLs directly against VirusTotal&apos;s threat intelligence database.
+                </p>
+              </div>
+              <Link
+                href={withBasePath("/pricing")}
+                className="shrink-0 rounded-xl border border-cyan-500/25 bg-cyan-500/10 px-3 py-2 text-center text-xs font-semibold text-cyan-200 hover:bg-cyan-500/15 motion-safe:transition-colors"
+              >
+                Team plans &amp; limits
+              </Link>
             </div>
 
             <div className="flex gap-2 mb-5" role="tablist" aria-label="VirusTotal check type">

@@ -13,6 +13,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import ToolPageLayout from "@/app/components/tools/ToolPageLayout";
+import PremiumToolPreviewBanner from "@/app/components/pricing/PremiumToolPreviewBanner";
 import MonitoringAdvancedSearch from "@/app/components/monitoring/MonitoringAdvancedSearch";
 import MonitoringTestCard from "@/app/components/monitoring/MonitoringTestCard";
 import type { HubSearchFilters, HubSortOption, HubTestType, HubSchedule, TestResult } from "@/lib/monitoring-hub/types";
@@ -331,6 +332,8 @@ export default function AutomatedMonitoringHubClient() {
       description="Server-side probes for phone paths, uptime, forms, DNS, and MXToolbox — secrets stay on the server (Vercel / Node). This module ships with in-memory demo storage and mock telephony until you connect Twilio and a database."
       isMock={null}
     >
+      <PremiumToolPreviewBanner toolLabel="Automated monitoring hub" />
+
       {showApiWarning ? (
         <div className="mb-6 rounded-2xl border border-amber-400/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
           <p className="font-semibold">Deployment notice</p>

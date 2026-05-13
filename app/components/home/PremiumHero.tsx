@@ -65,7 +65,7 @@ export default function PremiumHero({
               <Link href="/cyber-tools" className={ghost}>
                 Cyber toolkit
               </Link>
-              <Link href="/pricing" className={ghost}>
+              <Link href={withBasePath("/pricing")} className={ghost}>
                 Pricing
               </Link>
               <Link href="/forms" className={ghost}>

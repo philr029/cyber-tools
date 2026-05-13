@@ -5,6 +5,7 @@ import { runAgentPipeline } from "@/lib/core/orchestrator";
 import { saveLastScan } from "@/lib/core/stateManager";
 import { loadAgentLog, clearAgentLog } from "@/lib/ai-agents/loggingAgent";
 import AIAssistantPanel from "@/components/ai/AIAssistantPanel";
+import PremiumToolPreviewBanner from "@/app/components/pricing/PremiumToolPreviewBanner";
 import type {
   AgentProgress,
   AgentScanResult,
@@ -647,6 +648,8 @@ export default function AgentScanPage() {
           Multi-agent cyber intelligence pipeline — Think. Analyse. Act.
         </p>
       </div>
+
+      <PremiumToolPreviewBanner toolLabel="Agent scan pipeline" />
 
       {/* Mode toggle */}
       <div className="flex gap-2">
