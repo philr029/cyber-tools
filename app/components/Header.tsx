@@ -20,6 +20,7 @@ import MobileNav, { PRIMARY_MOBILE_NAV_ID } from "@/app/components/nav/MobileNav
 import SearchModal, { GLOBAL_SEARCH_DIALOG_ID, useSearchHotkey } from "@/app/components/search/SearchModal";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 import { TOP_BAR_LINKS } from "@/app/components/nav/nav-data";
+import { withBasePath } from "@/lib/base-path";
 
 export default function Header() {
   const pathname = usePathname();
@@ -92,7 +93,8 @@ export default function Header() {
   async function handleLogout() {
     await logout();
     toast("Signed out.", "info");
-    router.push("/");
+    router.refresh();
+    router.push(withBasePath("/"));
   }
 
   function topLinkClass(href: string, active?: boolean) {
@@ -190,9 +192,9 @@ export default function Header() {
             </button>
 
             <Link
-              href="/settings"
+              href={withBasePath("/settings")}
               className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)] ${
-                pathname === "/settings"
+                pathname === "/settings" || pathname.startsWith("/settings/")
                   ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
                   : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
               }`}
@@ -260,7 +262,7 @@ export default function Header() {
               (user ? (
                 <div className="hidden sm:flex items-center gap-2">
                   <Link
-                    href="/dashboard"
+                    href={withBasePath("/dashboard")}
                     className={`ss-pill flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold ${
                       pathname.startsWith("/dashboard")
                         ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
@@ -276,6 +278,16 @@ export default function Header() {
                     </svg>
                     Dashboard
                   </Link>
+                  <Link
+                    href={withBasePath("/account")}
+                    className={`ss-pill flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold ${
+                      pathname === "/account" || pathname.startsWith("/account/")
+                        ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
+                        : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
+                    }`}
+                  >
+                    Account
+                  </Link>
                   <button
                     type="button"
                     onClick={handleLogout}
@@ -287,13 +299,13 @@ export default function Header() {
               ) : (
                 <div className="hidden sm:flex items-center gap-2">
                   <Link
-                    href="/login"
+                    href={withBasePath("/login")}
                     className="ss-pill px-3 py-1.5 text-xs font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
                   >
                     Sign in
                   </Link>
                   <Link
-                    href="/signup"
+                    href={withBasePath("/signup")}
                     className="ss-pill ss-pill-primary px-3 py-1.5 text-xs font-semibold text-white"
                   >
                     Get started
@@ -343,10 +355,10 @@ export default function Header() {
           onOpenSearch={openSearchFromMobile}
           utilitySlot={
             <Link
-              href="/settings"
+              href={withBasePath("/settings")}
               onClick={() => setMobileOpen(false)}
               className={`block px-3 py-2 text-sm font-semibold rounded-xl transition-colors ${
-                pathname === "/settings"
+                pathname === "/settings" || pathname.startsWith("/settings/")
                   ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]"
                   : "text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
               }`}
@@ -359,11 +371,18 @@ export default function Header() {
               user ? (
                 <>
                   <Link
-                    href="/dashboard"
+                    href={withBasePath("/dashboard")}
                     onClick={() => setMobileOpen(false)}
                     className="block px-3 py-2 text-sm font-semibold rounded-xl text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
                   >
                     Dashboard
+                  </Link>
+                  <Link
+                    href={withBasePath("/account")}
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-sm font-semibold rounded-xl text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
+                  >
+                    Account
                   </Link>
                   <button
                     type="button"
@@ -379,14 +398,14 @@ export default function Header() {
               ) : (
                 <>
                   <Link
-                    href="/login"
+                    href={withBasePath("/login")}
                     onClick={() => setMobileOpen(false)}
                     className="block px-3 py-2 text-sm font-semibold rounded-xl text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] transition-colors"
                   >
                     Sign in
                   </Link>
                   <Link
-                    href="/signup"
+                    href={withBasePath("/signup")}
                     onClick={() => setMobileOpen(false)}
                     className="block px-3 py-2 text-sm font-semibold rounded-xl ss-pill-primary text-center text-white"
                   >

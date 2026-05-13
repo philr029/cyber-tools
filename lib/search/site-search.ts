@@ -53,6 +53,33 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     toolkitAreas: [],
   },
   {
+    title: "Forgot password",
+    description: "Request a secure password reset link (email in production, dev console locally).",
+    category: "Auth",
+    tags: ["password", "reset", "recovery", "login"],
+    url: "/forgot-password",
+    toolType: "auth",
+    toolkitAreas: [],
+  },
+  {
+    title: "Encrypted vault",
+    description: "Editors and admins: client-side encryption for browser scan history.",
+    category: "Dashboard",
+    tags: ["vault", "encryption", "localstorage", "aes", "pbkdf2"],
+    url: "/dashboard/vault",
+    toolType: "dashboard",
+    toolkitAreas: ["Cybersecurity"],
+  },
+  {
+    title: "User management",
+    description: "Admin-only directory, roles, and account status (demo in-memory store).",
+    category: "Administration",
+    tags: ["users", "rbac", "admin", "roles"],
+    url: "/dashboard/admin/users",
+    toolType: "dashboard",
+    toolkitAreas: [],
+  },
+  {
     title: "Create account",
     description: "Register for SecureScope workspace access.",
     category: "Auth",
@@ -60,6 +87,15 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     url: "/signup",
     toolType: "auth",
     toolkitAreas: [],
+  },
+  {
+    title: "Security checklist",
+    description: "HTTPS, API secrets, optional client-side encrypted history, security headers, forms, and storage guidance.",
+    category: "Resources",
+    tags: ["security", "csp", "hsts", "encryption", "headers", "compliance", "checklist"],
+    url: "/security",
+    toolType: "page",
+    toolkitAreas: ["Cybersecurity"],
   },
   {
     title: "Site search",
@@ -108,7 +144,10 @@ function slugifyTags(...parts: string[]): string[] {
 
 function inferToolType(href: string): SearchToolType {
   if (href.startsWith("/dashboard")) return "dashboard";
-  if (href.startsWith("/login") || href.startsWith("/signup")) return "auth";
+  if (href.startsWith("/login") || href.startsWith("/signup") || href.startsWith("/forgot-password") || href.startsWith("/reset-password")) {
+    return "auth";
+  }
+  if (href === "/security") return "page";
   if (href.startsWith("/resources") || href.startsWith("/projects/")) return "page";
   if (href === "/search") return "page";
   if (href.startsWith("/tools/marketing") || href === "/marketing-tools") return "marketing";
