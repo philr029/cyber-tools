@@ -20,8 +20,8 @@ SecureScope is a single self-contained Next.js 16 application (no database, no D
 
 - **Node.js 20+** is required (environment has v22).
 - **Package manager**: npm (lockfile: `package-lock.json`). Do not use pnpm or yarn.
-- **No `.env.local` required** to start — all tools return mock data without API keys. The auth system uses a hardcoded dev fallback for `SESSION_SECRET` and `PASSWORD_PEPPER`.
-- **In-memory user store** — user data resets on server restart. Register a new user via `POST /api/auth/signup` after each restart if needed.
+- **Supabase project** — create a project at [supabase.com](https://supabase.com), run SQL in `supabase/migrations/`, and set `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` (see `.env.example`). Auth is optional for local tool browsing but required for dashboard sessions.
+- **No service role key in the browser** — only the anon key is prefixed with `NEXT_PUBLIC_`. Keep `SUPABASE_SERVICE_ROLE_KEY` server-side only if you add privileged automation later.
 - The app uses **Next.js 16.2.3** with App Router. Consult `node_modules/next/dist/docs/` for API reference as this version has breaking changes from earlier Next.js versions.
 - **No automated test suite** exists (`npm test` is not configured). Validate changes via lint, build, and manual API/UI testing.
 - **Middleware** (`proxy.ts`) gates `/dashboard/*` routes behind authentication.

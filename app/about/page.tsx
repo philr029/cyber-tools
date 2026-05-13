@@ -10,7 +10,7 @@ const TECH = [
   { name: "Next.js 16", desc: "App Router, Server Actions, Proxy (middleware) for auth" },
   { name: "TypeScript", desc: "End-to-end type safety across API routes and components" },
   { name: "Tailwind CSS v4", desc: "Utility-first styling with dark-mode-first design" },
-  { name: "jose", desc: "RFC-compliant JWT signing and verification for session tokens" },
+  { name: "Supabase Auth", desc: "Email/password identity, PKCE email links, HttpOnly cookie sessions (@supabase/ssr)" },
   { name: "AbuseIPDB", desc: "IP reputation and abuse reports API" },
   { name: "VirusTotal", desc: "Multi-engine malware and domain reputation scanning" },
   { name: "SecurityTrails", desc: "DNS history and subdomain enumeration" },
@@ -27,12 +27,12 @@ const SECURITY_DECISIONS = [
   {
     title: "Session security",
     detail:
-      "Sessions use signed JWTs (HS256 via jose) stored in HttpOnly, SameSite=Lax cookies. The secret key is injected via SESSION_SECRET env var and never exposed client-side.",
+      "Authentication uses Supabase Auth with server-verified cookies (@supabase/ssr). Middleware calls getClaims() to validate the JWT before trusting identity. Only the public anon key is exposed to the browser — never the service role key.",
   },
   {
     title: "Password hashing",
     detail:
-      "Passwords are hashed with SHA-256 + random 16-byte salt + application pepper (PASSWORD_PEPPER env var). No external crypto dependencies needed.",
+      "Passwords are handled by Supabase Auth (hosted bcrypt/argon workflows). Application roles and profile fields live in Postgres under Row Level Security (see supabase/migrations).",
   },
   {
     title: "Input validation",

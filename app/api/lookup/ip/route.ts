@@ -16,7 +16,9 @@ export async function GET(request: NextRequest) {
   // default values and signal to the client that this is mock data so the
   // badge renders correctly instead of returning a 500 error.
   if (!result) {
-    console.log("[api/lookup/ip] no API key configured, returning mock fallback for", ip);
+    if (process.env.NODE_ENV === "development") {
+      console.log("[api/lookup/ip] no API key configured, returning mock fallback for", ip);
+    }
     return Response.json({
       mock: true,
       ip: ip.trim(),
