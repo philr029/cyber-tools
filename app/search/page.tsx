@@ -61,7 +61,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     const q = sp.get("q");
-    if (q != null) setQuery(q);
+    if (q != null) queueMicrotask(() => setQuery(q));
   }, [sp]);
 
   const results = useMemo(

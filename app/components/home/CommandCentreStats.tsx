@@ -10,7 +10,7 @@ function useReducedMotion() {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => setReduced(mq.matches);
-    sync();
+    queueMicrotask(() => sync());
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
@@ -21,22 +21,34 @@ function AnimatedValue({ value, reduced }: { value: number; reduced: boolean }) 
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    if (reduced) {
-      setDisplay(value);
-      return;
-    }
-    setDisplay(0);
-    const start = performance.now();
-    const duration = 900;
+    let cancelled = false;
     let raf = 0;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - (1 - t) * (1 - t);
-      setDisplay(Math.round(value * eased));
-      if (t < 1) raf = requestAnimationFrame(tick);
+    if (reduced) {
+      queueMicrotask(() => {
+        if (!cancelled) setDisplay(value);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setDisplay(0);
+      const start = performance.now();
+      const duration = 900;
+      const tick = (now: number) => {
+        if (cancelled) return;
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - (1 - t) * (1 - t);
+        setDisplay(Math.round(value * eased));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
   }, [value, reduced]);
 
   return <span>{display}</span>;

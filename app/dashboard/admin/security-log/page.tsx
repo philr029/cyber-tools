@@ -33,7 +33,7 @@ export default function AdminSecurityLogPage() {
   }, []);
 
   useEffect(() => {
-    void load();
+    queueMicrotask(() => void load());
   }, [load]);
 
   return (

@@ -15,7 +15,8 @@ export default function AccountPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (user?.name) setFullName(user.name);
+    if (!user?.name) return;
+    queueMicrotask(() => setFullName(user.name));
   }, [user?.name]);
 
   async function onSubmit(e: FormEvent) {

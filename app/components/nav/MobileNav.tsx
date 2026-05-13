@@ -46,7 +46,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
   // floating ChatWidget FAB), which prevents tap-to-close from firing.
   const [mounted, setMounted] = useState(false);
   useLayoutEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   // Close on Escape.

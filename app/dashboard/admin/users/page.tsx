@@ -45,7 +45,7 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
-    void load();
+    queueMicrotask(() => void load());
   }, [load]);
 
   async function patchUser(id: string, body: Record<string, string>) {

@@ -1067,12 +1067,25 @@ function CountToolPanel() {
   );
 }
 
+function escapeHtmlForPreview(s: string): string {
+  let out = "";
+  for (let i = 0; i < s.length; i += 1) {
+    const ch = s[i]!;
+    if (ch === "&") out += "&amp;";
+    else if (ch === "<") out += "&lt;";
+    else if (ch === ">") out += "&gt;";
+    else if (ch === '"') out += "&quot;";
+    else if (ch === "'") out += "&#39;";
+    else out += ch;
+  }
+  return out;
+}
+
 function simpleMdToHtml(md: string): string {
-  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return md
     .split("\n")
     .map((line) => {
-      const e = esc(line);
+      const e = escapeHtmlForPreview(line);
       const bolded = e.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
       if (/^###\s+/.test(line)) return `<h3 class="text-base font-semibold mt-3 mb-1">${bolded.replace(/^###\s+/, "")}</h3>`;
       if (/^##\s+/.test(line)) return `<h2 class="text-lg font-semibold mt-3 mb-1">${bolded.replace(/^##\s+/, "")}</h2>`;
@@ -1095,13 +1108,26 @@ function MarkdownPreviewPanel() {
   );
 }
 
-function stripScripts(html: string) {
-  return html.replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, "");
+function stripScripts(html: string): string {
+  let out = html;
+  let prev = "";
+  while (prev !== out) {
+    prev = out;
+    out = out.replace(/<\s*script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, "");
+    out = out.replace(/<\s*script\b[^>]*\/?\s*>/gi, "");
+  }
+  return out;
+}
+
+function sanitizeSrcDoc(html: string): string {
+  let out = stripScripts(html);
+  out = out.replace(/\son[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+  return out;
 }
 
 function HtmlPreviewPanel() {
   const [html, setHtml] = useState("<p>Hello <strong>world</strong></p>");
-  const safe = stripScripts(html);
+  const safe = sanitizeSrcDoc(html);
   return (
     <div className="space-y-3">
       <p className="text-xs text-[var(--ss-text-secondary)]">Scripts are stripped; preview uses a sandboxed iframe without script execution.</p>

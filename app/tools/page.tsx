@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { BracketsCurly, ClockCounterClockwise, FileMagnifyingGlass, GlobeHemisphereWest, UserCircle } from "@phosphor-icons/react";
 import type {
   DomainReputationResult,
@@ -336,7 +336,7 @@ function TypeBadge({ inputType }: { inputType: InputType }) {
 
 export default function ToolsPage() {
   const [input, setInput] = useState("");
-  const [inputType, setInputType] = useState<InputType>("unknown");
+  const inputType = useMemo(() => detectInputType(input), [input]);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<ScanResults | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -344,10 +344,6 @@ export default function ToolsPage() {
   const { entries, log } = useActivityConsole([
     { level: "info", message: "Security suite armed. Awaiting sanitized target input." },
   ]);
-
-  useEffect(() => {
-    setInputType(detectInputType(input));
-  }, [input]);
 
   useEffect(() => {
     const ta = textareaRef.current;

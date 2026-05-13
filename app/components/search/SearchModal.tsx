@@ -117,7 +117,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   const [portalReady, setPortalReady] = useState(false);
 
   useLayoutEffect(() => {
-    setPortalReady(true);
+    queueMicrotask(() => setPortalReady(true));
   }, []);
 
   useEffect(() => {
@@ -134,7 +134,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
   useEffect(() => {
     if (!open) {
-      setActiveIndex(-1);
+      queueMicrotask(() => setActiveIndex(-1));
     }
   }, [open]);
 
@@ -164,7 +164,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   }, [query, results, spotlight, filterBrowse, filtersActive]);
 
   useEffect(() => {
-    setActiveIndex(-1);
+    queueMicrotask(() => setActiveIndex(-1));
   }, [query, category, toolType, toolkitArea, filtersActive, keyboardTargets]);
 
   useEffect(() => {

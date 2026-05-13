@@ -251,10 +251,12 @@ export default function AIAssistantPanel({ result }: AIAssistantPanelProps) {
 
   // Re-initialise when the result changes (new scan)
   useEffect(() => {
-    setMessages([welcomeMsg()]);
-    setInput("");
-    setIsLoading(false);
-    setShowSuggestions(true);
+    queueMicrotask(() => {
+      setMessages([welcomeMsg()]);
+      setInput("");
+      setIsLoading(false);
+      setShowSuggestions(true);
+    });
   }, [result.logEntry.id, welcomeMsg]);
 
   useEffect(() => {

@@ -98,7 +98,7 @@ export default function AutomatedMonitoringHubClient() {
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [setSchedChoice]);
 
   const refreshHistory = useCallback(async () => {
     try {
@@ -114,7 +114,9 @@ export default function AutomatedMonitoringHubClient() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const host = window.location.hostname;
-    setStaticHost(host.endsWith(".github.io") || host.endsWith(".gitlab.io"));
+    queueMicrotask(() => {
+      setStaticHost(host.endsWith(".github.io") || host.endsWith(".gitlab.io"));
+    });
 
     void (async () => {
       try {

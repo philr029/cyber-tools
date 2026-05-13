@@ -27,7 +27,7 @@ export default function VaultPanel() {
   }, []);
 
   useEffect(() => {
-    refreshVaultUi();
+    queueMicrotask(() => refreshVaultUi());
     const onVault = () => refreshVaultUi();
     window.addEventListener("ss-vault-changed", onVault);
     return () => window.removeEventListener("ss-vault-changed", onVault);

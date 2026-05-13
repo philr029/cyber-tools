@@ -44,7 +44,10 @@ export default function PopupOrchestrator() {
   const firedForPath = useRef(false);
   const activeRef = useRef<PopupConfig | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  activeRef.current = active;
+
+  useEffect(() => {
+    activeRef.current = active;
+  }, [active]);
 
   const dismiss = useCallback((p: PopupConfig) => {
     setDismissed("popup", p.id, p.version);
@@ -53,10 +56,12 @@ export default function PopupOrchestrator() {
   }, []);
 
   useEffect(() => {
-    const prev = activeRef.current;
-    if (prev) setPopupLastShown(prev.id);
-    setActive(null);
-    firedForPath.current = false;
+    queueMicrotask(() => {
+      const prev = activeRef.current;
+      if (prev) setPopupLastShown(prev.id);
+      setActive(null);
+      firedForPath.current = false;
+    });
   }, [pathname]);
 
   useEffect(() => {

@@ -35,10 +35,12 @@ export function useDayToDayPrefs() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setFavourites(readJson<string[]>(KEY_FAV, []));
-    setPinned(readJson<string[]>(KEY_PIN, []));
-    setRecent(readJson<{ id: string; at: number }[]>(KEY_RECENT, []));
-    setReady(true);
+    queueMicrotask(() => {
+      setFavourites(readJson<string[]>(KEY_FAV, []));
+      setPinned(readJson<string[]>(KEY_PIN, []));
+      setRecent(readJson<{ id: string; at: number }[]>(KEY_RECENT, []));
+      setReady(true);
+    });
   }, []);
 
   const persistFav = useCallback((next: string[]) => {

@@ -12,7 +12,7 @@ export function useMarketingConsent(): boolean {
   }, []);
 
   useEffect(() => {
-    sync();
+    queueMicrotask(() => sync());
     window.addEventListener("CookiebotOnConsentReady", sync);
     window.addEventListener("CookiebotOnAccept", sync);
     window.addEventListener("CookiebotOnDecline", sync);

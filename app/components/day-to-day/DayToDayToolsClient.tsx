@@ -26,13 +26,15 @@ function DayToDayToolsInner() {
   const { ready, favSet, pinned, recent, toggleFavourite, togglePinned, recordOpened } = useDayToDayPrefs();
 
   useEffect(() => {
-    const tid = searchParams.get("t");
-    if (!tid) {
-      setOpenTool(null);
-      return;
-    }
-    const t = getDayToDayToolById(tid);
-    setOpenTool(t ?? null);
+    queueMicrotask(() => {
+      const tid = searchParams.get("t");
+      if (!tid) {
+        setOpenTool(null);
+        return;
+      }
+      const t = getDayToDayToolById(tid);
+      setOpenTool(t ?? null);
+    });
   }, [searchParams]);
 
   const filtered = useMemo(() => {

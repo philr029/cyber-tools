@@ -30,16 +30,18 @@ export default function LicencePlannerPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as { skus?: Sku[]; currency?: string };
-        if (parsed?.skus && Array.isArray(parsed.skus)) setSkus(parsed.skus);
-        if (parsed?.currency) setCurrency(parsed.currency);
+    queueMicrotask(() => {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as { skus?: Sku[]; currency?: string };
+          if (parsed?.skus && Array.isArray(parsed.skus)) setSkus(parsed.skus);
+          if (parsed?.currency) setCurrency(parsed.currency);
+        }
+      } catch {
+        /* ignore */
       }
-    } catch {
-      /* ignore */
-    }
+    });
   }, []);
 
   useEffect(() => {
