@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { DAY_TO_DAY_CATEGORIES, DAY_TO_DAY_TOOLS, getDayToDayToolById } from "@/lib/day-to-day-tools/catalog";
 import type { DayToDayCategoryId } from "@/lib/day-to-day-tools/types";
 import type { DayToDayToolDefinition, DayToDayToolLabel } from "@/lib/day-to-day-tools/types";
@@ -22,20 +22,12 @@ function DayToDayToolsInner() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | DayToDayCategoryId>("all");
   const [labelFilter, setLabelFilter] = useState<LabelFilter>("all");
-  const [openTool, setOpenTool] = useState<DayToDayToolDefinition | null>(null);
-  const { ready, favSet, pinned, recent, toggleFavourite, togglePinned, recordOpened } = useDayToDayPrefs();
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      const tid = searchParams.get("t");
-      if (!tid) {
-        setOpenTool(null);
-        return;
-      }
-      const t = getDayToDayToolById(tid);
-      setOpenTool(t ?? null);
-    });
+  const openTool = useMemo(() => {
+    const tid = searchParams.get("t");
+    if (!tid) return null;
+    return getDayToDayToolById(tid) ?? null;
   }, [searchParams]);
+  const { ready, favSet, pinned, recent, toggleFavourite, togglePinned, recordOpened } = useDayToDayPrefs();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -72,7 +64,6 @@ function DayToDayToolsInner() {
   const categoryOptions = useMemo(() => [{ id: "all" as const, label: "All" }, ...DAY_TO_DAY_CATEGORIES.map((c) => ({ id: c.id, label: c.label }))], []);
 
   function openModal(t: DayToDayToolDefinition) {
-    setOpenTool(t);
     recordOpened(t.id);
     const p = new URLSearchParams(searchParams.toString());
     p.set("t", t.id);
@@ -80,7 +71,6 @@ function DayToDayToolsInner() {
   }
 
   function closeModal() {
-    setOpenTool(null);
     const p = new URLSearchParams(searchParams.toString());
     p.delete("t");
     const qs = p.toString();
