@@ -116,6 +116,7 @@ export const PRIMARY_NAV_MENU: NavGroup[] = [
       { href: "/resources/ms-102", label: "MS-102", description: "Microsoft 365 administrator track" },
       { href: "/resources/security-plus", label: "Security+", description: "CompTIA Security+ quick map" },
       { href: "/resources/github-notes", label: "GitHub Notes", description: "Repo hygiene and Actions references" },
+      { href: "/security", label: "Security checklist", description: "HTTPS, secrets, encryption, headers, and storage" },
       { href: "/coding-tools", label: "Coding & AI hub", description: "Snippets, APIs, prompts, and repo tools" },
     ],
   },
