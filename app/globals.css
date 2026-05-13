@@ -646,6 +646,26 @@ pre,
   }
 }
 
+@keyframes ss-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ss-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .animate-search-backdrop {
   animation: search-backdrop-in 0.2s ease-out both;
 }
@@ -658,10 +678,20 @@ pre,
   animation: page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.animate-ss-modal-backdrop {
+  animation: ss-modal-backdrop-in 0.2s ease-out both;
+}
+
+.animate-ss-modal-panel {
+  animation: ss-modal-panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-search-backdrop,
   .animate-search-panel,
   .animate-page-enter,
+  .animate-ss-modal-backdrop,
+  .animate-ss-modal-panel,
   .animate-fade-in,
   .animate-fade-in-delay,
   .animate-fade-in-delay-2,
