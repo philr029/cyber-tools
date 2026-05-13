@@ -8,6 +8,7 @@ import {
 } from "@/lib/tools/site-catalog";
 import { MARKETING_TOOLS } from "@/lib/marketing-tools/catalog";
 import { SEARCH_INDEX_ICON_ENTRIES } from "@/lib/data/searchIndex";
+import { dayToDayHubSearchEntry, dayToDaySearchEntries } from "@/lib/day-to-day-tools/search-entries";
 
 export type SearchToolType = "hub" | "tool" | "page" | "dashboard" | "marketing" | "auth";
 
@@ -151,6 +152,7 @@ function inferToolType(href: string): SearchToolType {
   if (href.startsWith("/resources") || href.startsWith("/projects/")) return "page";
   if (href === "/search") return "page";
   if (href.startsWith("/tools/marketing") || href === "/marketing-tools") return "marketing";
+  if (href.startsWith("/day-to-day-tools")) return "page";
   if (
     href.endsWith("-tools") ||
     href === "/tools" ||
@@ -258,6 +260,11 @@ function buildIndex(): SiteSearchEntry[] {
       toolkitAreas: row.toolkitAreas ?? [],
       icon: row.icon,
     });
+  }
+
+  pushDeduped(map, dayToDayHubSearchEntry());
+  for (const row of dayToDaySearchEntries()) {
+    pushDeduped(map, row);
   }
 
   return [...map.values()];

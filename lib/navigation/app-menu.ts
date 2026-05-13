@@ -7,6 +7,11 @@ import type { NavGroup, NavLink } from "@/lib/tools/site-catalog";
 /** Minimal top bar: everything else lives under the Tools mega menu. */
 export const TOP_BAR_LINKS: NavLink[] = [
   { href: "/", label: "Home", description: "SecureScope landing and threat lookup" },
+  {
+    href: "/day-to-day-tools",
+    label: "Day-to-Day Tools",
+    description: "Planners, timers, office templates, trackers, and dev utilities in one hub",
+  },
 ];
 
 /**
