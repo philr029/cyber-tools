@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { withBasePath } from "@/lib/base-path";
-import { loadHistory, loadSavedScans } from "@/lib/mockData";
+import { loadHistory, loadSavedScans, hydrateHistory } from "@/lib/mockData";
 import type { HistoryEntry, SavedScan } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
@@ -220,7 +220,9 @@ const STATUS_DOT: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [history] = useState<HistoryEntry[]>(() => loadHistory());
+  const [history, setHistory] = useState<HistoryEntry[]>(() =>
+    typeof window === "undefined" ? [] : loadHistory(),
+  );
   const [saved] = useState<SavedScan[]>(() => loadSavedScans());
   const [toolResults, setToolResults] = useState<ToolResult[]>([]);
   const [toolLoading, setToolLoading] = useState<ToolKind | null>(null);
@@ -235,6 +237,13 @@ export default function DashboardPage() {
   ]);
   const workerRef = useRef<Worker | null>(null);
   const threatEventCounterRef = useRef(0);
+
+  useEffect(() => {
+    void hydrateHistory().then(setHistory);
+    const onVault = () => void hydrateHistory().then(setHistory);
+    window.addEventListener("ss-vault-changed", onVault);
+    return () => window.removeEventListener("ss-vault-changed", onVault);
+  }, []);
 
   const safe = history.filter((h) => h.overallStatus === "safe").length;
   const warning = history.filter((h) => h.overallStatus === "warning").length;

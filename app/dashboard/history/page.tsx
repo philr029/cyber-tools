@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { loadHistory, clearHistory } from "@/lib/mockData";
+import { loadHistory, clearHistory, hydrateHistory } from "@/lib/mockData";
 import type { HistoryEntry } from "@/lib/types";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -13,9 +13,18 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function HistoryPage() {
-  const [entries, setEntries] = useState<HistoryEntry[]>(() => loadHistory());
+  const [entries, setEntries] = useState<HistoryEntry[]>(() =>
+    typeof window === "undefined" ? [] : loadHistory(),
+  );
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "safe" | "warning" | "risk">("all");
+
+  useEffect(() => {
+    void hydrateHistory().then(setEntries);
+    const onVault = () => void hydrateHistory().then(setEntries);
+    window.addEventListener("ss-vault-changed", onVault);
+    return () => window.removeEventListener("ss-vault-changed", onVault);
+  }, []);
 
   const filtered = useMemo(() => {
     return entries.filter((e) => {
