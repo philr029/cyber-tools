@@ -6,6 +6,7 @@ import { readMarketingConsent } from "@/lib/cookiebot-consent";
 import { FORM_CONSENT_HINT, FORMS } from "@/lib/messaging/forms.config";
 import type { FormFieldConfig, FormId } from "@/lib/messaging/types";
 import { appFetch } from "@/lib/base-path";
+import { appendFormSubmission, lastSubmissionToCsv, submissionsToJson } from "@/lib/platform/form-submissions";
 import { useMarketingConsent } from "@/components/messaging/use-marketing-consent";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,6 +72,7 @@ export default function PlatformForm({
   const [consentMarketing, setConsentMarketing] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [globalError, setGlobalError] = useState<string | null>(null);
+  const [lastSnapshot, setLastSnapshot] = useState<Record<string, string> | null>(null);
 
   const reset = useCallback(() => {
     setValues({ ...initialValues });
@@ -79,6 +81,7 @@ export default function PlatformForm({
     setConsentMarketing(false);
     setStatus("idle");
     setGlobalError(null);
+    setLastSnapshot(null);
   }, [initialValues]);
 
   const onChange = (name: string, v: string) => {
@@ -145,6 +148,13 @@ export default function PlatformForm({
         setGlobalError(typeof data.error === "string" ? data.error : "Something went wrong. Please try again.");
         return;
       }
+      const snapshot: Record<string, string> = {};
+      for (const f of def.fields) {
+        if (f.type === "honeypot") continue;
+        snapshot[f.name] = values[f.name] ?? "";
+      }
+      appendFormSubmission(formId, snapshot);
+      setLastSnapshot(snapshot);
       setStatus("success");
       onSuccess?.();
     } catch {
@@ -154,6 +164,8 @@ export default function PlatformForm({
   };
 
   if (status === "success") {
+    const jsonBlob = submissionsToJson(formId);
+    const csv = lastSubmissionToCsv(formId);
     return (
       <div
         className={`rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-6 text-center ${compact ? "p-4" : ""}`}
@@ -161,9 +173,55 @@ export default function PlatformForm({
       >
         <p className="text-sm font-semibold text-emerald-200">Thank you</p>
         <p className="mt-2 text-sm text-[var(--ss-text-secondary)]">
-          Your message was received. If a mailbox is configured on the server, it will be forwarded; otherwise this
-          stays a demo acknowledgement.
+          Your message was received. If <code className="text-xs font-mono">FORM_WEBHOOK_URL</code> is set on the server,
+          it may forward; otherwise this stays a demo acknowledgement. A copy is archived in{" "}
+          <strong className="text-[var(--ss-text)]">localStorage</strong> for this browser.
         </p>
+        {/* Future: Resend, SendGrid, Microsoft Graph, Notion, Airtable, Supabase edge function, Vercel serverless */}
+        <div className="mt-4 flex flex-col sm:flex-row flex-wrap gap-2 justify-center">
+          <button
+            type="button"
+            onClick={() => {
+              if (!lastSnapshot) return;
+              void navigator.clipboard.writeText(JSON.stringify(lastSnapshot, null, 2));
+            }}
+            className="inline-flex rounded-xl border border-[var(--ss-border)] px-3 py-2 text-xs font-semibold text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
+          >
+            Copy last payload (JSON)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const blob = new Blob([jsonBlob], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `${formId}-archive.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="inline-flex rounded-xl border border-[var(--ss-border)] px-3 py-2 text-xs font-semibold text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
+          >
+            Download JSON archive
+          </button>
+          {csv ? (
+            <button
+              type="button"
+              onClick={() => {
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${formId}-last.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="inline-flex rounded-xl border border-[var(--ss-border)] px-3 py-2 text-xs font-semibold text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
+            >
+              Download last row (CSV)
+            </button>
+          ) : null}
+        </div>
         {!compact ? (
           <button
             type="button"

@@ -19,10 +19,12 @@ import {
   Megaphone,
   ShieldCheck,
   TreeStructure,
+  Wallet,
   type IconProps,
 } from "@phosphor-icons/react";
 import { NAV_GROUPS, type NavGroup } from "./nav-data";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
+import MegaMenuRecentStrip from "@/app/components/nav/MegaMenuRecentStrip";
 import { navGroupContainsPath, navLinkMatchesPath } from "@/lib/navigation/path-match";
 
 const GROUP_ICONS: Record<string, ComponentType<IconProps>> = {
@@ -32,6 +34,7 @@ const GROUP_ICONS: Record<string, ComponentType<IconProps>> = {
   Automation: GearSix,
   Security: ShieldCheck,
   Projects: Briefcase,
+  Finance: Wallet,
   Resources: BookOpen,
 };
 
@@ -42,6 +45,7 @@ const GROUP_ACCENTS: Record<string, string> = {
   Automation: "bg-amber-500/10 text-amber-300 ring-amber-500/20",
   Security: "bg-rose-500/10 text-rose-300 ring-rose-500/20",
   Projects: "bg-violet-500/10 text-violet-300 ring-violet-500/20",
+  Finance: "bg-lime-500/10 text-lime-200 ring-lime-500/20",
   Resources: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
 };
 
@@ -256,6 +260,7 @@ export default function MegaMenu({
             />
           ))}
         </div>
+        <MegaMenuRecentStrip onNavigate={handleLinkClick} menuOpen={open} />
         <div className="border-t border-[var(--ss-border)] px-6 sm:px-7 py-3.5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-xs bg-[color-mix(in_srgb,var(--ss-text)_2%,transparent)]">
           <span className="text-[var(--ss-text-secondary)] flex flex-wrap items-center gap-1">
             Press <SearchHotkeyText className="font-mono text-[var(--ss-text)]" /> for instant search, or{" "}
@@ -265,6 +270,14 @@ export default function MegaMenu({
             .
           </span>
           <div className="flex flex-wrap gap-3">
+            <Link
+              href="/docs"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-[var(--ss-accent)] hover:underline font-semibold transition-colors"
+            >
+              Help & docs
+            </Link>
             <Link
               href="/projects"
               data-mega-link

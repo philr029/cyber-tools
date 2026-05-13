@@ -184,7 +184,14 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                     ? pathname.startsWith("/dashboard")
                     : link.href === "/automation-tools"
                       ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
-                      : undefined
+                      : link.href === "/tools/browse"
+                        ? pathname.startsWith("/tools") ||
+                          pathname.endsWith("-tools") ||
+                          pathname === "/web-tools" ||
+                          pathname === "/marketing-tools"
+                        : link.href === "/docs"
+                          ? pathname.startsWith("/docs")
+                          : undefined
                 }
               >
                 {link.label}

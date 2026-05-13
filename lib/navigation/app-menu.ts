@@ -12,6 +12,10 @@ export const TOP_BAR_LINKS: NavLink[] = [
     label: "Day-to-Day Tools",
     description: "Planners, timers, office templates, trackers, and dev utilities in one hub",
   },
+  { href: "/tools/browse", label: "Toolkit", description: "Browse and filter the full catalog" },
+  { href: "/pricing", label: "Pricing", description: "Plans and roadmap placeholders" },
+  { href: "/docs", label: "Docs", description: "Help centre and deployment notes" },
+  { href: "/contact", label: "Contact", description: "Sales, access requests, and feedback" },
 ];
 
 /**
@@ -110,12 +114,26 @@ export const PRIMARY_NAV_MENU: NavGroup[] = [
     ],
   },
   {
+    label: "Finance",
+    index: "/business-tools",
+    tagline: "ROI, risk, reporting, and vendor workflows",
+    maxFeaturedLinks: 8,
+    links: [
+      { href: "/projects/finance-dashboard", label: "Finance dashboard", description: "Controls-aware automation framing" },
+      { href: "/tools/reporting/automation-roi", label: "Automation ROI", description: "Payback and time-saved math" },
+      { href: "/tools/business/risk-register", label: "Risk register", description: "Likelihood and impact grid" },
+      { href: "/tools/business/vendor-comparison", label: "Vendor comparison", description: "Side-by-side evaluation" },
+      { href: "/reporting-tools", label: "Reporting hub", description: "Monthly summaries and QA exports" },
+    ],
+  },
+  {
     label: "Resources",
     index: "/resources",
     tagline: "Docs, certs, and engineering references",
     maxFeaturedLinks: 10,
     links: [
-      { href: "/resources/documentation", label: "Documentation", description: "How SecureScope is structured" },
+      { href: "/docs", label: "Help & documentation", description: "Getting started, exports, deployment" },
+      { href: "/resources/documentation", label: "Technical documentation", description: "How SecureScope is structured" },
       { href: "/resources/runbooks", label: "Runbooks", description: "Operational response starters" },
       { href: "/resources/study-notes", label: "Study Notes", description: "Exam and interview prep index" },
       { href: "/resources/ms-102", label: "MS-102", description: "Microsoft 365 administrator track" },

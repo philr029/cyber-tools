@@ -34,14 +34,6 @@ function iconForTool(t: SiteTool) {
   return TAG_ICONS[t.categoryTag] ?? Package;
 }
 
-const STATS = [
-  { label: "Total tools", value: "90+", caption: "coding, IT admin, M365, cyber, web QA, automation, business, reporting" },
-  { label: "Coding tools", value: "10", caption: "snippets, regex, JSON, API, GH Actions, README, commit, bug, changelog, review" },
-  { label: "IT admin tools", value: "8", caption: "starter, leaver, mailbox, licence, access, triage, build, install" },
-  { label: "Security tools", value: "25+", caption: "M365, Defender, cyber, identity, network, endpoint and incident" },
-  { label: "API integrations planned", value: "8", caption: "VirusTotal, AbuseIPDB, Safe Browsing, HetrixTools, Graph, more" },
-];
-
 const CATEGORIES = [
   {
     href: "/it-admin-tools",
@@ -97,24 +89,6 @@ const CATEGORIES = [
 export default function HomeDashboard() {
   return (
     <div id="portfolio-toolkit" className="scroll-mt-28">
-      <section className="mb-10">
-        <SectionHeader eyebrow="Signal" title="Toolkit by the numbers" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {STATS.map((s) => (
-            <article
-              key={s.label}
-              className="ss-card card-lift rounded-2xl p-5 motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:-translate-y-0.5"
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--ss-text-secondary)]">{s.label}</p>
-              <p className="mt-3 text-3xl font-semibold tracking-tight bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] bg-clip-text text-transparent">
-                {s.value}
-              </p>
-              <p className="mt-2 text-xs leading-5 text-[var(--ss-text-secondary)]">{s.caption}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="mb-10">
         <SectionReveal>
           <SectionHeader eyebrow="Navigate" title="Organised hubs for every discipline" />

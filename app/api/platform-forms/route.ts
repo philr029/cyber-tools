@@ -2,6 +2,12 @@
  * Platform forms — POST JSON { formId, consentPrivacy, consentMarketing, fields }.
  * Server: honeypot, sanitization, optional IP rate limit, optional FORM_WEBHOOK_URL forward.
  * CSRF: this route is cookieless; if you add session auth later, issue CSRF tokens or SameSite=Lax POST patterns.
+ *
+ * Future integrations (server-side only — never expose secrets to the client):
+ * - Email: Resend, SendGrid, Postmark, Microsoft Graph sendMail
+ * - CRM / docs: Notion, Airtable, HubSpot
+ * - Data: Supabase insert with RLS, Vercel serverless, Netlify functions
+ * - Ticketing: Jira Service Management, Linear
  */
 
 import type { NextRequest } from "next/server";

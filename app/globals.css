@@ -315,6 +315,16 @@ html[data-theme="light"] .ss-ambient-glow {
     linear-gradient(180deg, var(--ss-page-2) 0%, var(--ss-page) 48%, #030306 100%);
 }
 
+/* Optional motion layer (disabled under prefers-reduced-motion below) */
+.hero-gradient-animated {
+  background-size: 200% 200%;
+  animation: gradient-shift 18s ease-in-out infinite;
+}
+
+html[data-theme="light"] .hero-gradient-animated {
+  animation: none;
+}
+
 /* ── Subtle grid background ─────────────────────────────────────── */
 .grid-bg {
   background-image:
@@ -710,7 +720,8 @@ pre,
   .animate-result-in,
   .animate-step-done,
   .animate-progress-fill,
-  .hero-gradient {
+  .hero-gradient,
+  .hero-gradient-animated {
     animation: none !important;
   }
 

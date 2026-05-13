@@ -25,6 +25,9 @@ import QuickToolsBar from "@/app/components/QuickToolsBar";
 import ToolPresets from "@/app/components/ToolPresets";
 import HomeDashboard from "@/app/components/HomeDashboard";
 import HomeFeatureStrip from "@/app/components/home/HomeFeatureStrip";
+import PremiumHero from "@/app/components/home/PremiumHero";
+import CommandCentreStats from "@/app/components/home/CommandCentreStats";
+import CertificatesShowcase from "@/app/components/trust/CertificatesShowcase";
 
 // ---------------------------------------------------------------------------
 // Error state
@@ -166,108 +169,37 @@ export default function HomePage() {
 
   return (
     <main className="flex-1">
-      {/* ── Hero Section ─────────────────────────────────────────── */}
-      <section className="relative hero-gradient grid-bg overflow-hidden">
-        <div className="absolute inset-0 ss-ambient-glow pointer-events-none" aria-hidden />
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[color-mix(in_srgb,var(--ss-page)_88%,transparent)]" aria-hidden />
+      <PremiumHero onTryDemoLookup={() => handleSearch("google.com")} />
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-24 sm:pb-16 lg:pt-28 lg:pb-20 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full border border-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)] bg-[var(--ss-accent-soft)] text-xs font-semibold text-[var(--ss-accent)] animate-fade-in">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--ss-accent)] animate-pulse" />
-            SecureScope workspace
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-6xl font-semibold text-[var(--ss-text)] leading-[1.08] tracking-tight mb-5 animate-fade-in-delay text-glow">
-            The calm control centre
-            <br className="hidden sm:block" />
-            <span className="bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] bg-clip-text text-transparent">
-              {" "}
-              for IT, security, and marketing
-            </span>
-          </h1>
-
-          <p className="text-base sm:text-lg text-[var(--ss-text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-delay">
-            SecureScope brings domain intelligence, web QA, automation planners, and monitoring-style checks into one fast,
-            glass-quiet surface — built to feel like a premium internal tools hub, not a noisy utility drawer.
-          </p>
-
-          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 mb-10 sm:mb-12 animate-fade-in-delay-2">
-            <Link
-              href="/tools/browse"
-              className="ss-pill ss-pill-primary btn-micro inline-flex items-center justify-center gap-2 px-7 py-3 text-sm shadow-lg shadow-cyan-500/10"
-            >
-              Explore tools
-            </Link>
-            <Link
-              href="/dashboard"
-              className="ss-pill ss-pill-ghost btn-micro inline-flex items-center justify-center gap-2 px-7 py-3 text-sm"
-            >
-              View dashboard
-            </Link>
-            <Link
-              href="/tools/automated-monitoring"
-              className="ss-pill ss-pill-ghost btn-micro inline-flex items-center justify-center gap-2 px-7 py-3 text-sm"
-            >
-              Run tests
-            </Link>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
-            <button
-              type="button"
-              onClick={() => {
-                document.getElementById("search-section")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--ss-accent)] hover:text-[color-mix(in_srgb,var(--ss-accent)_85%,#fff)] motion-safe:transition-colors"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
-              </svg>
-              Jump to threat lookup
-            </button>
-            <span className="hidden sm:inline text-[var(--ss-text-secondary)]">·</span>
-            <button
-              type="button"
-              onClick={() => handleSearch("google.com")}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] motion-safe:transition-colors"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm6.39-2.908a.75.75 0 01.766.027l3.5 2.25a.75.75 0 010 1.262l-3.5 2.25A.75.75 0 018 12.25v-4.5a.75.75 0 01.39-.658z" clipRule="evenodd" />
-              </svg>
-              Try a live demo lookup
-            </button>
-          </div>
-
-          <div id="search-section" className="max-w-2xl mx-auto animate-fade-in-delay-2">
-            <SearchBar onSearch={handleSearch} loading={loading} />
-            {user && user.plan === "free" && (
-              <div className="mt-3 flex items-center justify-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0d1321]/80 border border-[#1e2d4a] text-xs">
-                  <span className={scansToday >= FREE_DAILY_LIMIT ? "text-red-400" : "text-slate-400"}>
-                    {scansToday}/{FREE_DAILY_LIMIT} scans today
-                  </span>
-                  <span className="w-20 h-1.5 rounded-full bg-slate-700/60 overflow-hidden">
-                    <span
-                      className={`block h-full rounded-full transition-all duration-500 ${
-                        scansToday >= FREE_DAILY_LIMIT ? "bg-red-500" : "bg-cyan-500"
-                      }`}
-                      style={{ width: `${Math.min((scansToday / FREE_DAILY_LIMIT) * 100, 100)}%` }}
-                    />
-                  </span>
-                  {scansToday >= FREE_DAILY_LIMIT ? (
-                    <Link href="/pricing" className="text-cyan-400 hover:text-cyan-300 underline transition-colors">
-                      Upgrade to Pro
-                    </Link>
-                  ) : (
-                    <span className="text-slate-600">{FREE_DAILY_LIMIT - scansToday} remaining</span>
-                  )}
-                </div>
+      <section id="search-section" className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 -mt-8 sm:-mt-10 mb-6 scroll-mt-28">
+        <div className="rounded-2xl border border-[var(--ss-border-strong)] bg-[color-mix(in_srgb,var(--ss-elevated-solid)_88%,transparent)] p-4 sm:p-5 shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+          <SearchBar onSearch={handleSearch} loading={loading} />
+          {user && user.plan === "free" && (
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0d1321]/80 border border-[#1e2d4a] text-xs">
+                <span className={scansToday >= FREE_DAILY_LIMIT ? "text-red-400" : "text-slate-400"}>
+                  {scansToday}/{FREE_DAILY_LIMIT} scans today
+                </span>
+                <span className="w-20 h-1.5 rounded-full bg-slate-700/60 overflow-hidden">
+                  <span
+                    className={`block h-full rounded-full transition-all duration-500 ${
+                      scansToday >= FREE_DAILY_LIMIT ? "bg-red-500" : "bg-cyan-500"
+                    }`}
+                    style={{ width: `${Math.min((scansToday / FREE_DAILY_LIMIT) * 100, 100)}%` }}
+                  />
+                </span>
+                {scansToday >= FREE_DAILY_LIMIT ? (
+                  <Link href="/pricing" className="text-cyan-400 hover:text-cyan-300 underline transition-colors">
+                    Upgrade to Pro
+                  </Link>
+                ) : (
+                  <span className="text-slate-600">{FREE_DAILY_LIMIT - scansToday} remaining</span>
+                )}
               </div>
-            )}
-            {/* Preset buttons below search bar */}
-            <div className="mt-5">
-              <ToolPresets onSelect={handleSearch} />
             </div>
+          )}
+          <div className="mt-4">
+            <ToolPresets onSelect={handleSearch} />
           </div>
         </div>
       </section>
@@ -301,6 +233,8 @@ export default function HomePage() {
 
       {/* ── Main content ─────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <CommandCentreStats />
+        <CertificatesShowcase />
         {/* Dashboard overview: stats, categories, featured, why */}
         <HomeDashboard />
 

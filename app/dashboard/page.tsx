@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { withBasePath } from "@/lib/base-path";
 import { loadHistory, loadSavedScans, hydrateHistory } from "@/lib/mockData";
 import type { HistoryEntry, SavedScan } from "@/lib/types";
+import DashboardCommandHub from "@/app/components/dashboard/DashboardCommandHub";
 
 // ---------------------------------------------------------------------------
 // Stat card
@@ -366,6 +367,7 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
+      <DashboardCommandHub />
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
         <div>

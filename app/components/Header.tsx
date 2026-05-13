@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -20,6 +20,7 @@ import MobileNav, { PRIMARY_MOBILE_NAV_ID } from "@/app/components/nav/MobileNav
 import SearchModal, { GLOBAL_SEARCH_DIALOG_ID, useSearchHotkey } from "@/app/components/search/SearchModal";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 import { TOP_BAR_LINKS } from "@/app/components/nav/nav-data";
+import BrandLogo from "@/app/components/brand/BrandLogo";
 import { withBasePath } from "@/lib/base-path";
 
 export default function Header() {
@@ -30,8 +31,12 @@ export default function Header() {
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
   const mobileOpenRef = useRef(mobileOpen);
   const toolsMenuOpenRef = useRef(toolsMenuOpen);
-  mobileOpenRef.current = mobileOpen;
-  toolsMenuOpenRef.current = toolsMenuOpen;
+  useEffect(() => {
+    mobileOpenRef.current = mobileOpen;
+  }, [mobileOpen]);
+  useEffect(() => {
+    toolsMenuOpenRef.current = toolsMenuOpen;
+  }, [toolsMenuOpen]);
   const { user, loading, logout } = useAuth();
   const { toast } = useToast();
   const { theme, toggle: toggleTheme } = useTheme();
@@ -87,7 +92,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    setSearchOpen(false);
+    startTransition(() => setSearchOpen(false));
   }, [pathname]);
 
   async function handleLogout() {
@@ -98,15 +103,21 @@ export default function Header() {
   }
 
   function topLinkClass(href: string, active?: boolean) {
-    const isActive =
-      active ??
-      (href === "/"
-        ? pathname === "/"
-        : href === "/dashboard"
-          ? pathname.startsWith("/dashboard")
-          : href === "/automation-tools"
-            ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
-            : pathname === href);
+    let resolved = active;
+    if (resolved === undefined) {
+      if (href === "/") resolved = pathname === "/";
+      else if (href === "/dashboard") resolved = pathname.startsWith("/dashboard");
+      else if (href === "/automation-tools") resolved = pathname === "/automation-tools" || pathname.startsWith("/tools/automation");
+      else if (href === "/tools/browse") {
+        resolved =
+          pathname.startsWith("/tools") ||
+          pathname.endsWith("-tools") ||
+          pathname === "/web-tools" ||
+          pathname === "/marketing-tools";
+      } else if (href === "/docs") resolved = pathname.startsWith("/docs");
+      else resolved = pathname === href;
+    }
+    const isActive = Boolean(resolved);
     return `ss-pill px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)] ${
       isActive
         ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
@@ -120,18 +131,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between min-h-14 h-14 gap-3">
           <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 min-w-0 group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]">
-            <div className="flex items-center justify-center w-9 h-9 rounded-[0.85rem] bg-gradient-to-br from-[var(--ss-accent)] to-[var(--accent-blue)] shadow-[0_10px_28px_color-mix(in_srgb,var(--ss-accent)_32%,transparent)] motion-safe:transition-shadow motion-safe:duration-200 group-hover:shadow-[0_14px_36px_color-mix(in_srgb,var(--ss-accent)_40%,transparent)]">
-              <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path
-                  fillRule="evenodd"
-                  d="M9.661 2.237a.531.531 0 01.678 0 11.947 11.947 0 007.078 2.749.5.5 0 01.479.425c.069.52.104 1.05.104 1.589 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 01-.332 0C5.26 16.563 2 12.162 2 7a10.66 10.66 0 01.104-1.589.5.5 0 01.48-.425 11.947 11.947 0 007.077-2.749z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <span className="text-base sm:text-lg font-semibold text-[var(--ss-text)] tracking-tight truncate">
-              SecureScope
-            </span>
+            <BrandLogo />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0" aria-label="Main navigation">
@@ -153,9 +153,20 @@ export default function Header() {
                         ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
                           ? "page"
                           : undefined
-                        : pathname === link.href
-                          ? "page"
-                          : undefined
+                        : link.href === "/tools/browse"
+                          ? pathname.startsWith("/tools") ||
+                            pathname.endsWith("-tools") ||
+                            pathname === "/web-tools" ||
+                            pathname === "/marketing-tools"
+                            ? "page"
+                            : undefined
+                          : link.href === "/docs"
+                            ? pathname.startsWith("/docs")
+                              ? "page"
+                              : undefined
+                            : pathname === link.href
+                              ? "page"
+                              : undefined
                 }
               >
                 {link.label}
