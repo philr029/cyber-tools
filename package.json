@@ -11,11 +11,18 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@phosphor-icons/react": "^2.1.10",
-    "jose": "^6.2.2",
-    "next": "16.2.3",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
+    "jose": "^6.2.3",
+    "next": "^16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "twilio": "^6.0.1"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.10"
+    }
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
@@ -25,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "postcss": "^8.5.14",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
