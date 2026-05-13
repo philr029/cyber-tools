@@ -38,7 +38,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    setTheme(readStoredTheme());
+    queueMicrotask(() => setTheme(readStoredTheme()));
   }, []);
 
   // Sync the data-theme attribute on <html> whenever theme changes

@@ -60,6 +60,15 @@ const nextConfig: NextConfig = {
       algorithm: "sha256",
     },
   },
+  async redirects() {
+    return [
+      {
+        source: "/cookie-policy",
+        destination: "/cookies",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -46,7 +46,7 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
   // floating ChatWidget FAB), which prevents tap-to-close from firing.
   const [mounted, setMounted] = useState(false);
   useLayoutEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   // Close on Escape.
@@ -184,7 +184,16 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                     ? pathname.startsWith("/dashboard")
                     : link.href === "/automation-tools"
                       ? pathname === "/automation-tools" || pathname.startsWith("/tools/automation")
-                      : undefined
+                      : link.href === "/tools/browse"
+                        ? pathname.startsWith("/tools") ||
+                          pathname.endsWith("-tools") ||
+                          pathname === "/web-tools" ||
+                          pathname === "/marketing-tools"
+                        : link.href === "/docs"
+                          ? pathname.startsWith("/docs")
+                          : link.href === "/blog"
+                            ? pathname.startsWith("/blog")
+                            : undefined
                 }
               >
                 {link.label}
@@ -213,7 +222,14 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                         : "text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
                     }`}
                   >
-                    <span>{group.label}</span>
+                    <span>
+                      {group.emoji ? (
+                        <span className="mr-1.5" aria-hidden>
+                          {group.emoji}
+                        </span>
+                      ) : null}
+                      {group.label}
+                    </span>
                     <svg
                       className={`w-4 h-4 transition-transform duration-200 ${
                         isOpen ? "rotate-180" : ""

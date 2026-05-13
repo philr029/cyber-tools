@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { loadHistory, loadMonitors } from "@/lib/mockData";
+import { loadMonitors, hydrateHistory } from "@/lib/mockData";
 import { loadCases, loadActivity, loadPlaybooks } from "@/lib/enterprise-mock";
 import { useWorkspace } from "@/lib/workspace-context";
 import type { HistoryEntry } from "@/lib/types";
@@ -142,17 +142,19 @@ export default function MonitoringPage() {
 
   // Simulate "live" refreshes every 8 seconds
   useEffect(() => {
-    const initialRefreshId = window.setTimeout(() => {
-      setHistory(loadHistory());
-    }, 0);
+    const refresh = () => void hydrateHistory().then(setHistory);
+    const initialRefreshId = window.setTimeout(refresh, 0);
     const id = setInterval(() => {
       setNow(Date.now());
       setTick((v) => v + 1);
-      setHistory(loadHistory());
+      refresh();
     }, 8000);
+    const onVault = () => refresh();
+    window.addEventListener("ss-vault-changed", onVault);
     return () => {
       window.clearTimeout(initialRefreshId);
       clearInterval(id);
+      window.removeEventListener("ss-vault-changed", onVault);
     };
   }, []);
 

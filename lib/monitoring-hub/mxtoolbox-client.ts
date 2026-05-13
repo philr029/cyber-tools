@@ -1,7 +1,7 @@
 /**
  * MXToolbox Lookup API (server-side only).
  *
- * Configure `MXTOOLBOX_API_KEY` in Vercel / local `.env` — never expose this
+ * Configure `MX_TOOLBOX_API_KEY` (or alias `MXTOOLBOX_API_KEY`) in Vercel / local `.env` — never expose this
  * key to the browser. Authorization header is the raw UUID per MXToolbox docs.
  *
  * @see https://mxtoolbox.com/api/api-reference
@@ -31,14 +31,14 @@ export interface MxToolboxFailure {
 }
 
 export async function mxtoolboxLookup(command: string, argument: string): Promise<MxToolboxSuccess | MxToolboxFailure> {
-  const apiKey = process.env.MXTOOLBOX_API_KEY?.trim();
+  const apiKey = (process.env.MX_TOOLBOX_API_KEY ?? process.env.MXTOOLBOX_API_KEY)?.trim();
   if (!apiKey) {
     return {
       ok: false,
       httpStatus: 503,
       code: "MISSING_API_KEY",
       message:
-        "MXToolbox API key is not configured. Add MXTOOLBOX_API_KEY to your server environment (for example Vercel → Settings → Environment Variables).",
+        "MXToolbox API key is not configured. Add MX_TOOLBOX_API_KEY (or MXTOOLBOX_API_KEY) to your server environment (for example Vercel → Settings → Environment Variables).",
     };
   }
 

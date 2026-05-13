@@ -117,7 +117,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   const [portalReady, setPortalReady] = useState(false);
 
   useLayoutEffect(() => {
-    setPortalReady(true);
+    queueMicrotask(() => setPortalReady(true));
   }, []);
 
   useEffect(() => {
@@ -134,7 +134,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
   useEffect(() => {
     if (!open) {
-      setActiveIndex(-1);
+      queueMicrotask(() => setActiveIndex(-1));
     }
   }, [open]);
 
@@ -164,7 +164,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
   }, [query, results, spotlight, filterBrowse, filtersActive]);
 
   useEffect(() => {
-    setActiveIndex(-1);
+    queueMicrotask(() => setActiveIndex(-1));
   }, [query, category, toolType, toolkitArea, filtersActive, keyboardTargets]);
 
   useEffect(() => {
@@ -448,6 +448,20 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
                 Try a shorter keyword, switch category, or browse the full toolkit.
               </p>
               <div className="flex flex-wrap justify-center gap-2 pt-1">
+                <Link
+                  href="/pricing"
+                  onClick={() => handlePick("/pricing")}
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3.5 py-2 motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/blog"
+                  onClick={() => handlePick("/blog")}
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3.5 py-2 motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
+                >
+                  Blog
+                </Link>
                 <Link
                   href="/tools/browse"
                   onClick={() => handlePick("/tools/browse")}

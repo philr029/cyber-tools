@@ -6,6 +6,25 @@ Every tool works immediately — add API keys to get live results. Tools without
 
 **Deployment target: [Vercel](https://vercel.com)** — server-side API routes run as serverless functions. API keys stay on the server and are never exposed to the browser.
 
+## Authentication (this repo)
+
+This project uses **Supabase Auth** with **`@supabase/ssr`** for real server-backed sessions (not a static fake gate):
+
+- **Identity:** email/password, email confirmation, and password recovery links (PKCE) handled by Supabase.
+- **Sessions:** HttpOnly cookies managed by the Supabase client; **no passwords** and no long-lived tokens in `localStorage` for auth.
+- **Profiles & RBAC:** `public.profiles` stores `role` (`admin` | `editor` | `viewer`) and `disabled`. **Row Level Security** restricts reads/updates; **`proxy.ts`** enforces the same rules on navigation plus CSP.
+- **Keys:** only **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** are exposed to the browser. **Never** put the service role key in frontend code or `NEXT_PUBLIC_*`.
+
+See **README → Environment Variables** and **`supabase/migrations/`** for setup.
+
+## Cookie consent (Cookiebot CMP)
+
+This app is **Next.js 16 (App Router)**. Cookiebot is loaded from `app/layout.tsx` via `next/script` (`strategy="beforeInteractive"`) with **`data-blockingmode="auto"`**. The Domain Group ID is read from **`NEXT_PUBLIC_COOKIEBOT_DOMAIN_GROUP_ID`** (see `.env.example`). A global **Site footer** links to Privacy, Cookie Policy, Cookie Settings (`Cookiebot.renew()`), and Security.
+
+- **Cookie declaration:** `/cookies` (alias redirect from `/cookie-policy`).
+- **Optional GA4:** set `NEXT_PUBLIC_GA_MEASUREMENT_ID`; gtag loads only when `Cookiebot.consent.statistics` is true (`components/consent/ConsentAwareAnalytics.tsx`).
+- **CSP:** `proxy.ts` allows Cookiebot and (for statistics) Google tag hosts — see SECURITY.md for the classification table.
+
 ---
 
 ## Tools
@@ -31,6 +50,7 @@ Every tool works immediately — add API keys to get live results. Tools without
 - **[Next.js 16](https://nextjs.org/)** — App Router, Turbopack, server-side API routes
 - **[TypeScript](https://www.typescriptlang.org/)** — strict mode throughout
 - **[Tailwind CSS v4](https://tailwindcss.com/)** — `@tailwindcss/postcss`, no config file needed
+- **[Cookiebot](https://www.cookiebot.com/)** — CMP in `app/layout.tsx` (`data-blockingmode="auto"`), footer **Cookie Settings**, optional GA4 after statistics consent
 - Zero platform-specific dependencies — fully cross-platform (Windows 10/11 ✓, macOS Apple Silicon ✓, Linux ✓)
 
 ---
@@ -48,6 +68,11 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Security documentation
+
+- **In-app checklist:** open **`/security`** on your deployed site (for example `https://your-domain.example/security`) for HTTPS, secrets, headers, optional client-side encryption for scan history, and API hardening tips.
+- **Deploy & headers:** See [`SECURITY.md`](./SECURITY.md) in the repository for CSP, HSTS, session requirements, and rate-limiting recommendations.
 
 All `npm` scripts work in Command Prompt, PowerShell, and VS Code Terminal on Windows with no extra tooling.
 
@@ -116,8 +141,11 @@ Copy-Item .env.example .env.local
 
 | Variable | Provider | Used by |
 |---|---|---|
-| `SESSION_SECRET` | Generate with `openssl rand -hex 32` | JWT session signing — **required in production** |
-| `PASSWORD_PEPPER` | Generate with `openssl rand -hex 16` | Password hashing pepper — set before first user |
+| `NEXT_PUBLIC_SUPABASE_URL` | [Supabase](https://supabase.com) → Project Settings → API → **Project URL** | Browser + server Supabase clients |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → **anon public** key (safe to expose; RLS applies) | Browser + server Supabase clients |
+| `NEXT_PUBLIC_SITE_URL` | Your canonical site origin (e.g. `https://app.example.com`) | Optional; helps build absolute email `redirectTo` URLs in some deployments |
+| `NEXT_PUBLIC_COOKIEBOT_DOMAIN_GROUP_ID` | [Cookiebot](https://www.cookiebot.com/) → your domain group | **Cookie consent CMP** — public ID, safe as `NEXT_PUBLIC_*` |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 | Optional — loads **only** after Cookiebot **statistics** consent |
 | `NEXT_PUBLIC_STRIPE_PRO_LINK` | [Stripe Payment Links](https://dashboard.stripe.com/payment-links) | Pricing page "Upgrade to Pro" button |
 | `ABUSEIPDB_API_KEY` | [AbuseIPDB](https://www.abuseipdb.com/register) — free: 1,000/day | IP Reputation |
 | `VIRUSTOTAL_API_KEY` | [VirusTotal](https://www.virustotal.com/gui/join-us) — free: 500/day | Domain + URL Analysis |
@@ -126,11 +154,54 @@ Copy-Item .env.example .env.local
 | `SHODAN_API_KEY` | [Shodan](https://account.shodan.io/register) — membership required | Open Ports (dashboard) |
 | `TWILIO_ACCOUNT_SID` | [Twilio Console](https://console.twilio.com/) | Phone Test API (`/api/tools/phone-test`) |
 | `TWILIO_AUTH_TOKEN` | [Twilio Console](https://console.twilio.com/) | Phone Test API (`/api/tools/phone-test`) |
-| `TWILIO_FROM_NUMBER` | Twilio purchased/verified number in E.164 (e.g. `+15551234567`) | Phone Test API (`/api/tools/phone-test`) |
+| `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) | AI chat (`/api/chat`) and structured reports (`/api/ai`, `/api/tools/ai-report`) |
+| `OPENAI_API_KEY` | [OpenAI](https://platform.openai.com/) | Optional IP analysis enrichment (`/api/ip-analyse`) |
+
+### Supabase setup (authentication)
+
+1. Create a Supabase project and copy **Project URL** + **anon public** key into `.env.local` as `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+2. In the SQL editor (or CLI), run the files under **`supabase/migrations/`** (profiles table, RLS, triggers). Promote your first admin with:
+   `update public.profiles set role = 'admin' where id = '<your-auth-user-uuid>';`
+3. Under **Authentication → URL Configuration**, add redirect URLs for your environments, including:
+   - `http://localhost:3000/auth/callback` (and with `NEXT_PUBLIC_BASE_PATH` prefix if you use subpath hosting)
+   - Production `https://<your-domain>/auth/callback`
+4. (Optional) Run **`0002_profile_last_sign_in.sql`** to mirror `last_sign_in_at` into `profiles` for UI.
+5. Configure **SMTP** in Supabase for production password reset and signup emails.
+
+> **Never** add `SUPABASE_SERVICE_ROLE_KEY` to `NEXT_PUBLIC_*` or import it from client components. Use it only in trusted server automation if you add any.
+
+### Cookiebot setup (CMP)
+
+1. Create a **Cookiebot** account and domain group; copy the **Domain Group ID** into `.env.local` as `NEXT_PUBLIC_COOKIEBOT_DOMAIN_GROUP_ID` (same value replaces the `YOUR_COOKIEBOT_DOMAIN_GROUP_ID` placeholder in code comments).
+2. In Cookiebot → **Domains**, register your origins (e.g. `http://localhost:3000`, production `https://your-domain`).
+3. Enable **automatic cookie blocking** (matches `data-blockingmode="auto"` on the main script).
+4. In Cookiebot’s **Cookies** / classification UI, tag third-party scripts you add later (e.g. marketing pixels) as **marketing**, analytics as **statistics**, UI personalisation as **preferences**. Treat **Supabase Auth** session cookies and strictly necessary site cookies as **necessary** so login and protected routes keep working.
+5. Open the site in a private window: confirm the **banner** appears, **Reject** blocks non-essential scripts, **Accept** allows optional categories, and **Cookie Settings** in the footer calls `Cookiebot.renew()`.
+6. Use **Cookiebot → Reports → Rescan** after deployments so the scanner picks up new scripts or routes.
+7. **`/cookies`** embeds the declaration (`cd.js`). **`/privacy`** is a starter template — replace with your legal text.
 
 > **No key needed for:** WHOIS (IANA RDAP), Security Headers (live HEAD request), SSL (SSL Labs public API).
 
 After adding keys, restart the dev server: `npm run dev`
+
+### Manual testing checklist (authentication)
+
+1. **Sign up** a new user on `/signup` (confirm email if enabled in Supabase).
+2. **Sign in** on `/login` and confirm redirect to `/dashboard`.
+3. **Viewer:** confirm API-heavy tools and `/dashboard/saved` redirect per `proxy.ts`; dashboard shows `?denied=role` when applicable.
+4. **Promote roles** in Supabase SQL or via **Admin → Users** as an admin; refresh the app and confirm tool access updates.
+5. **Logout:** clears Supabase cookies; protected routes redirect to `/login`.
+6. **Forgot password:** `/forgot-password` → email link → `/auth/callback` → `/reset-password` → update password → sign in.
+7. **Account:** `/account` and `/account/security` show profile + session info.
+
+### Deployment checklist (auth)
+
+- [ ] Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel/host env.
+- [ ] Set `NEXT_PUBLIC_COOKIEBOT_DOMAIN_GROUP_ID` and verify Cookiebot domain whitelist + rescan after deploy.
+- [ ] Confirm production **redirect URLs** and **Site URL** in Supabase match your deployment.
+- [ ] Confirm the site is only served over **HTTPS** in production.
+- [ ] Configure **SMTP** in Supabase for transactional email.
+- [ ] Add **edge or Redis-backed** rate limits / CAPTCHA in front of auth if you expect abuse.
 
 ---
 
@@ -211,8 +282,9 @@ vercel
 
 | Variable | Required | Where to get it |
 |---|---|---|
-| `SESSION_SECRET` | **Yes** | `openssl rand -hex 32` |
-| `PASSWORD_PEPPER` | Recommended | `openssl rand -hex 16` |
+| `NEXT_PUBLIC_SUPABASE_URL` | **Yes** (for auth) | Supabase → Project Settings → API → Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | **Yes** (for auth) | Supabase → **anon public** key |
+| `NEXT_PUBLIC_COOKIEBOT_DOMAIN_GROUP_ID` | **Yes** (for CMP) | Cookiebot → Domain group → Domain Group ID |
 | `NEXT_PUBLIC_STRIPE_PRO_LINK` | For payments | [dashboard.stripe.com/payment-links](https://dashboard.stripe.com/payment-links) |
 | `ABUSEIPDB_API_KEY` | Optional | https://www.abuseipdb.com/register |
 | `VIRUSTOTAL_API_KEY` | Optional | https://www.virustotal.com/gui/join-us |
@@ -221,7 +293,8 @@ vercel
 | `SHODAN_API_KEY` | Optional | https://account.shodan.io/register |
 | `TWILIO_ACCOUNT_SID` | For phone test API | https://console.twilio.com/ |
 | `TWILIO_AUTH_TOKEN` | For phone test API | https://console.twilio.com/ |
-| `TWILIO_FROM_NUMBER` | For phone test API | Twilio Voice number in E.164 format |
+| `GEMINI_API_KEY` | Optional | https://aistudio.google.com/apikey |
+| `OPENAI_API_KEY` | Optional | https://platform.openai.com/ |
 
 All threat intelligence keys are optional — tools without a key show a **Not configured** badge instead of an error.
 
@@ -311,27 +384,25 @@ fnm use 20
 
 ## Backend Roadmap
 
-The current MVP uses an in-memory user store and localStorage for scan history. Here is the upgrade path to a production backend:
+Identity is handled by **Supabase Auth** with **`public.profiles`** (see `supabase/migrations/`). Remaining MVP gaps are mostly **durable scan history** and **billing webhooks**:
 
-### Phase 1 — Persistent database (Supabase / Postgres)
+### Phase 1 — Persistent scan history (Postgres)
 
 | Current (MVP) | Production |
 |---|---|
-| `lib/users.ts` — in-memory `Map` | Supabase `users` table + Prisma ORM |
-| localStorage scan history | `scans` table keyed by `user_id` |
+| localStorage scan history | `scans` table keyed by `user_id` + RLS |
 | localStorage saved scans | `saved_scans` table |
 | No usage tracking server-side | `daily_usage` table with RLS |
 
 Steps:
-1. Create a Supabase project and copy the `DATABASE_URL` + `SUPABASE_KEY` env vars
-2. Add Prisma (`npm install prisma @prisma/client`) and define `User`, `Scan`, `SavedScan` models
-3. Replace `getUserByEmail` / `createUser` in `lib/users.ts` with Prisma queries
-4. Replace `loadHistory` / `saveToHistory` in `lib/mockData.ts` with API calls to new `/api/history` routes
+1. Reuse the existing Supabase project (or add Prisma if you prefer an ORM layer).
+2. Replace `loadHistory` / `saveToHistory` in `lib/mockData.ts` with API calls to new `/api/history` routes backed by Postgres.
+3. Tie rows to `auth.users.id` / `profiles.id` for per-user isolation.
 
 ### Phase 2 — Stripe webhooks (automated plan upgrades)
 
 1. Add a Stripe webhook endpoint at `app/api/webhooks/stripe/route.ts`
-2. Listen for `checkout.session.completed` → update `user.plan = "pro"` in the database
+2. Listen for `checkout.session.completed` → update `profiles.plan = "pro"` for the matching user id
 3. Listen for `customer.subscription.deleted` → downgrade back to `"free"`
 4. Add `STRIPE_WEBHOOK_SECRET` env var (from Stripe dashboard → Webhooks)
 

@@ -1,32 +1,16 @@
 "use client";
 
-const STRIPE_LINK = process.env.NEXT_PUBLIC_STRIPE_PRO_LINK ?? "";
+import Link from "next/link";
+import { withBasePath } from "@/lib/base-path";
 
+/** Placeholder upgrade control — routes to pricing until server-side checkout exists. */
 export default function ProUpgradeButton() {
-  if (STRIPE_LINK) {
-    return (
-      <a
-        href={STRIPE_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block text-center py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-colors"
-      >
-        Upgrade to Pro
-      </a>
-    );
-  }
-
   return (
-    <>
-      <button
-        type="button"
-        className="block w-full text-center py-2.5 px-4 rounded-xl bg-cyan-600 text-white text-sm font-medium cursor-not-allowed opacity-60"
-        disabled
-        title="Stripe not yet configured"
-      >
-        Coming soon
-      </button>
-      <p className="text-center text-xs text-slate-600 mt-2">Payments not yet enabled</p>
-    </>
+    <Link
+      href={withBasePath("/pricing")}
+      className="block w-full rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-cyan-900/25 motion-safe:transition-[transform,opacity] motion-safe:hover:opacity-95"
+    >
+      Compare plans
+    </Link>
   );
 }

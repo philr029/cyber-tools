@@ -83,7 +83,9 @@ export async function generateChatReply(
 ): Promise<string> {
   const client = getClient();
 
-  console.log("[gemini] generateChatReply — model:", CHAT_MODEL, "| history length:", history.length);
+  if (process.env.NODE_ENV === "development") {
+    console.log("[gemini] generateChatReply — model:", CHAT_MODEL, "| history length:", history.length);
+  }
 
   const model = client.getGenerativeModel({
     model: CHAT_MODEL,
@@ -109,7 +111,9 @@ export async function generateChatReply(
     throw new Error("Gemini returned an empty response.");
   }
 
-  console.log("[gemini] generateChatReply — response length:", text.length);
+  if (process.env.NODE_ENV === "development") {
+    console.log("[gemini] generateChatReply — response length:", text.length);
+  }
   return text;
 }
 

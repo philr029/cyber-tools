@@ -1,4 +1,5 @@
 import { TOP_BAR_LINKS } from "@/lib/navigation/app-menu";
+import { BLOG_POSTS } from "@/lib/blog/posts";
 import {
   uniqueSiteTools,
   SITE_SEARCH_TOOLKIT_FILTERS,
@@ -8,6 +9,7 @@ import {
 } from "@/lib/tools/site-catalog";
 import { MARKETING_TOOLS } from "@/lib/marketing-tools/catalog";
 import { SEARCH_INDEX_ICON_ENTRIES } from "@/lib/data/searchIndex";
+import { dayToDayHubSearchEntry, dayToDaySearchEntries } from "@/lib/day-to-day-tools/search-entries";
 
 export type SearchToolType = "hub" | "tool" | "page" | "dashboard" | "marketing" | "auth";
 
@@ -107,6 +109,15 @@ const SUPPLEMENT: SiteSearchEntry[] = [
     toolkitAreas: ["IT tools"],
   },
   {
+    title: "Pricing & plans",
+    description: "Free, Pro, and Business tier cards with comparison table (demo copy).",
+    category: "Product",
+    tags: ["pricing", "plans", "upgrade", "billing", "pro", "business", "tiers"],
+    url: "/pricing",
+    toolType: "page",
+    toolkitAreas: [],
+  },
+  {
     title: "Toolkit roadmap",
     description: "Coming-soon and preview modules from the security suite grid.",
     category: "Tools",
@@ -129,6 +140,8 @@ const POPULAR_HREFS = [
   "/web-tools",
   "/search",
   "/resources",
+  "/pricing",
+  "/blog",
 ];
 
 function slugifyTags(...parts: string[]): string[] {
@@ -147,10 +160,12 @@ function inferToolType(href: string): SearchToolType {
   if (href.startsWith("/login") || href.startsWith("/signup") || href.startsWith("/forgot-password") || href.startsWith("/reset-password")) {
     return "auth";
   }
+  if (href.startsWith("/blog")) return "page";
   if (href === "/security") return "page";
   if (href.startsWith("/resources") || href.startsWith("/projects/")) return "page";
   if (href === "/search") return "page";
   if (href.startsWith("/tools/marketing") || href === "/marketing-tools") return "marketing";
+  if (href.startsWith("/day-to-day-tools")) return "page";
   if (
     href.endsWith("-tools") ||
     href === "/tools" ||
@@ -257,6 +272,33 @@ function buildIndex(): SiteSearchEntry[] {
       toolType: inferToolType(row.url),
       toolkitAreas: row.toolkitAreas ?? [],
       icon: row.icon,
+    });
+  }
+
+  pushDeduped(map, dayToDayHubSearchEntry());
+  for (const row of dayToDaySearchEntries()) {
+    pushDeduped(map, row);
+  }
+
+  pushDeduped(map, {
+    title: "Blog",
+    description: "Articles on security, DNS, automation, Microsoft 365, and building this toolkit.",
+    category: "Blog",
+    tags: slugifyTags("blog", "articles", "news", "writing"),
+    url: "/blog",
+    toolType: "page",
+    toolkitAreas: [],
+  });
+
+  for (const post of BLOG_POSTS) {
+    pushDeduped(map, {
+      title: post.title,
+      description: post.excerpt,
+      category: "Blog",
+      tags: slugifyTags(post.title, post.excerpt, post.category, post.slug, "blog"),
+      url: `/blog/${post.slug}`,
+      toolType: "page",
+      toolkitAreas: [],
     });
   }
 

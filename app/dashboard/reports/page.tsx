@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { loadHistory, loadSavedScans } from "@/lib/mockData";
+import { useState, useEffect } from "react";
+import { loadHistory, loadSavedScans, hydrateHistory } from "@/lib/mockData";
 import { loadCases } from "@/lib/enterprise-mock";
 import { useWorkspace } from "@/lib/workspace-context";
 import type { HistoryEntry, SavedScan } from "@/lib/types";
@@ -148,8 +148,17 @@ function ReportCard({
 
 export default function ReportsPage() {
   const { activeWorkspace } = useWorkspace();
-  const [history] = useState<HistoryEntry[]>(() => loadHistory());
+  const [history, setHistory] = useState<HistoryEntry[]>(() =>
+    typeof window === "undefined" ? [] : loadHistory(),
+  );
   const [saved] = useState<SavedScan[]>(() => loadSavedScans());
+
+  useEffect(() => {
+    void hydrateHistory().then(setHistory);
+    const onVault = () => void hydrateHistory().then(setHistory);
+    window.addEventListener("ss-vault-changed", onVault);
+    return () => window.removeEventListener("ss-vault-changed", onVault);
+  }, []);
 
   const cases = loadCases().filter((c) => c.workspaceId === activeWorkspace?.id);
 
@@ -391,7 +400,7 @@ export default function ReportsPage() {
           {[
             { method: "POST", path: "/api/lookup/ip", desc: "Run an IP reputation scan" },
             { method: "POST", path: "/api/lookup/domain", desc: "Run a domain reputation scan" },
-            { method: "GET", path: "/api/auth/me", desc: "Verify API authentication" },
+            { method: "GET", path: "/api/admin/users", desc: "Admin-only directory (Supabase profiles + RLS)" },
             { method: "POST", path: "/api/tools/threat-score", desc: "Get full domain threat score" },
           ].map(({ method, path, desc }) => (
             <div key={path} className="flex items-center gap-3 p-2.5 rounded-xl bg-[#131929] border border-[#1e2d4a]">

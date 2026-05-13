@@ -17,6 +17,10 @@ export interface NavGroup {
   tagline?: string;
   links: NavLink[];
   maxFeaturedLinks?: number;
+  /** Shown beside the category title in mega menu / mobile nav */
+  emoji?: string;
+  /** Stable key for Phosphor icon mapping in MegaMenu */
+  iconKey?: string;
 }
 
 /** Canonical mega-menu / search category labels (8 groups). */

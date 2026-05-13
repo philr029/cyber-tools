@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 export default function SearchHotkeyText({ className = "" }: { className?: string }) {
   const [mac, setMac] = useState<boolean | null>(null);
   useEffect(() => {
-    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-    setMac(/Macintosh|Mac OS X|iPhone|iPad|iPod/i.test(ua));
+    queueMicrotask(() => {
+      const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+      setMac(/Macintosh|Mac OS X|iPhone|iPad|iPod/i.test(ua));
+    });
   }, []);
   if (mac === null) {
     return <span className={className}>Ctrl+K</span>;

@@ -12,6 +12,7 @@
  */
 import type { NextRequest } from "next/server";
 import type { ChatRequest } from "@/types/chat";
+import { publicErrorMessage } from "@/lib/security/safe-error";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
@@ -19,14 +20,15 @@ const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models
 /** Maximum user message length accepted by this route */
 const MAX_MESSAGE_LENGTH = 4000;
 
+const isDev = process.env.NODE_ENV === "development";
+
 export async function POST(request: NextRequest) {
-  console.log("Chat route hit");
-
   const apiKey = process.env.GEMINI_API_KEY;
-  console.log("API key exists:", !!apiKey);
-
   if (!apiKey) {
-    return Response.json({ error: "Missing GEMINI_API_KEY" }, { status: 503 });
+    return Response.json(
+      { error: isDev ? "Missing GEMINI_API_KEY" : "Service unavailable." },
+      { status: 503 },
+    );
   }
 
   let body: ChatRequest;
@@ -37,7 +39,6 @@ export async function POST(request: NextRequest) {
   }
 
   const userMessage = (body.message ?? "").trim();
-  console.log("Message received:", userMessage.substring(0, 100));
 
   if (!userMessage) {
     return Response.json({ error: "Missing message" }, { status: 400 });
@@ -46,11 +47,14 @@ export async function POST(request: NextRequest) {
   if (userMessage.length > MAX_MESSAGE_LENGTH) {
     return Response.json(
       { error: "Message exceeds the maximum allowed length." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
-  // Build conversation turns from history, then append the new user message
+  if (isDev) {
+    console.log("[api/chat] message length:", userMessage.length, "history:", (body.history ?? []).length);
+  }
+
   type GeminiPart = { text: string };
   type GeminiTurn = { role: "user" | "model"; parts: GeminiPart[] };
 
@@ -63,12 +67,6 @@ export async function POST(request: NextRequest) {
   ];
 
   try {
-    console.log(
-      "[api/chat] Calling Gemini — model:", GEMINI_MODEL,
-      "| message length:", userMessage.length,
-      "| history turns:", (body.history ?? []).length,
-    );
-
     const geminiRes = await fetch(GEMINI_ENDPOINT, {
       method: "POST",
       headers: {
@@ -78,31 +76,49 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ contents }),
     });
 
-    const data = await geminiRes.json();
-    console.log("Gemini raw response:", JSON.stringify(data).substring(0, 500));
+    const data: unknown = await geminiRes.json();
 
     if (!geminiRes.ok) {
-      const details = data?.error?.message ?? geminiRes.statusText;
-      console.error("[api/chat] Gemini HTTP error:", geminiRes.status, details);
-      return Response.json({ error: "Gemini failed", details }, { status: 502 });
-    }
-
-    const reply: string | undefined =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!reply) {
-      console.error("[api/chat] Gemini returned no text. Full response:", JSON.stringify(data));
+      const errObj = data as { error?: { message?: string } };
+      const details = errObj?.error?.message ?? geminiRes.statusText;
+      if (isDev) {
+        console.error("[api/chat] Gemini HTTP error:", geminiRes.status, details);
+      }
       return Response.json(
-        { error: "Gemini failed", details: "Empty response from model." },
+        {
+          error: publicErrorMessage(new Error(String(details)), "The assistant is temporarily unavailable."),
+          ...(isDev ? { details: String(details) } : {}),
+        },
         { status: 502 },
       );
     }
 
-    console.log("[api/chat] Reply generated — length:", reply.length);
+    const parsed = data as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const reply: string | undefined = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!reply) {
+      if (isDev) {
+        console.error("[api/chat] Gemini returned no text.");
+      }
+      return Response.json(
+        { error: "The assistant is temporarily unavailable." },
+        { status: 502 },
+      );
+    }
+
+    if (isDev) {
+      console.log("[api/chat] reply length:", reply.length);
+    }
     return Response.json({ reply });
   } catch (err) {
-    const details = err instanceof Error ? err.message : String(err);
-    console.error("[api/chat] Server error:", details, err);
-    return Response.json({ error: "Gemini failed", details }, { status: 502 });
+    if (isDev) {
+      console.error("[api/chat] Server error:", err);
+    }
+    return Response.json(
+      { error: publicErrorMessage(err, "The assistant is temporarily unavailable.") },
+      { status: 502 },
+    );
   }
 }

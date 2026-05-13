@@ -5,6 +5,7 @@ import Link from "next/link";
 import MockDataBanner from "@/app/components/ui/MockDataBanner";
 import LiveActivityConsole from "@/app/components/tools/LiveActivityConsole";
 import SecuritySignals from "@/app/components/tools/SecuritySignals";
+import ToolPricingTeaser from "@/app/components/tools/ToolPricingTeaser";
 import type { ActivityEntry } from "@/lib/use-activity-console";
 
 interface ToolPageLayoutProps {
@@ -65,6 +66,8 @@ export default function ToolPageLayout({
               </div>
             </div>
           </div>
+
+          <ToolPricingTeaser />
 
           {children}
           {activityEntries ? <LiveActivityConsole entries={activityEntries} /> : null}

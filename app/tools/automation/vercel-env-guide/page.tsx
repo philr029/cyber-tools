@@ -11,7 +11,18 @@ interface EnvVar {
 }
 
 const DEFAULT: EnvVar[] = [
-  { id: "e1", key: "SESSION_SECRET", scope: "all", notes: "32+ char random string for signing session JWTs." },
+  {
+    id: "e1",
+    key: "NEXT_PUBLIC_SUPABASE_URL",
+    scope: "all",
+    notes: "Supabase project URL (Dashboard → Project Settings → API).",
+  },
+  {
+    id: "e1b",
+    key: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    scope: "all",
+    notes: "Supabase anon public key — safe for NEXT_PUBLIC; RLS still applies.",
+  },
   { id: "e2", key: "ABUSEIPDB_API_KEY", scope: "production", notes: "Server-side only. IP reputation lookups." },
   { id: "e3", key: "VIRUSTOTAL_API_KEY", scope: "production", notes: "Server-side only. Domain / URL reputation." },
   { id: "e4", key: "SECURITYTRAILS_API_KEY", scope: "production", notes: "DNS history & subdomain enumeration." },
