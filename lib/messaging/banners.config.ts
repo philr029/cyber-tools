@@ -1,0 +1,78 @@
+import type { BannerConfig } from "@/lib/messaging/types";
+
+/**
+ * Central banner registry — edit entries here (no component changes required).
+ * `pathPrefixes`: omit = show everywhere that passes auth filter.
+ * `expiresAt`: ISO date (banner hidden after end of that UTC day).
+ */
+export const BANNERS: BannerConfig[] = [
+  {
+    id: "home-welcome-tools",
+    version: 1,
+    type: "info",
+    icon: "✦",
+    title: "Unified security & automation workspace",
+    message: "Browse 100+ tools for IT, marketing, and security — API keys stay server-side.",
+    ctaText: "Explore tools",
+    ctaLink: "/tools/browse",
+    dismissible: true,
+    dismissTtlDays: 14,
+    pathPrefixes: ["/"],
+    auth: "any",
+  },
+  {
+    id: "security-admin-hardening",
+    version: 1,
+    type: "security",
+    icon: "🛡",
+    title: "Security & admin areas",
+    message: "Sensitive routes use Supabase sessions and RLS. Review your Cookie Policy and rotate API keys regularly.",
+    ctaText: "Security checklist",
+    ctaLink: "/security",
+    dismissible: true,
+    dismissTtlDays: 30,
+    pathPrefixes: ["/security", "/dashboard/admin"],
+    auth: "any",
+  },
+  {
+    id: "cookie-privacy-reminder",
+    version: 1,
+    type: "cookie",
+    icon: "◉",
+    title: "Privacy & cookies",
+    message: "We use Cookiebot for consent. You can change preferences anytime from the footer.",
+    ctaText: "Cookie policy",
+    ctaLink: "/cookies",
+    dismissible: true,
+    dismissTtlDays: 21,
+    auth: "any",
+  },
+  {
+    id: "beta-toolkit-modules",
+    version: 1,
+    type: "beta",
+    icon: "β",
+    title: "Preview / roadmap module",
+    message: "This area is not production-ready. Behaviour and data may change. Prefer live tools from the browse index for day-to-day work.",
+    ctaText: "Browse live tools",
+    ctaLink: "/tools/browse",
+    dismissible: true,
+    dismissTtlDays: 14,
+    pathPrefixes: ["/tools/coming-soon", "/tools/marketing/coming-soon"],
+    auth: "any",
+  },
+  {
+    id: "login-for-tool-routes",
+    version: 1,
+    type: "auth",
+    icon: "⎆",
+    title: "Sign in for API-heavy tools",
+    message: "Some tools require a free account so keys and quotas stay server-side.",
+    ctaText: "Sign in",
+    ctaLink: "/login",
+    dismissible: true,
+    dismissTtlDays: 7,
+    pathPrefixes: ["/tools/ip-lookup", "/tools/domain-lookup"],
+    auth: "logged-out",
+  },
+];
