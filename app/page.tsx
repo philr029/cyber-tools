@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import type { LookupResult, HistoryEntry } from "@/lib/types";
+import type { LookupResult } from "@/lib/types";
 import { lookupAll } from "@/lib/lookup-client";
-import { saveToHistory, loadHistory, clearHistory, saveScan } from "@/lib/mockData";
+import { saveToHistory, clearHistory, saveScan } from "@/lib/mockData";
+import { useHydratedHistory } from "@/lib/use-hydrated-history";
 import { SmartInsightsPanel } from "@/app/components/SmartInsightsPanel";
 import { useToast } from "@/lib/toast-context";
 import { useAuth } from "@/lib/auth-context";
@@ -100,7 +101,7 @@ export default function HomePage() {
   const [result, setResult] = useState<LookupResult | null>(null);
   const [isMock, setIsMock] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const { history, setHistory, refreshHistory } = useHydratedHistory();
   const [vtTab, setVtTab] = useState<"ip" | "domain" | "url">("ip");
   const [saveLabel, setSaveLabel] = useState("");
   const [saving, setSaving] = useState(false);
@@ -108,10 +109,6 @@ export default function HomePage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { scansToday, canScan, increment: incrementScan } = useDailyScans(user?.plan ?? null);
-
-  useEffect(() => {
-    setHistory(loadHistory());
-  }, []);
 
   const handleSearch = useCallback(async (query: string) => {
     if (!canScan) {
@@ -131,24 +128,26 @@ export default function HomePage() {
       setResult(data);
       setIsMock(mock);
       saveToHistory(data);
-      setHistory(loadHistory());
+      refreshHistory();
       incrementScan();
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred.";
-      console.error("[dashboard] lookup error:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[dashboard] lookup error:", err);
+      }
       setError(message);
     } finally {
       setLoading(false);
     }
-  }, [canScan, incrementScan, toast]);
+  }, [canScan, incrementScan, refreshHistory, toast]);
 
-  function handleHistoryClear() {
+  const handleHistoryClear = useCallback(() => {
     clearHistory();
     setHistory([]);
-  }
+  }, [setHistory]);
 
   function handleSaveScan() {
     if (!result) return;

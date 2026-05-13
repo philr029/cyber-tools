@@ -4,6 +4,12 @@ import type {
   StatusLevel,
   SavedScan,
 } from "./types";
+import {
+  encryptEnvelope,
+  decryptEnvelopeString,
+  isEncryptedEnvelopeString,
+  isVaultUnlocked,
+} from "@/lib/security/vault";
 
 // ---------------------------------------------------------------------------
 // Mock lookup results keyed by query string
@@ -634,6 +640,27 @@ export async function lookupQuery(query: string): Promise<LookupResult> {
 const HISTORY_KEY = "securescope_history";
 const MAX_HISTORY = 20;
 
+async function persistHistory(entries: HistoryEntry[]): Promise<void> {
+  if (typeof window === "undefined") return;
+  const json = JSON.stringify(entries);
+  if (isVaultUnlocked()) {
+    const enc = await encryptEnvelope(json);
+    localStorage.setItem(HISTORY_KEY, enc);
+  } else {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (raw && isEncryptedEnvelopeString(raw)) {
+      if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console -- intentional operator warning
+        console.warn(
+          "[SecureScope] Scan history is encrypted but the vault is locked; new lookups were not written to disk. Unlock on the Security page.",
+        );
+      }
+      return;
+    }
+    localStorage.setItem(HISTORY_KEY, json);
+  }
+}
+
 export function saveToHistory(result: LookupResult): void {
   if (typeof window === "undefined") return;
 
@@ -660,17 +687,59 @@ export function saveToHistory(result: LookupResult): void {
     0,
     MAX_HISTORY,
   );
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+  void persistHistory(updated);
 }
 
+/** Synchronous read: returns [] if history blob is encrypted (unlock vault + call `hydrateHistory`). */
 export function loadHistory(): HistoryEntry[] {
   if (typeof window === "undefined") return [];
+  const raw = localStorage.getItem(HISTORY_KEY);
+  if (!raw) return [];
+  if (isEncryptedEnvelopeString(raw)) return [];
   try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? (JSON.parse(raw) as HistoryEntry[]) : [];
+    return JSON.parse(raw) as HistoryEntry[];
   } catch {
     return [];
   }
+}
+
+/** Decrypt history after `unlockVault()` — safe to call from `useEffect` on the client. */
+export async function hydrateHistory(): Promise<HistoryEntry[]> {
+  if (typeof window === "undefined") return [];
+  const raw = localStorage.getItem(HISTORY_KEY);
+  if (!raw) return [];
+  if (!isEncryptedEnvelopeString(raw)) {
+    try {
+      return JSON.parse(raw) as HistoryEntry[];
+    } catch {
+      return [];
+    }
+  }
+  if (!isVaultUnlocked()) return [];
+  try {
+    const json = await decryptEnvelopeString(raw);
+    return JSON.parse(json) as HistoryEntry[];
+  } catch {
+    return [];
+  }
+}
+
+/** Called when enabling the vault: encrypts current plaintext history in place. */
+export async function migratePlainHistoryToEncrypted(): Promise<void> {
+  if (typeof window === "undefined" || !isVaultUnlocked()) return;
+  const raw = localStorage.getItem(HISTORY_KEY);
+  if (!raw) {
+    await persistHistory([]);
+    return;
+  }
+  if (isEncryptedEnvelopeString(raw)) return;
+  let entries: HistoryEntry[] = [];
+  try {
+    entries = JSON.parse(raw) as HistoryEntry[];
+  } catch {
+    entries = [];
+  }
+  await persistHistory(entries);
 }
 
 export function clearHistory(): void {
