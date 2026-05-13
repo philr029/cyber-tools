@@ -27,6 +27,7 @@ import ToolPresets from "@/app/components/ToolPresets";
 import HomeDashboard from "@/app/components/HomeDashboard";
 import HomeFeatureStrip from "@/app/components/home/HomeFeatureStrip";
 import HomePricingSection from "@/app/components/home/HomePricingSection";
+import HomeLatestBlog from "@/app/components/home/HomeLatestBlog";
 import PremiumHero from "@/app/components/home/PremiumHero";
 import CommandCentreStats from "@/app/components/home/CommandCentreStats";
 import CertificatesShowcase from "@/app/components/trust/CertificatesShowcase";
@@ -209,6 +210,7 @@ export default function HomePage() {
       <HomeFeatureStrip />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <HomeLatestBlog />
         <HomePricingSection />
       </div>
 

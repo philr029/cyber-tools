@@ -449,6 +449,20 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
               </p>
               <div className="flex flex-wrap justify-center gap-2 pt-1">
                 <Link
+                  href="/pricing"
+                  onClick={() => handlePick("/pricing")}
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3.5 py-2 motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/blog"
+                  onClick={() => handlePick("/blog")}
+                  className="text-xs font-semibold rounded-full border border-[var(--ss-border)] text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)] px-3.5 py-2 motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"
+                >
+                  Blog
+                </Link>
+                <Link
                   href="/tools/browse"
                   onClick={() => handlePick("/tools/browse")}
                   className="text-xs font-semibold rounded-full bg-gradient-to-r from-[var(--ss-accent)] to-[var(--accent-blue)] hover:opacity-95 text-white px-3.5 py-2 motion-safe:transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-elevated-solid)]"

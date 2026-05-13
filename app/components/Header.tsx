@@ -115,6 +115,7 @@ export default function Header() {
           pathname === "/web-tools" ||
           pathname === "/marketing-tools";
       } else if (href === "/docs") resolved = pathname.startsWith("/docs");
+      else if (href === "/blog") resolved = pathname.startsWith("/blog");
       else resolved = pathname === href;
     }
     const isActive = Boolean(resolved);
@@ -164,9 +165,13 @@ export default function Header() {
                             ? pathname.startsWith("/docs")
                               ? "page"
                               : undefined
-                            : pathname === link.href
-                              ? "page"
-                              : undefined
+                            : link.href === "/blog"
+                              ? pathname.startsWith("/blog")
+                                ? "page"
+                                : undefined
+                              : pathname === link.href
+                                ? "page"
+                                : undefined
                 }
               >
                 {link.label}

@@ -18,6 +18,7 @@ import {
 } from "@phosphor-icons/react";
 import UniversalToolCard from "@/app/components/UniversalToolCard";
 import SectionReveal from "@/app/components/ui/SectionReveal";
+import ToolCategoryCard from "@/app/components/home/ToolCategoryCard";
 import { DASHBOARD_SECTION_META, featuredToolsList, mostUsefulToolsList, recentlyAddedToolsList, type SiteTool } from "@/lib/tools/site-catalog";
 
 const TAG_ICONS: Record<string, ComponentType<IconProps>> = {
@@ -39,6 +40,7 @@ const CATEGORIES = [
   {
     href: "/it-admin-tools",
     title: "IT Admin",
+    emoji: "🧰",
     description: "Starters, leavers, mailboxes, licensing, access reviews, triage, and device build flows.",
     accent: "from-emerald-500/25 to-teal-500/10",
     count: "Hub + checklists",
@@ -46,6 +48,7 @@ const CATEGORIES = [
   {
     href: "/cyber-tools",
     title: "Cyber Security",
+    emoji: "🛡️",
     description: "Phishing, headers, SSL, DNS hygiene, suspicious URLs, threat scoring, and IR prompts.",
     accent: "from-rose-500/25 to-pink-500/10",
     count: "Security hub",
@@ -53,6 +56,7 @@ const CATEGORIES = [
   {
     href: "/marketing-tools",
     title: "Marketing",
+    emoji: "✉️",
     description: "UTMs, campaigns, social drafts, subject lines, SERP previews, and calculators.",
     accent: "from-fuchsia-500/25 to-pink-500/10",
     count: "Growth toolkit",
@@ -60,6 +64,7 @@ const CATEGORIES = [
   {
     href: "/web-tools",
     title: "Website Testing",
+    emoji: "🧪",
     description: "Launch QA, redirects, broken links, performance, accessibility, forms, and uptime.",
     accent: "from-amber-500/25 to-orange-500/10",
     count: "Web QA hub",
@@ -67,6 +72,7 @@ const CATEGORIES = [
   {
     href: "/lead-tools",
     title: "Phone Testing",
+    emoji: "📞",
     description: "Validators, lead intelligence, and phone-line test scripts alongside CRM-adjacent flows.",
     accent: "from-indigo-500/25 to-violet-500/10",
     count: "Phone & lead",
@@ -74,6 +80,7 @@ const CATEGORIES = [
   {
     href: "/automation-tools",
     title: "Automation",
+    emoji: "⚙️",
     description: "Monitoring hub, daily planners, GitHub Actions, API safety, and integration contracts.",
     accent: "from-purple-500/25 to-indigo-500/10",
     count: "Ops automation",
@@ -81,6 +88,7 @@ const CATEGORIES = [
   {
     href: "/coding-tools",
     title: "Developer Tools",
+    emoji: "💻",
     description: "Snippets, regex, JSON, API requests, repo health, Actions YAML, and review checklists.",
     accent: "from-sky-500/25 to-cyan-500/10",
     count: "Engineering hub",
@@ -95,30 +103,15 @@ export default function HomeDashboard() {
           <SectionHeader eyebrow="Navigate" title="Organised hubs for every discipline" />
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {CATEGORIES.map((c) => (
-              <Link
+              <ToolCategoryCard
                 key={c.href}
                 href={c.href}
-                className="group ss-card card-lift relative overflow-hidden p-5 sm:p-6 motion-safe:transition-[transform,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.5"
-              >
-                <div className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-br ${c.accent} opacity-55 blur-2xl pointer-events-none`} aria-hidden="true" />
-                <div className="relative">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-base font-semibold tracking-tight text-[var(--ss-text)]">{c.title}</h3>
-                    {c.count && (
-                      <span className="rounded-full border border-[var(--ss-border)] bg-[var(--ss-accent-soft)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--ss-accent)] shrink-0">
-                        {c.count}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--ss-text-secondary)]">{c.description}</p>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--ss-accent)] transition-colors group-hover:underline">
-                    Open hub
-                    <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
-                    </svg>
-                  </span>
-                </div>
-              </Link>
+                title={c.title}
+                description={c.description}
+                meta={c.count}
+                accent={c.accent}
+                emoji={c.emoji}
+              />
             ))}
           </div>
         </SectionReveal>

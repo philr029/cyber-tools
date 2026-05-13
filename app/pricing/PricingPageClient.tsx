@@ -42,12 +42,18 @@ export default function PricingPageClient() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href={withBasePath("/signup")}
-              className="ss-pill ss-pill-primary px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-900/20"
+              className="ss-pill ss-pill-primary px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-900/20 motion-safe:transition-transform motion-safe:hover:-translate-y-px"
             >
-              Create free account
+              Start free
             </Link>
-            <Link href={withBasePath("/contact")} className="ss-pill ss-pill-ghost px-6 py-2.5 text-sm font-semibold">
-              Talk to us
+            <Link
+              href={withBasePath("/tools/browse")}
+              className="ss-pill ss-pill-ghost px-6 py-2.5 text-sm font-semibold motion-safe:transition-transform motion-safe:hover:-translate-y-px"
+            >
+              View Pro tools
+            </Link>
+            <Link href={withBasePath("/contact")} className="ss-pill ss-pill-ghost px-6 py-2.5 text-sm font-semibold motion-safe:transition-transform motion-safe:hover:-translate-y-px">
+              Contact for Business
             </Link>
           </div>
         </div>

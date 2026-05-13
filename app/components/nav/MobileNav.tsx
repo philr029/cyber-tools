@@ -191,7 +191,9 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                           pathname === "/marketing-tools"
                         : link.href === "/docs"
                           ? pathname.startsWith("/docs")
-                          : undefined
+                          : link.href === "/blog"
+                            ? pathname.startsWith("/blog")
+                            : undefined
                 }
               >
                 {link.label}
@@ -220,7 +222,14 @@ export default function MobileNav({ open, onClose, authSlot, utilitySlot, onOpen
                         : "text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
                     }`}
                   >
-                    <span>{group.label}</span>
+                    <span>
+                      {group.emoji ? (
+                        <span className="mr-1.5" aria-hidden>
+                          {group.emoji}
+                        </span>
+                      ) : null}
+                      {group.label}
+                    </span>
                     <svg
                       className={`w-4 h-4 transition-transform duration-200 ${
                         isOpen ? "rotate-180" : ""

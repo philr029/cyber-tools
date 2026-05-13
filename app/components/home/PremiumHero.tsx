@@ -50,26 +50,41 @@ export default function PremiumHero({
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-2.5 mb-6 animate-fade-in-delay-2">
-              <Link href="/tools/browse" className={primary}>
+              <Link href={withBasePath("/tools/browse")} className={primary}>
+                <span className="mr-1.5" aria-hidden>
+                  🔍
+                </span>
                 Explore tools
               </Link>
-              <Link href={withBasePath("/dashboard")} className={ghost}>
-                View dashboard
-              </Link>
-              <Link href="/domain-ip-tools" className={ghost}>
-                IT toolkit
-              </Link>
-              <Link href="/marketing-tools" className={ghost}>
-                Marketing toolkit
-              </Link>
-              <Link href="/cyber-tools" className={ghost}>
-                Cyber toolkit
-              </Link>
               <Link href={withBasePath("/pricing")} className={ghost}>
-                Pricing
+                <span className="mr-1.5" aria-hidden>
+                  💎
+                </span>
+                View pricing
               </Link>
-              <Link href="/forms" className={ghost}>
-                Contact / request access
+              <Link href={withBasePath("/blog")} className={ghost}>
+                <span className="mr-1.5" aria-hidden>
+                  📰
+                </span>
+                Read blog
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-2 mb-4 animate-fade-in-delay-2">
+              <Link href={withBasePath("/domain-ip-tools")} className={ghost}>
+                🌐 IT toolkit
+              </Link>
+              <Link href={withBasePath("/marketing-tools")} className={ghost}>
+                ✉️ Marketing
+              </Link>
+              <Link href={withBasePath("/cyber-tools")} className={ghost}>
+                🛡️ Security
+              </Link>
+              <Link href={withBasePath("/web-tools")} className={ghost}>
+                🧪 Web QA
+              </Link>
+              <Link href={withBasePath("/forms")} className={ghost}>
+                Contact / access
               </Link>
             </div>
 
@@ -89,7 +104,7 @@ export default function PremiumHero({
                 Jump to threat lookup
               </button>
               <span className="hidden sm:inline text-[var(--ss-text-secondary)]">·</span>
-              <Link href="/docs" className="text-[var(--ss-text-secondary)] font-medium hover:text-[var(--ss-text)] motion-safe:transition-colors">
+              <Link href={withBasePath("/docs")} className="text-[var(--ss-text-secondary)] font-medium hover:text-[var(--ss-text)] motion-safe:transition-colors">
                 Read the docs →
               </Link>
               <span className="hidden sm:inline text-[var(--ss-text-secondary)]">·</span>

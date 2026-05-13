@@ -13,14 +13,14 @@ export default function MegaMenuRecentStrip({ onNavigate, menuOpen }: { onNaviga
   if (!recent.length) {
     return (
       <div className="border-b border-[var(--ss-border)] px-6 sm:px-7 py-3 text-[11px] text-[var(--ss-text-secondary)]">
-        Recently used tools will appear here as you open routes from the catalog.
+        Tools you open will appear here as <strong className="text-[var(--ss-text)]">recently opened</strong> shortcuts.
       </div>
     );
   }
 
   return (
     <div className="border-b border-[var(--ss-border)] px-6 sm:px-7 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--ss-text-secondary)] mb-2">Recently viewed</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--ss-text-secondary)] mb-2">Recently opened</p>
       <ul className="flex flex-wrap gap-2">
         {recent.map((r) => (
           <li key={`${r.href}-${r.at}`}>

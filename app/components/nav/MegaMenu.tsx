@@ -3,50 +3,37 @@
 // =============================================================================
 // MegaMenu (desktop, lg+)
 // -----------------------------------------------------------------------------
-// Category panel for all tools. Opens on click, fine-pointer hover (with short
-// delays), and ArrowDown / Enter on the trigger. Closes on Escape, outside
-// pointer, or focus leaving the menu surface.
+// Curated category columns, popular / new strips, then recently opened tools.
 // =============================================================================
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, useCallback, type ComponentType } from "react";
+import { useEffect, useId, useRef, useState, useCallback, useMemo, type ComponentType } from "react";
 import { usePathname } from "next/navigation";
-import {
-  BookOpen,
-  Briefcase,
-  GearSix,
-  HouseLine,
-  Megaphone,
-  ShieldCheck,
-  TreeStructure,
-  Wallet,
-  type IconProps,
-} from "@phosphor-icons/react";
-import { NAV_GROUPS, type NavGroup } from "./nav-data";
+import { Browser, ChartBar, GearSix, Megaphone, ShieldCheck, TreeStructure, UserGear, type IconProps } from "@phosphor-icons/react";
+import { MEGA_MENU_POPULAR, NAV_GROUPS, type NavGroup } from "./nav-data";
 import SearchHotkeyText from "@/app/components/SearchHotkeyText";
 import MegaMenuRecentStrip from "@/app/components/nav/MegaMenuRecentStrip";
 import { navGroupContainsPath, navLinkMatchesPath } from "@/lib/navigation/path-match";
+import { recentlyAddedToolsList } from "@/lib/tools/site-catalog";
 
 const GROUP_ICONS: Record<string, ComponentType<IconProps>> = {
-  Dashboard: HouseLine,
-  "IT Tools": TreeStructure,
-  "Marketing Tools": Megaphone,
-  Automation: GearSix,
-  Security: ShieldCheck,
-  Projects: Briefcase,
-  Finance: Wallet,
-  Resources: BookOpen,
+  security: ShieldCheck,
+  domain: TreeStructure,
+  marketing: Megaphone,
+  automation: GearSix,
+  webqa: Browser,
+  admin: UserGear,
+  reports: ChartBar,
 };
 
 const GROUP_ACCENTS: Record<string, string> = {
-  Dashboard: "bg-sky-500/10 text-sky-300 ring-sky-500/20",
-  "IT Tools": "bg-teal-500/10 text-teal-300 ring-teal-500/20",
-  "Marketing Tools": "bg-pink-500/10 text-pink-300 ring-pink-500/20",
-  Automation: "bg-amber-500/10 text-amber-300 ring-amber-500/20",
-  Security: "bg-rose-500/10 text-rose-300 ring-rose-500/20",
-  Projects: "bg-violet-500/10 text-violet-300 ring-violet-500/20",
-  Finance: "bg-lime-500/10 text-lime-200 ring-lime-500/20",
-  Resources: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
+  security: "bg-rose-500/10 text-rose-300 ring-rose-500/20",
+  domain: "bg-teal-500/10 text-teal-300 ring-teal-500/20",
+  marketing: "bg-pink-500/10 text-pink-300 ring-pink-500/20",
+  automation: "bg-amber-500/10 text-amber-300 ring-amber-500/20",
+  webqa: "bg-orange-500/10 text-orange-200 ring-orange-500/20",
+  admin: "bg-violet-500/10 text-violet-300 ring-violet-500/20",
+  reports: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",
 };
 
 const DEFAULT_MAX_LINKS = 6;
@@ -68,6 +55,8 @@ export default function MegaMenu({
   const [finePointer, setFinePointer] = useState(false);
   const panelId = useId();
   const triggerId = useId();
+
+  const recentAddedTools = useMemo(() => (open ? recentlyAddedToolsList(6) : []), [open]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -93,7 +82,8 @@ export default function MegaMenu({
     pathname.startsWith("/marketing-tools") ||
     pathname.startsWith("/tools/browse") ||
     pathname.startsWith("/tools/preview") ||
-    pathname.startsWith("/search");
+    pathname.startsWith("/search") ||
+    pathname.startsWith("/day-to-day-tools");
 
   const handleLinkClick = useCallback(() => onOpenChange(false), [onOpenChange]);
 
@@ -119,8 +109,6 @@ export default function MegaMenu({
     onOpenChange(!open);
   }, [clearTimers, onOpenChange, open]);
 
-  // Close on Escape, returning focus to the trigger so keyboard users keep
-  // their place in the tab order.
   useEffect(() => {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
@@ -133,7 +121,6 @@ export default function MegaMenu({
     return () => document.removeEventListener("keydown", handleKey);
   }, [open, onOpenChange]);
 
-  // Close on outside click/touch (pointerdown covers mouse, pen, and touch).
   useEffect(() => {
     if (!open) return;
     if (typeof document === "undefined") return;
@@ -148,12 +135,10 @@ export default function MegaMenu({
       }
     }
 
-    // Capture phase so we still see events that are stopped lower in the tree.
     document.addEventListener("pointerdown", handlePointerDown, true);
     return () => document.removeEventListener("pointerdown", handlePointerDown, true);
   }, [open, onOpenChange]);
 
-  // Close when focus leaves the trigger + panel (Tab / programmatic focus moves).
   useEffect(() => {
     if (!open) return;
     const root = wrapperRef.current;
@@ -197,7 +182,7 @@ export default function MegaMenu({
             first?.focus();
           });
         }}
-        className={`ss-pill flex items-center gap-1 px-3 py-1.5 text-xs font-semibold ${
+        className={`ss-pill flex items-center gap-1 px-3 py-1.5 text-xs font-semibold motion-safe:transition-colors motion-safe:duration-200 ${
           isAnyGroupActive || open
             ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_35%,transparent)]"
             : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_6%,transparent)]"
@@ -209,7 +194,7 @@ export default function MegaMenu({
       >
         {label}
         <svg
-          className={`w-3 h-3 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-3 h-3 motion-safe:transition-transform motion-safe:duration-200 ${open ? "rotate-180" : ""}`}
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
@@ -222,9 +207,6 @@ export default function MegaMenu({
         </svg>
       </button>
 
-      {/* Invisible hover bridge: the Tools trigger is narrow while the panel is wide; without
-          this strip, moving the pointer from the button toward the panel leaves the trigger
-          hit area and fires a delayed close before the cursor reaches the menu. */}
       {open && finePointer ? (
         <div
           aria-hidden
@@ -234,7 +216,6 @@ export default function MegaMenu({
         />
       ) : null}
 
-      {/* Mega panel — fixed under header */}
       <div
         id={panelId}
         role="navigation"
@@ -250,17 +231,57 @@ export default function MegaMenu({
         hidden={!open}
         inert={!open}
       >
+        <div className="border-b border-[var(--ss-border)] px-6 sm:px-7 py-4 space-y-4 bg-[color-mix(in_srgb,var(--ss-text)_2%,transparent)]">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)] mb-2">
+              🔍 Popular tools
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {MEGA_MENU_POPULAR.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    data-mega-link
+                    onClick={handleLinkClick}
+                    className="inline-flex max-w-[14rem] truncate rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-text)_4%,transparent)] px-3 py-1 text-[11px] font-medium text-[var(--ss-text)] motion-safe:transition-[border-color,transform,background-color] motion-safe:duration-200 hover:border-[color-mix(in_srgb,var(--ss-accent)_40%,transparent)] hover:text-[var(--ss-accent)] motion-safe:hover:-translate-y-px"
+                    title={link.description}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ss-text-secondary)] mb-2">
+              ✨ Recently added
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {recentAddedTools.map((t) => (
+                <li key={t.href}>
+                  <Link
+                    href={t.href}
+                    data-mega-link
+                    onClick={handleLinkClick}
+                    className="inline-flex max-w-[14rem] truncate rounded-full border border-[var(--ss-border)] bg-[color-mix(in_srgb,var(--ss-accent-soft)_40%,transparent)] px-3 py-1 text-[11px] font-medium text-[var(--ss-text)] motion-safe:transition-[border-color,transform] motion-safe:duration-200 hover:border-[color-mix(in_srgb,var(--ss-accent)_45%,transparent)] hover:text-[var(--ss-accent)] motion-safe:hover:-translate-y-px"
+                    title={t.description}
+                  >
+                    {t.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <MegaMenuRecentStrip onNavigate={handleLinkClick} menuOpen={open} />
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-6 p-6 sm:p-7">
           {NAV_GROUPS.map((group) => (
-            <MegaColumn
-              key={group.label}
-              group={group}
-              pathname={pathname}
-              onLinkClick={handleLinkClick}
-            />
+            <MegaColumn key={group.label} group={group} pathname={pathname} onLinkClick={handleLinkClick} />
           ))}
         </div>
-        <MegaMenuRecentStrip onNavigate={handleLinkClick} menuOpen={open} />
+
         <div className="border-t border-[var(--ss-border)] px-6 sm:px-7 py-3.5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-xs bg-[color-mix(in_srgb,var(--ss-text)_2%,transparent)]">
           <span className="text-[var(--ss-text-secondary)] flex flex-wrap items-center gap-1">
             Press <SearchHotkeyText className="font-mono text-[var(--ss-text)]" /> for instant search, or{" "}
@@ -277,6 +298,14 @@ export default function MegaMenu({
               className="text-[var(--ss-accent)] hover:underline font-semibold transition-colors"
             >
               Help & docs
+            </Link>
+            <Link
+              href="/blog"
+              data-mega-link
+              onClick={handleLinkClick}
+              className="text-[var(--ss-text-secondary)] hover:text-[var(--ss-accent)] font-medium transition-colors"
+            >
+              Blog
             </Link>
             <Link
               href="/projects"
@@ -342,8 +371,9 @@ function MegaColumn({
   pathname: string;
   onLinkClick: () => void;
 }) {
-  const accent = GROUP_ACCENTS[group.label] ?? "bg-slate-500/10 text-slate-300 ring-slate-500/20";
-  const Icon = GROUP_ICONS[group.label] ?? TreeStructure;
+  const iconKey = group.iconKey ?? "security";
+  const accent = GROUP_ACCENTS[iconKey] ?? "bg-slate-500/10 text-slate-300 ring-slate-500/20";
+  const Icon = GROUP_ICONS[iconKey] ?? TreeStructure;
   const max = group.maxFeaturedLinks ?? DEFAULT_MAX_LINKS;
   const featuredLinks = group.links.filter((l) => l.href !== group.index).slice(0, max);
   const hasMore = group.links.filter((l) => l.href !== group.index).length > max;
@@ -355,18 +385,20 @@ function MegaColumn({
         data-mega-link
         onClick={onLinkClick}
         aria-current={navLinkMatchesPath(pathname, group.index) ? "page" : undefined}
-        className={`group flex items-start gap-2 mb-2.5 rounded-xl px-2 py-1.5 -mx-2 hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] transition-colors ${
+        className={`group flex items-start gap-2 mb-2.5 rounded-xl px-2 py-1.5 -mx-2 hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)] motion-safe:transition-colors ${
           navLinkMatchesPath(pathname, group.index) ? "bg-[var(--ss-accent-soft)] ring-1 ring-[color-mix(in_srgb,var(--ss-accent)_28%,transparent)]" : ""
         }`}
       >
-        <span
-          aria-hidden="true"
-          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${accent}`}
-        >
+        <span aria-hidden="true" className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${accent}`}>
           <Icon className="h-5 w-5" weight="duotone" aria-hidden />
         </span>
         <span className="min-w-0">
-          <span className="block text-sm font-semibold text-[var(--ss-text)] group-hover:text-[var(--ss-accent)] transition-colors">
+          <span className="block text-sm font-semibold text-[var(--ss-text)] group-hover:text-[var(--ss-accent)] motion-safe:transition-colors">
+            {group.emoji ? (
+              <span className="mr-1 inline-block" aria-hidden>
+                {group.emoji}
+              </span>
+            ) : null}
             {group.label}
           </span>
           {group.tagline && (
@@ -401,8 +433,10 @@ function MegaColumn({
                 href={link.href}
                 data-mega-link
                 onClick={onLinkClick}
-                className={`block px-2 py-1.5 text-xs rounded-lg transition-colors ${
-                  active ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]" : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)]"
+                className={`block px-2 py-1.5 text-xs rounded-lg motion-safe:transition-colors ${
+                  active
+                    ? "text-[var(--ss-accent)] bg-[var(--ss-accent-soft)]"
+                    : "text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] hover:bg-[color-mix(in_srgb,var(--ss-text)_5%,transparent)]"
                 }`}
                 aria-current={active ? "page" : undefined}
               >

@@ -33,7 +33,7 @@ export const PRICING_TIERS: PricingTier[] = [
       "Community-tier documentation and examples",
       "Upgrade path when you outgrow the free quota",
     ],
-    ctaLabel: "Get started free",
+    ctaLabel: "Start Free",
     ctaHref: "/signup",
   },
   {
@@ -53,8 +53,8 @@ export const PRICING_TIERS: PricingTier[] = [
       "Email summaries (planned) without client-side secrets",
       "Single-seat licensing — team features move to Business / Team",
     ],
-    ctaLabel: "Choose Pro",
-    ctaHref: "/contact",
+    ctaLabel: "View Pro Tools",
+    ctaHref: "/tools/browse",
   },
   {
     id: "business",
@@ -71,7 +71,7 @@ export const PRICING_TIERS: PricingTier[] = [
       "Dedicated onboarding checklist and success milestones",
       "Talk to us for SSO, audit exports, and custom limits",
     ],
-    ctaLabel: "Talk to sales",
+    ctaLabel: "Contact for Business",
     ctaHref: "/contact",
   },
 ];

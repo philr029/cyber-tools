@@ -377,6 +377,13 @@ html[data-theme="light"] .hero-gradient-animated {
     0 0 24px color-mix(in srgb, var(--ss-accent) 8%, transparent);
 }
 
+/* Header logo mark — subtle breathing glow (respects reduced motion via Tailwind motion-safe on component) */
+.brand-logo-mark {
+  box-shadow:
+    0 10px 28px color-mix(in srgb, var(--ss-accent) 32%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ss-accent) 22%, transparent);
+}
+
 /* ── Shimmer skeleton ───────────────────────────────────────────── */
 @keyframes shimmer {
   0%   { background-position: -200% 0; }

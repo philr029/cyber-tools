@@ -65,8 +65,15 @@ export function buildWorkspaceStats(): WorkspaceStat[] {
   const navRecent = typeof window !== "undefined" ? getRecentToolNav().length : 0;
   const navPinned = typeof window !== "undefined" ? getPinnedToolHrefs().length : 0;
 
+  const webTests = readCounter(KEY_WEB_TESTS);
+  const phoneTests = readCounter(KEY_PHONE_TESTS);
+  const testsAuto = webTests + phoneTests;
+
   return [
-    { id: "total", label: "Total tools", value: total, hint: "Catalogued routes" },
+    { id: "total", label: "Tools available", value: total, hint: "Catalogued routes in this deployment" },
+    { id: "testsAuto", label: "Tests automated", value: testsAuto, hint: "Website and phone test runs logged locally" },
+    { id: "secTasks", label: "Security checks", value: readCounter(KEY_SEC_TASKS), hint: "Security tasks recorded in this browser" },
+    { id: "checks", label: "Reports generated", value: readCounter(KEY_CHECKS), hint: "Completed checklists and rollups" },
     { id: "it", label: "IT & DNS", value: it, hint: "Toolkit filters + DNS group" },
     { id: "marketing", label: "Marketing", value: marketing },
     { id: "cyber", label: "Cyber", value: cyber },
@@ -76,10 +83,8 @@ export function buildWorkspaceStats(): WorkspaceStat[] {
     { id: "recentNav", label: "Recently viewed (tools)", value: navRecent, hint: "This browser" },
     { id: "navPins", label: "Pinned routes (nav)", value: navPinned },
     { id: "notes", label: "Saved notes (placeholder)", value: readCounter(KEY_NOTES), hint: "Increment when you add a notes tool" },
-    { id: "checks", label: "Completed checks", value: readCounter(KEY_CHECKS) },
-    { id: "secTasks", label: "Security tasks logged", value: readCounter(KEY_SEC_TASKS) },
-    { id: "webTests", label: "Website tests logged", value: readCounter(KEY_WEB_TESTS) },
-    { id: "phoneTests", label: "Phone tests logged", value: readCounter(KEY_PHONE_TESTS) },
+    { id: "webTests", label: "Website tests logged", value: webTests },
+    { id: "phoneTests", label: "Phone tests logged", value: phoneTests },
   ];
 }
 

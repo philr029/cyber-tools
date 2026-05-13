@@ -18,8 +18,28 @@ function useReducedMotion() {
 }
 
 function AnimatedValue({ value, reduced }: { value: number; reduced: boolean }) {
-  void reduced;
-  return <span>{value}</span>;
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (reduced) {
+      setDisplay(value);
+      return;
+    }
+    setDisplay(0);
+    const start = performance.now();
+    const duration = 900;
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - (1 - t) * (1 - t);
+      setDisplay(Math.round(value * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, reduced]);
+
+  return <span>{display}</span>;
 }
 
 export default function CommandCentreStats() {
@@ -31,18 +51,16 @@ export default function CommandCentreStats() {
     return buildWorkspaceStats();
   }, [pathname]);
 
-  const primary = stats.filter((s) =>
-    ["total", "it", "marketing", "cyber", "automation", "pinned", "recentD2d", "recentNav"].includes(s.id),
-  );
+  const primary = stats.filter((s) => ["total", "testsAuto", "secTasks", "checks"].includes(s.id));
   const secondary = stats.filter((s) => !primary.includes(s));
 
   return (
     <section className="mb-10 scroll-mt-28" id="command-stats" aria-labelledby="command-stats-heading">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--ss-text-secondary)]">Command centre</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--ss-text-secondary)]">📊 Live workspace stats</p>
           <h2 id="command-stats-heading" className="text-lg font-semibold text-[var(--ss-text)] tracking-tight">
-            Live workspace signals
+            Numbers that update with you
           </h2>
           <p className="text-sm text-[var(--ss-text-secondary)] mt-1 max-w-2xl">
             Counts blend the public tool catalog with this browser&apos;s local activity. Server-backed analytics are a future

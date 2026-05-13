@@ -4,7 +4,7 @@ import Link from "next/link";
 import CookieSettingsButton from "@/app/components/CookieSettingsButton";
 import BrandLogo from "@/app/components/brand/BrandLogo";
 import { withBasePath } from "@/lib/base-path";
-import { EXTERNAL_LINKS, PLATFORM_HUB_LINKS } from "@/lib/platform/hub-links";
+import { EXTERNAL_LINKS } from "@/lib/platform/hub-links";
 
 const linkClass =
   "text-xs font-medium text-[var(--ss-text-secondary)] hover:text-[var(--ss-text)] motion-safe:transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ss-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ss-page)]";
@@ -28,32 +28,18 @@ export default function SiteFooter() {
             </p>
           </div>
 
-          <div className="lg:col-span-8 grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="lg:col-span-8 grid sm:grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <p className={colTitle}>Toolkit</p>
+              <p className={colTitle}>Product</p>
               <ul className="space-y-2">
-                {PLATFORM_HUB_LINKS.filter((l) =>
-                  ["/tools/browse", "/domain-ip-tools", "/marketing-tools", "/cyber-tools", "/automation-tools"].includes(l.href),
-                ).map((l) => (
-                  <li key={l.href}>
-                    <Link href={withBasePath(l.href)} className={linkClass}>
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className={colTitle}>Platform</p>
-              <ul className="space-y-2">
-                <li>
-                  <Link href={withBasePath("/dashboard")} className={linkClass}>
-                    Dashboard
-                  </Link>
-                </li>
                 <li>
                   <Link href={withBasePath("/pricing")} className={linkClass}>
                     Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link href={withBasePath("/dashboard")} className={linkClass}>
+                    Dashboard
                   </Link>
                 </li>
                 <li>
@@ -62,8 +48,55 @@ export default function SiteFooter() {
                   </Link>
                 </li>
                 <li>
+                  <Link href={withBasePath("/enterprise")} className={linkClass}>
+                    Enterprise
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <p className={colTitle}>Tools</p>
+              <ul className="space-y-2">
+                <li>
+                  <Link href={withBasePath("/tools/browse")} className={linkClass}>
+                    Browse toolkit
+                  </Link>
+                </li>
+                <li>
+                  <Link href={withBasePath("/domain-ip-tools")} className={linkClass}>
+                    Domain &amp; DNS
+                  </Link>
+                </li>
+                <li>
+                  <Link href={withBasePath("/cyber-tools")} className={linkClass}>
+                    Security
+                  </Link>
+                </li>
+                <li>
+                  <Link href={withBasePath("/web-tools")} className={linkClass}>
+                    Website testing
+                  </Link>
+                </li>
+                <li>
+                  <Link href={withBasePath("/automation-tools")} className={linkClass}>
+                    Automation
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <p className={colTitle}>Resources</p>
+              <ul className="space-y-2">
+                <li>
+                  <Link href={withBasePath("/blog")} className={linkClass}>
+                    Blog
+                  </Link>
+                </li>
+                <li>
                   <Link href={withBasePath("/docs")} className={linkClass}>
-                    Help & docs
+                    Docs
                   </Link>
                 </li>
                 <li>
@@ -72,27 +105,20 @@ export default function SiteFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href={withBasePath("/credentials")} className={linkClass}>
-                    Credentials
+                  <Link href={withBasePath("/resources")} className={linkClass}>
+                    Resources library
                   </Link>
                 </li>
               </ul>
             </div>
+
             <div>
-              <p className={colTitle}>Trust & source</p>
+              <p className={colTitle}>Company</p>
               <ul className="space-y-2">
                 <li>
-                  <Link href={withBasePath("/privacy")} className={linkClass}>
-                    Privacy Policy
+                  <Link href={withBasePath("/contact")} className={linkClass}>
+                    Contact
                   </Link>
-                </li>
-                <li>
-                  <Link href={withBasePath("/cookies")} className={linkClass}>
-                    Cookie Policy
-                  </Link>
-                </li>
-                <li>
-                  <CookieSettingsButton className={`${linkClass} cursor-pointer bg-transparent border-0 p-0`} />
                 </li>
                 <li>
                   <Link href={withBasePath("/security")} className={linkClass}>
@@ -101,7 +127,7 @@ export default function SiteFooter() {
                 </li>
                 <li>
                   <a href={EXTERNAL_LINKS.githubRepo} className={linkClass} target="_blank" rel="noopener noreferrer">
-                    GitHub repository
+                    GitHub
                   </a>
                 </li>
                 <li>
@@ -109,10 +135,20 @@ export default function SiteFooter() {
                     Portfolio
                   </a>
                 </li>
+                <li>
+                  <Link href={withBasePath("/privacy")} className={linkClass}>
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link href={withBasePath("/cookies")} className={linkClass}>
+                    Cookies
+                  </Link>
+                </li>
+                <li>
+                  <CookieSettingsButton className={`${linkClass} cursor-pointer bg-transparent border-0 p-0`} />
+                </li>
               </ul>
-              <p className="mt-4 text-[11px] text-[var(--ss-text-secondary)]">
-                Social: <span className="italic">add LinkedIn / X when publishing</span>
-              </p>
             </div>
           </div>
         </div>
@@ -123,7 +159,7 @@ export default function SiteFooter() {
           </p>
           <button
             type="button"
-            className="ss-pill ss-pill-ghost px-3 py-1.5 text-xs font-semibold"
+            className="ss-pill ss-pill-ghost px-3 py-1.5 text-xs font-semibold motion-safe:transition-transform motion-safe:hover:-translate-y-px"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             Back to top

@@ -47,7 +47,7 @@ export default function BrandLogo({ showWordmark = true, compact = false, classN
   return (
     <span className={`inline-flex items-center gap-2.5 min-w-0 ${className}`}>
       <span
-        className={`flex flex-shrink-0 items-center justify-center ${box} bg-gradient-to-br from-[var(--ss-accent)] to-[var(--accent-blue)] shadow-[0_10px_28px_color-mix(in_srgb,var(--ss-accent)_32%,transparent)] motion-safe:transition-shadow motion-safe:duration-200`}
+        className={`flex flex-shrink-0 items-center justify-center ${box} bg-gradient-to-br from-[var(--ss-accent)] to-[var(--accent-blue)] shadow-[0_10px_28px_color-mix(in_srgb,var(--ss-accent)_32%,transparent)] motion-safe:transition-[box-shadow,transform] motion-safe:duration-300 group-hover:shadow-[0_14px_40px_color-mix(in_srgb,var(--ss-accent)_48%,transparent)] motion-safe:group-hover:scale-[1.03] brand-logo-mark`}
       >
         <LogoMark className={compact ? "w-4 h-4 text-white" : "w-5 h-5 text-white"} />
       </span>
@@ -61,7 +61,7 @@ export default function BrandLogo({ showWordmark = true, compact = false, classN
           </span>
           {!compact && (
             <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--ss-text-secondary)] mt-0.5 hidden sm:block">
-              Command centre
+              Cyber toolkit · command centre
             </span>
           )}
         </span>
