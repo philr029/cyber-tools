@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import { connection } from "next/server";
+import { headers } from "next/headers";
 import "./globals.css";
 import Header from "@/app/components/Header";
 import ChatWidget from "@/components/ai/ChatWidget";
+import { CookiebotHeadScript } from "@/components/consent/CookiebotHeadScript";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/lib/toast-context";
 import { WorkspaceProvider } from "@/lib/workspace-context";
@@ -58,10 +60,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   await connection();
+  const nonce = (await headers()).get("x-nonce") ?? "";
 
   return (
     <html lang="en" className={`h-full ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[var(--ss-page)] text-[var(--ss-text)] antialiased">
+        {/*
+          Cookiebot loads via `CookiebotHeadScript` (client) so the CMP script is not part of the SSR
+          React tree — avoids hydration mismatches from Next/Cookiebot rewriting `<script>` nodes.
+          Domain Group ID: NEXT_PUBLIC_COOKIEBOT_DOMAIN_GROUP_ID (see lib/cookiebot-config.ts).
+        */}
+        <CookiebotHeadScript nonce={nonce || undefined} />
         <AuthProvider>
           <ToastProvider>
             <WorkspaceProvider>
