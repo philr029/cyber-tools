@@ -6,6 +6,19 @@ import { getGeneratorTemplate } from "@/lib/day-to-day-tools/generators";
 import ExportToolbar from "./ExportToolbar";
 import { useLocalStorageState } from "./useLocalStorageState";
 import { useToast } from "@/lib/toast-context";
+import DailyDashboardPanel from "./panels/DailyDashboardPanel";
+import RichPlaceholderPanel from "./panels/RichPlaceholderPanel";
+import {
+  AmountTrackerPanel,
+  CommandReferencePanel,
+  CssGradientPanel,
+  CssShadowPanel,
+  CsvCleanerPanel,
+  LeadResponseCalculatorPanel,
+  QueryStringBuilderPanel,
+  TextDiffPanel,
+  UrlParserPanel,
+} from "./panels/ExtraPanels";
 
 function FieldLabel({ children }: { children: ReactNode }) {
   return <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--ss-text-secondary)] mb-1.5">{children}</label>;
@@ -577,7 +590,11 @@ function LicenseTablePanel({ storageKey }: { storageKey: string }) {
   );
 }
 
-function ApiPlaceholderPanel({ scenario }: { scenario: "dns" | "ip" | "mx" | "m365" | "phone" | "website" | "pension" }) {
+function ApiPlaceholderPanel({
+  scenario,
+}: {
+  scenario: "dns" | "ip" | "mx" | "m365" | "phone" | "website" | "pension" | "broken-links" | "seo-meta" | "regex-safe";
+}) {
   const routes: Record<string, string> = {
     dns: "`app/api/mxtoolbox/dns/route.ts` — add resolver + rate limits; keep provider keys in env.",
     ip: "`app/api/lookup/geo/route.ts` or dedicated `app/api/lookup/ip/route.ts` — server-only token.",
@@ -586,6 +603,9 @@ function ApiPlaceholderPanel({ scenario }: { scenario: "dns" | "ip" | "mx" | "m3
     phone: "`app/api/monitoring/run/*` — Twilio or PSTN bridge; keys server-side only.",
     website: "`app/api/monitoring/run/form/route.ts` — synthetic checks from server regions.",
     pension: "`app/api/tools/pension-calc/route.ts` — payroll rules vary; return computed bands from server.",
+    "broken-links": "`app/api/tools/link-crawl/route.ts` — bounded BFS from server; respect robots + rate limits; never ship crawl tokens client-side.",
+    "seo-meta": "`app/api/tools/seo-meta/route.ts` — server fetch + parse <head>; cache responses; rotate user-agent per policy.",
+    "regex-safe": "`app/api/tools/regex-test/route.ts` — bounded engine with step limits / timeout; never run arbitrary regex in the browser (ReDoS).",
   };
   return (
     <div className="space-y-4 text-sm text-[var(--ss-text-secondary)] leading-relaxed">
@@ -1284,6 +1304,28 @@ export default function PanelRouter({ tool }: { tool: DayToDayToolDefinition }) 
       return <ColorPalettePanel />;
     case "utmBuilder":
       return <UtmBuilderPanel />;
+    case "dailyDashboard":
+      return <DailyDashboardPanel storageKey={p.storageKey} />;
+    case "richPlaceholder":
+      return <RichPlaceholderPanel placeholderId={p.placeholderId} />;
+    case "textDiff":
+      return <TextDiffPanel />;
+    case "csvCleaner":
+      return <CsvCleanerPanel />;
+    case "cssShadow":
+      return <CssShadowPanel />;
+    case "cssGradient":
+      return <CssGradientPanel />;
+    case "queryStringBuilder":
+      return <QueryStringBuilderPanel />;
+    case "urlParser":
+      return <UrlParserPanel />;
+    case "commandReference":
+      return <CommandReferencePanel variant={p.variant} />;
+    case "amountTracker":
+      return <AmountTrackerPanel storageKey={p.storageKey} headline={p.headline} />;
+    case "leadResponseCalculator":
+      return <LeadResponseCalculatorPanel />;
     default:
       return <EmptyPanelHint title="Unsupported panel" body="This tool type is not wired in PanelRouter yet." />;
   }

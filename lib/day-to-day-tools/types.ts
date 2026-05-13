@@ -1,16 +1,26 @@
 // =============================================================================
 // Day-to-Day Tools — shared types for the hub catalog and panel renderer.
-// Add new tools in `catalog.ts` by extending `DayToDayPanel` and handling the
-// new `kind` inside `PanelRouter` (see app/components/day-to-day/PanelRouter.tsx).
 // =============================================================================
+
+export type DayToDayToolLabel = "most-used" | "recently-added" | "automation-ready";
 
 export type DayToDayCategoryId =
   | "productivity"
   | "work"
   | "it-admin"
+  | "it-support"
+  | "m365-admin"
+  | "cyber"
   | "marketing"
+  | "marketing-ops"
+  | "website-testing"
+  | "phone-leads"
   | "finance"
-  | "web";
+  | "finance-life"
+  | "web"
+  | "developer"
+  | "dashboard"
+  | "automation";
 
 export interface DayToDayCategory {
   id: DayToDayCategoryId;
@@ -35,8 +45,7 @@ export type DayToDayPanel =
   | { kind: "licenseTable"; storageKey: string }
   | {
       kind: "apiPlaceholder";
-      /** Maps to copy blocks + future server route hints — never store API keys client-side. */
-      scenario: "dns" | "ip" | "mx" | "m365" | "phone" | "website" | "pension";
+      scenario: "dns" | "ip" | "mx" | "m365" | "phone" | "website" | "pension" | "broken-links" | "seo-meta" | "regex-safe";
     }
   | { kind: "portsReference" }
   | { kind: "savingsCalculator" }
@@ -55,7 +64,18 @@ export type DayToDayPanel =
   | { kind: "markdownPreview" }
   | { kind: "htmlPreview" }
   | { kind: "colorPalette" }
-  | { kind: "utmBuilder" };
+  | { kind: "utmBuilder" }
+  | { kind: "dailyDashboard"; storageKey: string }
+  | { kind: "richPlaceholder"; placeholderId: string }
+  | { kind: "textDiff" }
+  | { kind: "csvCleaner" }
+  | { kind: "cssShadow" }
+  | { kind: "cssGradient" }
+  | { kind: "queryStringBuilder" }
+  | { kind: "urlParser" }
+  | { kind: "commandReference"; variant: "windows" | "mac" | "playwright" }
+  | { kind: "amountTracker"; storageKey: string; headline: string }
+  | { kind: "leadResponseCalculator" };
 
 export interface DayToDayToolDefinition {
   id: string;
@@ -63,5 +83,7 @@ export interface DayToDayToolDefinition {
   description: string;
   categoryId: DayToDayCategoryId;
   keywords: string[];
+  /** UI badges for discovery and automation readiness. */
+  labels?: DayToDayToolLabel[];
   panel: DayToDayPanel;
 }

@@ -6,7 +6,7 @@ export function dayToDaySearchEntries() {
     title: t.title,
     description: t.description,
     category: "Day-to-Day Tools",
-    tags: [...t.keywords, t.id, t.categoryId, "day to day", "daily tools"],
+    tags: [...t.keywords, t.id, t.categoryId, "day to day", "daily tools", ...(t.labels ?? [])],
     url: dayToDayToolSearchUrl(t.id),
     toolType: "page" as const,
     toolkitAreas: [],
